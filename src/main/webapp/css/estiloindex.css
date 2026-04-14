@@ -1,0 +1,110 @@
+:root {
+    --primary-blue: #1e3a8a;
+    --accent-orange: #f59e0b;
+    --light-bg: #f8fafc;
+}
+
+body {
+    background-color: var(--light-bg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Navbar Estilo Profesional */
+.navbar-brand img {
+    max-height: 50px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+/* Hero Section */
+.hero-title {
+    color: var(--primary-blue);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Tarjetas de Menú */
+.menu-card {
+    border: none;
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    background: #ffffff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.menu-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    border-bottom: 4px solid var(--accent-orange);
+}
+
+.icon-circle {
+    width: 70px;
+    height: 70px;
+    background: rgba(30, 58, 138, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: var(--primary-blue);
+    font-size: 1.8rem;
+    transition: 0.3s;
+}
+
+.menu-card:hover .icon-circle {
+    background: var(--accent-orange);
+    color: white;
+}
+
+.menu-link {
+    text-decoration: none;
+    color: var(--primary-blue);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* Footer */
+footer {
+    background-color: #0f172a;
+    color: #94a3b8;
+    padding-top: 3rem;
+    margin-top: auto;
+}
+
+.footer-title {
+    color: #f8fafc;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.contact-link {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.contact-link:hover {
+    color: var(--accent-orange);
+}
+
+.social-btn {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #1e293b;
+    color: white;
+    margin-right: 10px;
+    transition: 0.3s;
+}
+
+.social-btn:hover {
+    background: var(--accent-orange);
+    color: white;
+}

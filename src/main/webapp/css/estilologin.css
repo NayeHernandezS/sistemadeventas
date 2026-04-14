@@ -1,0 +1,75 @@
+body {
+    background: #f4f7f6; /* Un gris claro industrial */
+    background-image: linear-gradient(135deg, #e9ecef 25%, transparent 25%),
+    linear-gradient(225deg, #e9ecef 25%, transparent 25%);
+    background-size: 40px 40px;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Contenedor del Login */
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+}
+
+.login-card {
+    background: #ffffff;
+    padding: 2.5rem;
+    border-radius: 15px;
+    border-top: 5px solid #0d6efd; /* Color azul de Bootstrap */
+}
+
+/* Logo y Texto */
+.logo-img {
+    max-width: 120px;
+    height: auto;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1));
+}
+
+.titulo-ferreteria h1 {
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+.color-accent {
+    color: #0d6efd;
+    letter-spacing: 1px;
+}
+
+/* Estilos de Formulario */
+.input-group-text {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+    border-right: none;
+}
+
+.form-control {
+    border-left: none;
+    padding: 0.75rem;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
+/* Botón */
+.btn-primary {
+    background-color: #0d6efd;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0a58ca;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
