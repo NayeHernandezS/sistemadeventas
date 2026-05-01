@@ -1,5 +1,6 @@
 package org.nhernandez.webapp.ferreteria.services;
 
+import jakarta.enterprise.inject.Alternative;
 import org.nhernandez.webapp.ferreteria.models.Categoria;
 import org.nhernandez.webapp.ferreteria.models.Producto;
 
@@ -7,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+//@Alternative
 public class ProductoServiceImpl implements ProductoService{
     @Override
     public List<Producto> listar() {

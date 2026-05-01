@@ -32,9 +32,15 @@
                 <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña" required>
             </div>
 
+            <div class="mb-3 input-group">
+
             <button type="submit" class="btn btn-primary w-100 fw-bold py-2" name="enviar">
                 INICIAR SESIÓN
             </button>
+
+            </div>
+
+            <a class="btn btn-primary" href="${pageContext.request.contextPath}/index.jsp">volver</a>
         </form>
     </div>
 </div>

@@ -6,37 +6,35 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.nhernandez.webapp.ferreteria.configs.ProductoServicePrincipal;
-import org.nhernandez.webapp.ferreteria.models.Producto;
+import org.nhernandez.webapp.ferreteria.models.Usuario;
 import org.nhernandez.webapp.ferreteria.services.LoginService;
 import org.nhernandez.webapp.ferreteria.services.LoginServiceSessionImpl;
-import org.nhernandez.webapp.ferreteria.services.ProductoService;
-import org.nhernandez.webapp.ferreteria.services.ProductoServiceJdbcImpl;
+import org.nhernandez.webapp.ferreteria.services.UsuarioService;
+import org.nhernandez.webapp.ferreteria.services.UsuarioServiceImpl;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 
-@WebServlet({"/crudprod.html", "/crudprod"})
-public class ProductoServletInventario extends HttpServlet {
+@WebServlet({"/usuarios.html", "/usuarios"})
+public class UsuarioServlet extends HttpServlet {
 
     @Inject
-    @ProductoServicePrincipal
-    private ProductoService service;
-
-    @Inject
-    private LoginService auth;
-
+    private UsuarioService service;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        List<Producto> productos = service.listar();
 
+        List<Usuario> usuarios = service.listar();
+
+        LoginService auth = new LoginServiceSessionImpl();
         Optional<String> usernameOptional = auth.getUsername(req);
 
-        req.setAttribute("productos", productos);
+        req.setAttribute("usuarios", usuarios);
         req.setAttribute("username", usernameOptional);
-        getServletContext().getRequestDispatcher("/inventario.jsp").forward(req, resp);
+
+        req.setAttribute("title", req.getAttribute("title") + ": Listado de usuarios");
+        getServletContext().getRequestDispatcher("/users.jsp").forward(req, resp);
     }
 }

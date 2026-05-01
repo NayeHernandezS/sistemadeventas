@@ -13,7 +13,7 @@
 <div class="container">
 <h1>Carro de Compras</h1>
 <c:choose>
-<c:when test="${sessionScope.carro == null || sessionScope.carro.items.isEmpty()}">
+<c:when test="${carro.items.isEmpty()}">
 <div class="alert alert-warning">Lo sentimos no hay productos en el carro de compras!</div
 </c:when>
 <c:otherwise>
@@ -44,11 +44,51 @@
 </table>
 <a class="btn btn-primary" href="javascript:document.formcarro.submit();">Actualizar</a>
 </form>
+<form class="mt-3" action="${pageContext.request.contextPath}/carro/finalizar" method="post">
+    <div class="card mb-3">
+        <div class="card-header">Facturación (opcional)</div>
+        <div class="card-body">
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="requiereFactura" value="1" id="requiereFactura">
+                <label class="form-check-label" for="requiereFactura">El cliente requiere factura</label>
+            </div>
+            <p class="small text-muted">Si marca esta opción, complete RFC y razón social. El resto es opcional.</p>
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <label class="form-label" for="rfcFactura">RFC</label>
+                    <input class="form-control" type="text" name="rfcFactura" id="rfcFactura" maxlength="13" placeholder="12 o 13 caracteres">
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label" for="razonSocial">Razón social o nombre</label>
+                    <input class="form-control" type="text" name="razonSocial" id="razonSocial" placeholder="Nombre fiscal">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="emailFactura">Correo (opcional)</label>
+                    <input class="form-control" type="email" name="emailFactura" id="emailFactura">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="usoCfdi">Uso CFDI (opcional)</label>
+                    <input class="form-control" type="text" name="usoCfdi" id="usoCfdi" maxlength="10" placeholder="ej. G03">
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="direccionFactura">Dirección (opcional)</label>
+                    <input class="form-control" type="text" name="direccionFactura" id="direccionFactura">
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="btn btn-success" type="submit">Finalizar venta y generar ticket</button>
+</form>
 </c:otherwise>
 </c:choose>
+<c:if test="${not empty sessionScope.mensajeTicket}">
+    <div class="alert alert-info mt-3">${sessionScope.mensajeTicket}</div>
+    <c:remove var="mensajeTicket" scope="session"/>
+</c:if>
 <div class="my-2">
-<a class="btn btn-sm btn-secondary" href="${pageContext.request.contextPath}/index.html">volver</a>
+<a class="btn btn-sm btn-secondary" href="${pageContext.request.contextPath}/index.jsp">volver</a>
 <a class="btn btn-sm btn-success" href="${pageContext.request.contextPath}/productos">seguir vendiendo</a>
+<a class="btn btn-sm btn-outline-dark" href="${pageContext.request.contextPath}/tickets">ver tickets</a>
 <div>
 </div>
 </body>

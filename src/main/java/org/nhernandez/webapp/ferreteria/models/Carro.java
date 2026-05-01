@@ -1,14 +1,37 @@
 package org.nhernandez.webapp.ferreteria.models;
 
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
+import org.nhernandez.webapp.ferreteria.configs.CarroCompra;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
-public class Carro {
+@CarroCompra
+public class Carro implements Serializable {
     private List<ItemCarro> items;
+
+    @Inject
+    private transient Logger log;
 
     public Carro() {
         this.items = new ArrayList<>();
+    }
+
+    @PostConstruct
+    public void  inicializar(){
+        this.items = new ArrayList<>();
+        log.info("inicializando el carro de compras");
+    }
+
+    @PreDestroy
+    public void destruir(){
+        log.info("destruyendo el carro de compras");
     }
 
     public void addItemCarro(ItemCarro itemCarro) {
@@ -23,6 +46,10 @@ public class Carro {
     }
     public List<ItemCarro> getItems() {
         return items;
+    }
+
+    public boolean isEmpty() {
+        return items.isEmpty();
     }
 
     public int getTotal() {
@@ -51,5 +78,9 @@ public class Carro {
         return  items.stream()
                 .filter(itemCarro -> productoId.equals(Long.toString(itemCarro.getProducto().getId())))
                 .findAny();
+    }
+
+    public void vaciar() {
+        items.clear();
     }
 }

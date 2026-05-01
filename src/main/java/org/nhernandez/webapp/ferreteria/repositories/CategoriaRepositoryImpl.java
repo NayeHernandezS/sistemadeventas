@@ -1,15 +1,21 @@
 package org.nhernandez.webapp.ferreteria.repositories;
 
+import jakarta.inject.Inject;
+import org.nhernandez.webapp.ferreteria.configs.MysqlConn;
+import org.nhernandez.webapp.ferreteria.configs.Repository;
 import org.nhernandez.webapp.ferreteria.models.Categoria;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoriaRepositoryImpl implements Repository<Categoria>{
+@Repository
+public class CategoriaRepositoryImpl implements CrudRepository<Categoria> {
+
     private Connection conn;
 
-    public CategoriaRepositoryImpl(Connection conn) {
+    @Inject
+    public CategoriaRepositoryImpl(@MysqlConn Connection conn) {
         this.conn = conn;
     }
 

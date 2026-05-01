@@ -1,23 +1,31 @@
 package org.nhernandez.webapp.ferreteria.controllers;
 
+import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+import org.nhernandez.webapp.ferreteria.models.Usuario;
 import org.nhernandez.webapp.ferreteria.services.LoginService;
 import org.nhernandez.webapp.ferreteria.services.LoginServiceSessionImpl;
+import org.nhernandez.webapp.ferreteria.services.UsuarioService;
+import org.nhernandez.webapp.ferreteria.services.UsuarioServiceImpl;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.util.Optional;
 
 @WebServlet({"/login", "/login.html"})
 public class LoginServlet extends HttpServlet {
-    final static String USERNAME = "admin";
-    final static String PASSWORD = "1234";
+
+    @Inject
+    private LoginService auth;
+
+    @Inject
+    private UsuarioService service;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        LoginService auth = new LoginServiceSessionImpl();
         Optional<String> usernameOptional = auth.getUsername(req);
 
         if (usernameOptional.isPresent()) {
@@ -32,7 +40,7 @@ public class LoginServlet extends HttpServlet {
                 out.println("    </head>");
                 out.println("    <body>");
                 out.println("        <h1>Hola " + usernameOptional.get() + " has iniciado sesión con éxito!</h1>");
-                out.println("<p><a href='" + req.getContextPath() + "/index.html'>volver</a></p>");
+                out.println("<p><a href='" + req.getContextPath() + "/index.jsp'>volver</a></p>");
                 out.println("<p><a href='" + req.getContextPath() + "/logout'>cerrar sesión</a></p>");
                 out.println("    </body>");
                 out.println("</html>");
@@ -47,10 +55,13 @@ public class LoginServlet extends HttpServlet {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
 
-        if (USERNAME.equals(username) && PASSWORD.equals(password)) {
+        Optional<Usuario> usuarioOptional = service.login(username, password);
+        if (usuarioOptional.isPresent()) {
+            Usuario usuario = usuarioOptional.get();
 
             HttpSession session = req.getSession();
-            session.setAttribute("username", username);
+            session.setAttribute("username", usuario.getUsername());
+            session.setAttribute("rol", usuario.getRol());
 
             resp.sendRedirect(req.getContextPath() + "/login.html");
         } else {

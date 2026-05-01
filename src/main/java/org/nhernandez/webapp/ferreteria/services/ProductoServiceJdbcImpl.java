@@ -1,24 +1,26 @@
 package org.nhernandez.webapp.ferreteria.services;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.nhernandez.webapp.ferreteria.configs.ProductoServicePrincipal;
+import org.nhernandez.webapp.ferreteria.interceptors.Logging;
 import org.nhernandez.webapp.ferreteria.models.Categoria;
 import org.nhernandez.webapp.ferreteria.models.Producto;
-import org.nhernandez.webapp.ferreteria.repositories.CategoriaRepositoryImpl;
-import org.nhernandez.webapp.ferreteria.repositories.ProductoRepositoryJdbcImpl;
-import org.nhernandez.webapp.ferreteria.repositories.Repository;
+import org.nhernandez.webapp.ferreteria.repositories.CrudRepository;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+@Logging
+@ApplicationScoped
+@ProductoServicePrincipal
 public class ProductoServiceJdbcImpl implements ProductoService{
-    private Repository<Producto> repositoryJdbc;
-    private Repository<Categoria> repositoryCategoriaJdbc;
 
-    public ProductoServiceJdbcImpl(Connection connection) {
-        this.repositoryJdbc = new ProductoRepositoryJdbcImpl(connection);
-        this.repositoryCategoriaJdbc = new CategoriaRepositoryImpl(connection);
-    }
+    @Inject
+    private CrudRepository<Producto> repositoryJdbc;
+    @Inject
+    private CrudRepository<Categoria> repositoryCategoriaJdbc;
 
     @Override
     public List<Producto> listar() {

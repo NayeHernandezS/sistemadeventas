@@ -1,17 +1,36 @@
 package org.nhernandez.webapp.ferreteria.repositories;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
+import org.nhernandez.webapp.ferreteria.configs.MysqlConn;
+import org.nhernandez.webapp.ferreteria.configs.Repository;
 import org.nhernandez.webapp.ferreteria.models.Categoria;
 import org.nhernandez.webapp.ferreteria.models.Producto;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
-public class ProductoRepositoryJdbcImpl implements Repository<Producto> {
+@Repository
+public class ProductoRepositoryJdbcImpl implements CrudRepository<Producto> {
+
+    @Inject
+    @MysqlConn
     private Connection conn;
 
-    public ProductoRepositoryJdbcImpl(Connection conn) {
-        this.conn = conn;
+    @Inject
+    private Logger log;
+
+    @PostConstruct
+    public void inicializar(){
+        log.info("inicializando el beans " + this.getClass().getName());
+    }
+
+    @PreDestroy
+    public  void destruir(){
+        log.info("Destruyendo el beans " + getClass().getName());
     }
 
     @Override

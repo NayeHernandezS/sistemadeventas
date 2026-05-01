@@ -1,5 +1,6 @@
 package org.nhernandez.webapp.ferreteria.controllers;
 
+import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,14 +16,18 @@ import java.util.List;
 
 @WebServlet("/carro/actualizar")
 public class ActualizarCarroServlet extends HttpServlet {
+
+    @Inject
+    private Carro carro;
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HttpSession session = req.getSession();
-        if (session.getAttribute("carro") != null) {
-            Carro carro = (Carro) session.getAttribute("carro");
+        //HttpSession session = req.getSession();
+        //if (session.getAttribute("carro") != null) {
+           // Carro carro = (Carro) session.getAttribute("carro");
             updateProductos(req, carro);
             updateCantidades(req, carro);
-        }
+        //}
 
         resp.sendRedirect(req.getContextPath() + "/carro/ver");
     }
