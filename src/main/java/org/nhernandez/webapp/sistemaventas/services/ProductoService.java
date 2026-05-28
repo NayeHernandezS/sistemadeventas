@@ -16,5 +16,5 @@ public interface ProductoService {
 
     void eliminarPorOwner(Long id, String ownerUsername);
 
-    List<Categoria> listarCategoria();
+    List<Categoria> listarCategoria(String ownerUsername);
 }

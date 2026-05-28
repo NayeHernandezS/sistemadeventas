@@ -19,7 +19,7 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
 
     private static final String SELECT_BASE =
             "SELECT p.*, c.nombre as categoria FROM productos p "
-                    + "INNER JOIN categorias c ON (p.categoria_id = c.id) ";
+                    + "INNER JOIN categorias c ON (p.categoria_id = c.id AND c.owner_username = p.owner_username) ";
 
     @Autowired
     @MysqlConn

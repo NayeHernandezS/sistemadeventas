@@ -2,7 +2,6 @@ package org.nhernandez.webapp.sistemaventas.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
 import org.nhernandez.webapp.sistemaventas.services.SuscripcionService;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
@@ -23,11 +22,9 @@ public class SuscripcionController {
 
     private static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private final LoginService loginService;
     private final SuscripcionService suscripcionService;
 
-    public SuscripcionController(LoginService loginService, SuscripcionService suscripcionService) {
-        this.loginService = loginService;
+    public SuscripcionController(SuscripcionService suscripcionService) {
         this.suscripcionService = suscripcionService;
     }
 

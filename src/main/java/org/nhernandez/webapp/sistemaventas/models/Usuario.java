@@ -8,6 +8,7 @@ public class Usuario {
     private String email;
     private String rol;
     private String adminOwner;
+    private String tipoNegocio;
 
     public Long getId() {
         return id;
@@ -55,5 +56,13 @@ public class Usuario {
 
     public void setAdminOwner(String adminOwner) {
         this.adminOwner = adminOwner;
+    }
+
+    public String getTipoNegocio() {
+        return tipoNegocio;
+    }
+
+    public void setTipoNegocio(String tipoNegocio) {
+        this.tipoNegocio = tipoNegocio;
     }
 }

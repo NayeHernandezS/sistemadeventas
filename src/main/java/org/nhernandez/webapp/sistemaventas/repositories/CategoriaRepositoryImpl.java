@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class CategoriaRepositoryImpl implements CrudRepository<Categoria> {
+public class CategoriaRepositoryImpl implements CategoriaRepository {
 
     private Connection conn;
 
@@ -30,6 +30,21 @@ public class CategoriaRepositoryImpl implements CrudRepository<Categoria> {
                 categorias.add(categoria);
             }
 
+        }
+        return categorias;
+    }
+
+    @Override
+    public List<Categoria> listarPorOwner(String ownerUsername) throws SQLException {
+        List<Categoria> categorias = new ArrayList<>();
+        String sql = "select id, nombre from categorias where owner_username = ? order by nombre asc";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, ownerUsername);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    categorias.add(getCategoria(rs));
+                }
+            }
         }
         return categorias;
     }
@@ -56,6 +71,34 @@ public class CategoriaRepositoryImpl implements CrudRepository<Categoria> {
     @Override
     public void eliminar(Long id) throws SQLException {
 
+    }
+
+    @Override
+    public void crearSugeridasSiNoExisten(String ownerUsername, List<String> nombres) throws SQLException {
+        if (ownerUsername == null || ownerUsername.isBlank() || nombres == null || nombres.isEmpty()) {
+            return;
+        }
+        String existeSql = "select count(1) from categorias where owner_username = ? and nombre = ?";
+        String insertSql = "insert into categorias (nombre, owner_username) values (?, ?)";
+        try (PreparedStatement existeStmt = conn.prepareStatement(existeSql);
+             PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+            for (String nombre : nombres) {
+                if (nombre == null || nombre.isBlank()) {
+                    continue;
+                }
+                String limpio = nombre.trim();
+                existeStmt.setString(1, ownerUsername);
+                existeStmt.setString(2, limpio);
+                try (ResultSet rs = existeStmt.executeQuery()) {
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        continue;
+                    }
+                }
+                insertStmt.setString(1, limpio);
+                insertStmt.setString(2, ownerUsername);
+                insertStmt.executeUpdate();
+            }
+        }
     }
 
     private Categoria getCategoria(ResultSet rs) throws SQLException {

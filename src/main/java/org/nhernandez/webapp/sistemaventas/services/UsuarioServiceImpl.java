@@ -1,9 +1,11 @@
 package org.nhernandez.webapp.sistemaventas.services;
 
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
+import org.nhernandez.webapp.sistemaventas.repositories.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.nhernandez.webapp.sistemaventas.repositories.UsuarioReposository;
+import org.nhernandez.webapp.sistemaventas.util.CategoriaPlantillaUtil;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 
 import java.sql.SQLException;
@@ -15,13 +17,16 @@ import java.util.Optional;
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioReposository usuarioReposository;
+    private final CategoriaRepository categoriaRepository;
 
     @Autowired
     private SuscripcionService suscripcionService;
 
     @Autowired
-    public UsuarioServiceImpl(UsuarioReposository usuarioReposository) {
+    public UsuarioServiceImpl(UsuarioReposository usuarioReposository,
+                              CategoriaRepository categoriaRepository) {
         this.usuarioReposository = usuarioReposository;
+        this.categoriaRepository = categoriaRepository;
     }
 
     @Override
@@ -90,6 +95,10 @@ public class UsuarioServiceImpl implements UsuarioService {
             usuario.setRol(RolUtil.ROL_ADMIN);
             usuario.setAdminOwner(null);
             usuarioReposository.guardar(usuario);
+            categoriaRepository.crearSugeridasSiNoExisten(
+                    usuario.getUsername(),
+                    CategoriaPlantillaUtil.paraTipoNegocio(usuario.getTipoNegocio())
+            );
             suscripcionService.iniciarMesGratis(usuario.getUsername());
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e.getCause());

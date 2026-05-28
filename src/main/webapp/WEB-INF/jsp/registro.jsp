@@ -41,6 +41,22 @@
             </div>
 
             <div class="mb-3">
+                <label for="tipoNegocio" class="form-label">Tipo de negocio</label>
+                <select id="tipoNegocio" name="tipoNegocio" class="form-select" required>
+                    <option value="">Selecciona una opcion</option>
+                    <option value="ferreteria" ${tipoNegocio == 'ferreteria' ? 'selected' : ''}>Ferreteria</option>
+                    <option value="abarrotes" ${tipoNegocio == 'abarrotes' ? 'selected' : ''}>Abarrotes</option>
+                    <option value="ropa" ${tipoNegocio == 'ropa' ? 'selected' : ''}>Ropa</option>
+                    <option value="tecnologia" ${tipoNegocio == 'tecnologia' ? 'selected' : ''}>Tecnologia</option>
+                    <option value="papeleria" ${tipoNegocio == 'papeleria' ? 'selected' : ''}>Papeleria</option>
+                    <option value="otro" ${tipoNegocio == 'otro' ? 'selected' : ''}>Otro</option>
+                </select>
+                <c:if test="${not empty errores.tipoNegocio}">
+                    <div class="text-danger small">${errores.tipoNegocio}</div>
+                </c:if>
+            </div>
+
+            <div class="mb-3">
                 <label for="password" class="form-label">Contrasena</label>
                 <input type="password" id="password" name="password" class="form-control" required minlength="4">
                 <c:if test="${not empty errores.password}">

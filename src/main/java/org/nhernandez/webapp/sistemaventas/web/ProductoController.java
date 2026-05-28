@@ -69,7 +69,7 @@ public class ProductoController {
         if (!model.containsAttribute("producto")) {
             model.addAttribute("producto", producto);
         }
-        model.addAttribute("categorias", service.listarCategoria());
+        model.addAttribute("categorias", service.listarCategoria(tenant));
         return "form";
     }
 
@@ -115,7 +115,7 @@ public class ProductoController {
             return "redirect:/crudprod";
         }
         model.addAttribute("errores", errores);
-        model.addAttribute("categorias", service.listarCategoria());
+        model.addAttribute("categorias", service.listarCategoria(tenant));
         model.addAttribute("producto", producto);
         return "form";
     }

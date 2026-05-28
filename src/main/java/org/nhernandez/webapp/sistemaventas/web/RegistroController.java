@@ -34,6 +34,7 @@ public class RegistroController {
         String password = req.getParameter("password");
         String confirmar = req.getParameter("confirmarPassword");
         String email = req.getParameter("email");
+        String tipoNegocio = req.getParameter("tipoNegocio");
 
         Map<String, String> errores = new HashMap<>();
 
@@ -56,11 +57,15 @@ public class RegistroController {
         if (email == null || email.isBlank()) {
             errores.put("email", "El email es requerido");
         }
+        if (tipoNegocio == null || tipoNegocio.isBlank()) {
+            errores.put("tipoNegocio", "Selecciona el tipo de negocio");
+        }
 
         if (!errores.isEmpty()) {
             model.addAttribute("errores", errores);
             model.addAttribute("username", username);
             model.addAttribute("email", email);
+            model.addAttribute("tipoNegocio", tipoNegocio);
             return "registro";
         }
 
@@ -68,6 +73,7 @@ public class RegistroController {
         usuario.setUsername(username.trim());
         usuario.setPassword(password);
         usuario.setEmail(email.trim());
+        usuario.setTipoNegocio(tipoNegocio.trim().toLowerCase());
 
         try {
             usuarioService.registrarCuentaAdmin(usuario);
@@ -78,6 +84,7 @@ public class RegistroController {
             model.addAttribute("errores", errores);
             model.addAttribute("username", username);
             model.addAttribute("email", email);
+            model.addAttribute("tipoNegocio", tipoNegocio);
             return "registro";
         }
     }

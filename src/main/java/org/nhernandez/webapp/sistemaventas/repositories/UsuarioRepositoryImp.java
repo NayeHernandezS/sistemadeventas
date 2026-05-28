@@ -95,9 +95,9 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
     public void guardar(Usuario usuario) throws SQLException {
         String sql;
         if (usuario.getId() != null && usuario.getId() > 0) {
-            sql = "update usuarios set username=?, password=?, email=?, rol=?, admin_owner=? where id=?";
+            sql = "update usuarios set username=?, password=?, email=?, rol=?, admin_owner=?, tipo_negocio=? where id=?";
         } else {
-            sql = "insert into usuarios (username, password, email, rol, admin_owner) values (?,?,?,?,?)";
+            sql = "insert into usuarios (username, password, email, rol, admin_owner, tipo_negocio) values (?,?,?,?,?,?)";
         }
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, usuario.getUsername());
@@ -109,9 +109,14 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
             } else {
                 stmt.setNull(5, Types.VARCHAR);
             }
+            if (usuario.getTipoNegocio() != null && !usuario.getTipoNegocio().isBlank()) {
+                stmt.setString(6, usuario.getTipoNegocio());
+            } else {
+                stmt.setNull(6, Types.VARCHAR);
+            }
 
             if (usuario.getId() != null && usuario.getId() > 0) {
-                stmt.setLong(6, usuario.getId());
+                stmt.setLong(7, usuario.getId());
             }
 
             stmt.executeUpdate();
@@ -141,6 +146,14 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
             }
         } catch (SQLException ignored) {
             // columna admin_owner opcional si no se ejecuto migracion_tenant.sql
+        }
+        try {
+            String tipoNegocio = rs.getString("tipo_negocio");
+            if (!rs.wasNull()) {
+                usuario.setTipoNegocio(tipoNegocio);
+            }
+        } catch (SQLException ignored) {
+            // columna tipo_negocio opcional si no se ejecuto migracion
         }
         return usuario;
     }

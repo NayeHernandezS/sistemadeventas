@@ -5,7 +5,7 @@ import org.nhernandez.webapp.sistemaventas.models.Categoria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.nhernandez.webapp.sistemaventas.models.Producto;
-import org.nhernandez.webapp.sistemaventas.repositories.CrudRepository;
+import org.nhernandez.webapp.sistemaventas.repositories.CategoriaRepository;
 import org.nhernandez.webapp.sistemaventas.repositories.ProductoRepository;
 
 import java.sql.SQLException;
@@ -20,7 +20,7 @@ public class ProductoServiceJdbcImpl implements ProductoService {
     private ProductoRepository repository;
 
     @Autowired
-    private CrudRepository<Categoria> repositoryCategoriaJdbc;
+    private CategoriaRepository repositoryCategoriaJdbc;
 
     @Override
     public List<Producto> listarPorOwner(String ownerUsername) {
@@ -59,9 +59,9 @@ public class ProductoServiceJdbcImpl implements ProductoService {
     }
 
     @Override
-    public List<Categoria> listarCategoria() {
+    public List<Categoria> listarCategoria(String ownerUsername) {
         try {
-            return repositoryCategoriaJdbc.listar();
+            return repositoryCategoriaJdbc.listarPorOwner(ownerUsername);
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e.getCause());
         }

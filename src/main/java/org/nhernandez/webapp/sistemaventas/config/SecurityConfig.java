@@ -53,6 +53,9 @@ public class SecurityConfig {
                         .failureHandler(failureHandler)
                         .permitAll()
                 )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedPage("/acceso-denegado")
+                )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                         .logoutSuccessUrl("/login.html")
