@@ -35,6 +35,7 @@
         </c:if>
 
         <form action="${pageContext.request.contextPath}/login" method="post" class="mt-4">
+            <%@ include file="csrf.jspf" %>
             <div class="mb-3 input-group">
                 <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
                 <input type="text" id="username" name="username" class="form-control" placeholder="Usuario" required>

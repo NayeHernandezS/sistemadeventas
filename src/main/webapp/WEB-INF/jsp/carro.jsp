@@ -18,6 +18,7 @@
 </c:when>
 <c:otherwise>
 <form name="formcarro" action="${pageContext.request.contextPath}/carro/actualizar" method="post">
+<%@ include file="csrf.jspf" %>
 <table class="table table-hover table-striped">
     <thead>
     <tr>
@@ -51,6 +52,7 @@
 <a class="btn btn-primary" href="javascript:document.formcarro.submit();">Actualizar</a>
 </form>
 <form class="mt-3" action="${pageContext.request.contextPath}/carro/finalizar" method="post">
+<%@ include file="csrf.jspf" %>
     <div class="card mb-3">
         <div class="card-header">Facturación (opcional)</div>
         <div class="card-body">

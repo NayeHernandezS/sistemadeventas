@@ -23,6 +23,7 @@
 </c:when>
 <c:otherwise>
 <form name="formcarro" action="${pageContext.request.contextPath}/carro/actualizar" method="post">
+<%@ include file="csrf.jspf" %>
 <table class="table table-hover table-striped mb-3">
     <thead>
     <tr>

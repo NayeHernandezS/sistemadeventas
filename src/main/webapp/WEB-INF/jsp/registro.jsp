@@ -21,6 +21,7 @@
         </div>
 
         <form action="${pageContext.request.contextPath}/registro" method="post" class="mt-4">
+            <%@ include file="csrf.jspf" %>
             <div class="mb-3">
                 <label for="username" class="form-label">Usuario</label>
                 <input type="text" id="username" name="username" class="form-control"

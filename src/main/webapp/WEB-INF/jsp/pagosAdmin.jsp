@@ -42,6 +42,7 @@
                     <td>${p.fechaSolicitud}</td>
                     <td>
                         <form method="post" action="${pageContext.request.contextPath}/admin/pagos" class="d-inline">
+                        <%@ include file="csrf.jspf" %>
                             <input type="hidden" name="pagoId" value="${p.id}">
                             <button type="submit" class="btn btn-sm btn-success">Confirmar pago</button>
                         </form>

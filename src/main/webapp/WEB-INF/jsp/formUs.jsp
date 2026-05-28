@@ -13,6 +13,7 @@
 <body>
 <div class="container">
 <form action="${pageContext.request.contextPath}/usuarios/form" method="post">
+    <%@ include file="csrf.jspf" %>
     <div class="row mb-2">
         <label for="username" class="col-form-label col-sm-2">Username</label>
         <div class="col-sm-4">

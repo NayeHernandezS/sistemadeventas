@@ -1,6 +1,5 @@
 package org.nhernandez.webapp.sistemaventas.web;
 
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -8,10 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class IndexController {
 
     @GetMapping("/")
-    public String index(HttpSession session) {
-        if (session.getAttribute("username") == null) {
-            return "redirect:/login";
-        }
+    public String index() {
         return "index";
     }
 

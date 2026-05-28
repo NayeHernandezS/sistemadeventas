@@ -1,8 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
-<c:if test="${empty sessionScope.username}">
-    <c:redirect url="/login"/>
-</c:if>
 <!DOCTYPE html>
 <html lang="es">
 <head>

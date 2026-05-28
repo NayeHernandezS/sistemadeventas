@@ -45,6 +45,7 @@
                     <p class="text-muted">Precio: $<fmt:formatNumber value="${precioMes}" minFractionDigits="2"/> MXN por mes</p>
 
                     <form method="post" action="${pageContext.request.contextPath}/suscripcion" class="row g-3">
+                    <%@ include file="csrf.jspf" %>
                         <div class="col-md-6">
                             <label for="meses" class="form-label">Cantidad de meses (1 a 24)</label>
                             <input type="number" class="form-control" id="meses" name="meses"

@@ -13,6 +13,7 @@
 <div class="container">
 <h1>Formulario productos</h1>
 <form action="${pageContext.request.contextPath}/productos/form" method="post">
+    <%@ include file="csrf.jspf" %>
     <div>
         <label for="nombre">Nombre</label>
         <div>
