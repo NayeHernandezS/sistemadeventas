@@ -1,0 +1,14 @@
+package org.nhernandez.webapp.sistemaventas.repositories;
+
+import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
+
+import java.sql.SQLException;
+import java.util.List;
+
+public interface TicketRepository extends CrudRepository<TicketVenta> {
+    List<TicketVenta> listarPorVendedor(String usernameVendedor) throws SQLException;
+
+    List<TicketVenta> listarPorTenant(String tenantOwner) throws SQLException;
+
+    TicketVenta porFolioDeTenant(String folio, String tenantOwner) throws SQLException;
+}
