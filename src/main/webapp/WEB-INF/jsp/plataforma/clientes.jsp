@@ -33,6 +33,7 @@
                     <th>Cuenta</th>
                     <th>Email</th>
                     <th>Tipo negocio</th>
+                    <th>Plan</th>
                     <th>Vendedores</th>
                     <th>Vence</th>
                     <th>Estado</th>
@@ -52,6 +53,7 @@
                             </c:choose>
                         </td>
                         <td>${empty c.tipoNegocio ? '—' : c.tipoNegocio}</td>
+                        <td>${empty c.planCodigo ? '—' : c.planCodigo}</td>
                         <td>${c.cantidadVendedores}</td>
                         <td>
                             <c:choose>

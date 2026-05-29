@@ -19,8 +19,8 @@ public class PagoSuscripcionRepositoryJdbcImpl implements PagoSuscripcionReposit
 
     @Override
     public void guardar(PagoSuscripcion pago) throws SQLException {
-        String sql = "INSERT INTO pagos_suscripcion (username, meses, monto, fecha_solicitud, estado, notas) "
-                + "VALUES (?,?,?,?,?,?)";
+        String sql = "INSERT INTO pagos_suscripcion (username, meses, monto, fecha_solicitud, estado, notas, plan_codigo) "
+                + "VALUES (?,?,?,?,?,?,?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, pago.getUsername());
             stmt.setInt(2, pago.getMeses());
@@ -28,6 +28,7 @@ public class PagoSuscripcionRepositoryJdbcImpl implements PagoSuscripcionReposit
             stmt.setTimestamp(4, Timestamp.valueOf(pago.getFechaSolicitud()));
             stmt.setString(5, pago.getEstado());
             stmt.setString(6, pago.getNotas());
+            stmt.setString(7, pago.getPlanCodigo() != null ? pago.getPlanCodigo() : "EMPRENDEDOR");
             stmt.executeUpdate();
         }
     }
@@ -115,6 +116,14 @@ public class PagoSuscripcionRepositoryJdbcImpl implements PagoSuscripcionReposit
         }
         p.setEstado(rs.getString("estado"));
         p.setNotas(rs.getString("notas"));
+        try {
+            p.setPlanCodigo(rs.getString("plan_codigo"));
+        } catch (SQLException ignored) {
+            p.setPlanCodigo("EMPRENDEDOR");
+        }
+        if (p.getPlanCodigo() == null || p.getPlanCodigo().isBlank()) {
+            p.setPlanCodigo("EMPRENDEDOR");
+        }
         return p;
     }
 }

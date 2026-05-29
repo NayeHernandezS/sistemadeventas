@@ -23,6 +23,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     private SuscripcionService suscripcionService;
 
     @Autowired
+    private PlanLimiteService planLimiteService;
+
+    @Autowired
     public UsuarioServiceImpl(UsuarioReposository usuarioReposository,
                               CategoriaRepository categoriaRepository) {
         this.usuarioReposository = usuarioReposository;
@@ -68,6 +71,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public void guardarVendedor(Usuario usuario, String tenantOwner) {
+        if (usuario.getId() == null || usuario.getId() <= 0) {
+            planLimiteService.validarNuevoVendedor(tenantOwner);
+        }
         usuario.setRol(RolUtil.ROL_VENDEDOR);
         usuario.setAdminOwner(tenantOwner);
         guardar(usuario);
@@ -87,7 +93,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public void registrarCuentaAdmin(Usuario usuario) {
+    public void registrarCuentaAdmin(Usuario usuario, String planCodigo) {
         try {
             if (usuarioReposository.existeUsername(usuario.getUsername())) {
                 throw new ServiceJdbcException("El nombre de usuario ya esta registrado", null);
@@ -99,7 +105,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                     usuario.getUsername(),
                     CategoriaPlantillaUtil.paraTipoNegocio(usuario.getTipoNegocio())
             );
-            suscripcionService.iniciarMesGratis(usuario.getUsername());
+            suscripcionService.iniciarMesGratis(usuario.getUsername(), planCodigo);
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e.getCause());
         }

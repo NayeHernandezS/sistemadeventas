@@ -10,6 +10,7 @@ public class Suscripcion {
     private LocalDateTime fechaFin;
     private boolean enPeriodoPrueba;
     private String estado;
+    private String planCodigo = "EMPRENDEDOR";
 
     public Long getId() {
         return id;
@@ -61,5 +62,13 @@ public class Suscripcion {
 
     public boolean estaVigente() {
         return fechaFin != null && !LocalDateTime.now().isAfter(fechaFin);
+    }
+
+    public String getPlanCodigo() {
+        return planCodigo;
+    }
+
+    public void setPlanCodigo(String planCodigo) {
+        this.planCodigo = planCodigo;
     }
 }

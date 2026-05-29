@@ -16,6 +16,10 @@ public final class CategoriaPlantillaUtil {
             case "ropa" -> List.of("Dama", "Caballero", "Ninos", "Calzado", "Accesorios");
             case "tecnologia" -> List.of("Computo", "Celulares", "Audio", "Accesorios", "Redes");
             case "papeleria" -> List.of("Cuadernos", "Escritura", "Oficina", "Arte", "Escolar");
+            case "farmacia" -> List.of("Medicamentos", "Higiene", "Bebe", "Vitaminas", "Primeros auxilios");
+            case "restaurante" -> List.of("Comida", "Bebidas", "Postres", "Insumos", "Desechables");
+            case "belleza" -> List.of("Cabello", "Maquillaje", "Cuidado personal", "Accesorios", "Promociones");
+            case "regalo" -> List.of("Detalles", "Temporada", "Envolturas", "Peluches", "Varios");
             default -> List.of("General");
         };
     }

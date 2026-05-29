@@ -18,5 +18,5 @@ public interface UsuarioService {
 
     void eliminarDeTenant(Long id, String tenantOwner);
 
-    void registrarCuentaAdmin(Usuario usuario);
+    void registrarCuentaAdmin(Usuario usuario, String planCodigo);
 }

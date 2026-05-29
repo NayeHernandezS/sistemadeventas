@@ -32,6 +32,7 @@
                 <thead>
                 <tr>
                     <th>Cliente</th>
+                    <th>Plan</th>
                     <th>Meses</th>
                     <th>Monto</th>
                     <th>Solicitado</th>
@@ -42,6 +43,7 @@
                 <c:forEach items="${pagosPendientes}" var="p">
                     <tr>
                         <td><strong>${p.username}</strong></td>
+                        <td>${p.planCodigo}</td>
                         <td>${p.meses}</td>
                         <td>$<fmt:formatNumber value="${p.monto}" minFractionDigits="2"/></td>
                         <td>${p.fechaSolicitud}</td>

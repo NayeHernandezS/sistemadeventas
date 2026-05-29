@@ -2,6 +2,8 @@ package org.nhernandez.webapp.sistemaventas.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.nhernandez.webapp.sistemaventas.models.PlanSuscripcion;
+import org.nhernandez.webapp.sistemaventas.services.PlanLimiteService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
 import org.nhernandez.webapp.sistemaventas.services.SuscripcionService;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
@@ -23,9 +25,12 @@ public class SuscripcionController {
     private static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final SuscripcionService suscripcionService;
+    private final PlanLimiteService planLimiteService;
 
-    public SuscripcionController(SuscripcionService suscripcionService) {
+    public SuscripcionController(SuscripcionService suscripcionService,
+                                 PlanLimiteService planLimiteService) {
         this.suscripcionService = suscripcionService;
+        this.planLimiteService = planLimiteService;
     }
 
     @GetMapping("/suscripcion")
@@ -45,6 +50,7 @@ public class SuscripcionController {
             return null;
         }
         String tenant = TenantUtil.getTenantOwner(req);
+        String planCodigo = req.getParameter("planCodigo");
         int meses;
         try {
             meses = Integer.parseInt(req.getParameter("meses"));
@@ -55,13 +61,16 @@ public class SuscripcionController {
         if (meses < 1 || meses > 24) {
             errores.put("meses", "Elige entre 1 y 24 meses");
         }
+        if (PlanSuscripcion.porCodigo(planCodigo).isEmpty()) {
+            errores.put("planCodigo", "Selecciona un plan valido");
+        }
         if (!errores.isEmpty()) {
             model.addAttribute("errores", errores);
             cargarDatosSuscripcion(req, model);
             return "suscripcion";
         }
         try {
-            suscripcionService.solicitarPago(tenant, meses);
+            suscripcionService.solicitarPago(tenant, meses, planCodigo.trim().toUpperCase());
             model.addAttribute("mensajeExito",
                     "Solicitud registrada por " + meses + " mes(es). Confirma el pago en tu panel.");
         } catch (ServiceJdbcException e) {
@@ -106,12 +115,18 @@ public class SuscripcionController {
 
     private void cargarDatosSuscripcion(HttpServletRequest req, Model model) {
         String tenant = TenantUtil.getTenantOwner(req);
+        PlanSuscripcion planActivo = planLimiteService.planActivo(tenant);
         suscripcionService.consultar(tenant).ifPresent(s -> {
             model.addAttribute("suscripcion", s);
             model.addAttribute("fechaFinTexto", s.getFechaFin().format(FORMATO));
+            model.addAttribute("planActivoNombre", PlanSuscripcion.porCodigoODefault(s.getPlanCodigo()).getNombre());
         });
         model.addAttribute("pagos", suscripcionService.pagosDelUsuario(tenant));
-        model.addAttribute("precioMes", suscripcionService.precioPorMes());
+        model.addAttribute("planes", suscripcionService.planesDisponibles());
+        model.addAttribute("planActivo", planActivo);
+        model.addAttribute("vendedoresUsados", planLimiteService.contarVendedores(tenant));
+        model.addAttribute("productosUsados", planLimiteService.contarProductos(tenant));
+        model.addAttribute("planCodigoSeleccion", planActivo.getCodigo());
         model.addAttribute("requierePago", "1".equals(req.getParameter("requierePago")));
     }
 }

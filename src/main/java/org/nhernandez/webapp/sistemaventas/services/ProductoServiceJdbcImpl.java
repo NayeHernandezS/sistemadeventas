@@ -22,6 +22,9 @@ public class ProductoServiceJdbcImpl implements ProductoService {
     @Autowired
     private CategoriaRepository repositoryCategoriaJdbc;
 
+    @Autowired
+    private PlanLimiteService planLimiteService;
+
     @Override
     public List<Producto> listarPorOwner(String ownerUsername) {
         try {
@@ -42,6 +45,9 @@ public class ProductoServiceJdbcImpl implements ProductoService {
 
     @Override
     public void guardar(Producto producto) {
+        if (producto.getId() == null || producto.getId() <= 0) {
+            planLimiteService.validarNuevoProducto(producto.getOwnerUsername());
+        }
         try {
             repository.guardar(producto);
         } catch (SQLException e) {

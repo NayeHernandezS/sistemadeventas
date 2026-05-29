@@ -131,6 +131,7 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
         String sql = """
                 SELECT u.id, u.username, u.email, u.tipo_negocio,
                        s.fecha_fin, s.en_periodo_prueba, s.estado AS estado_suscripcion,
+                       s.plan_codigo,
                        (SELECT COUNT(*) FROM usuarios v
                         WHERE v.admin_owner = u.username
                           AND UPPER(v.rol) = 'VENDEDOR') AS cantidad_vendedores
@@ -164,7 +165,11 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
                     try {
                         c.setEnPeriodoPrueba(rs.getBoolean("en_periodo_prueba"));
                         c.setEstadoSuscripcion(rs.getString("estado_suscripcion"));
+                        c.setPlanCodigo(rs.getString("plan_codigo"));
                     } catch (SQLException ignored) {
+                    }
+                    if (c.getPlanCodigo() == null || c.getPlanCodigo().isBlank()) {
+                        c.setPlanCodigo("EMPRENDEDOR");
                     }
                     lista.add(c);
                 }

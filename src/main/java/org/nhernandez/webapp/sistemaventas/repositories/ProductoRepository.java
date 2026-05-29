@@ -15,4 +15,6 @@ public interface ProductoRepository extends CrudRepository<Producto> {
     void eliminarPorOwner(Long id, String ownerUsername) throws SQLException;
 
     void agregarExistencias(Long id, String ownerUsername, int cantidad) throws SQLException;
+
+    int contarPorOwner(String ownerUsername) throws SQLException;
 }

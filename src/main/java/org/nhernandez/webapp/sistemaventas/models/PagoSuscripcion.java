@@ -13,6 +13,7 @@ public class PagoSuscripcion {
     private LocalDateTime fechaConfirmacion;
     private String estado;
     private String notas;
+    private String planCodigo = "EMPRENDEDOR";
 
     public Long getId() {
         return id;
@@ -76,5 +77,13 @@ public class PagoSuscripcion {
 
     public void setNotas(String notas) {
         this.notas = notas;
+    }
+
+    public String getPlanCodigo() {
+        return planCodigo;
+    }
+
+    public void setPlanCodigo(String planCodigo) {
+        this.planCodigo = planCodigo;
     }
 }

@@ -3,6 +3,7 @@ package org.nhernandez.webapp.sistemaventas.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.nhernandez.webapp.sistemaventas.models.PagoSuscripcion;
+import org.nhernandez.webapp.sistemaventas.models.PlanSuscripcion;
 import org.nhernandez.webapp.sistemaventas.models.Suscripcion;
 import org.nhernandez.webapp.sistemaventas.repositories.PagoSuscripcionRepository;
 import org.nhernandez.webapp.sistemaventas.repositories.SuscripcionRepository;
@@ -31,11 +32,12 @@ public class SuscripcionServiceImpl implements SuscripcionService {
     private final Properties config = loadConfig();
 
     @Override
-    public void iniciarMesGratis(String username) {
+    public void iniciarMesGratis(String username, String planCodigo) {
         try {
             if (suscripcionRepository.porUsername(username) != null) {
                 return;
             }
+            PlanSuscripcion plan = PlanSuscripcion.porCodigoODefault(planCodigo);
             LocalDateTime inicio = LocalDateTime.now();
             int mesesGratis = mesesGratisConfig();
             Suscripcion suscripcion = new Suscripcion();
@@ -44,10 +46,16 @@ public class SuscripcionServiceImpl implements SuscripcionService {
             suscripcion.setFechaFin(inicio.plusMonths(mesesGratis));
             suscripcion.setEnPeriodoPrueba(true);
             suscripcion.setEstado("ACTIVA");
+            suscripcion.setPlanCodigo(plan.getCodigo());
             suscripcionRepository.guardar(suscripcion);
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public List<PlanSuscripcion> planesDisponibles() {
+        return PlanSuscripcion.todos();
     }
 
     @Override
@@ -65,21 +73,22 @@ public class SuscripcionServiceImpl implements SuscripcionService {
     }
 
     @Override
-    public BigDecimal precioPorMes() {
-        String valor = config.getProperty("suscripcion.precio.mes", "199.00");
-        return new BigDecimal(valor);
+    public BigDecimal precioPorMes(String planCodigo) {
+        return PlanSuscripcion.porCodigoODefault(planCodigo).getPrecioMensual();
     }
 
     @Override
-    public BigDecimal calcularMonto(int meses) {
-        return precioPorMes().multiply(BigDecimal.valueOf(meses)).setScale(2, RoundingMode.HALF_UP);
+    public BigDecimal calcularMonto(String planCodigo, int meses) {
+        return precioPorMes(planCodigo).multiply(BigDecimal.valueOf(meses)).setScale(2, RoundingMode.HALF_UP);
     }
 
     @Override
-    public void solicitarPago(String username, int meses) {
+    public void solicitarPago(String username, int meses, String planCodigo) {
         if (meses < 1 || meses > 24) {
             throw new ServiceJdbcException("Los meses deben estar entre 1 y 24", null);
         }
+        PlanSuscripcion plan = PlanSuscripcion.porCodigo(planCodigo)
+                .orElseThrow(() -> new ServiceJdbcException("Plan no valido", null));
         try {
             List<PagoSuscripcion> pendientes = pagoRepository.listarPorUsername(username).stream()
                     .filter(p -> "PENDIENTE".equals(p.getEstado()))
@@ -91,7 +100,8 @@ public class SuscripcionServiceImpl implements SuscripcionService {
             PagoSuscripcion pago = new PagoSuscripcion();
             pago.setUsername(username);
             pago.setMeses(meses);
-            pago.setMonto(calcularMonto(meses));
+            pago.setPlanCodigo(plan.getCodigo());
+            pago.setMonto(calcularMonto(plan.getCodigo(), meses));
             pago.setFechaSolicitud(LocalDateTime.now());
             pago.setEstado("PENDIENTE");
             pagoRepository.guardar(pago);
@@ -162,7 +172,8 @@ public class SuscripcionServiceImpl implements SuscripcionService {
             throw new ServiceJdbcException("Los meses deben estar entre 1 y 24", null);
         }
         try {
-            extenderVigenciaPorMeses(username, meses, false);
+            String plan = consultar(username).map(Suscripcion::getPlanCodigo).orElse("EMPRENDEDOR");
+            extenderVigenciaPorMeses(username, meses, false, plan);
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e);
         }
@@ -170,10 +181,11 @@ public class SuscripcionServiceImpl implements SuscripcionService {
 
     private void aplicarConfirmacionPago(Long pagoId, PagoSuscripcion pago) throws SQLException {
         pagoRepository.confirmar(pagoId);
-        extenderVigenciaPorMeses(pago.getUsername(), pago.getMeses(), false);
+        String plan = PlanSuscripcion.porCodigoODefault(pago.getPlanCodigo()).getCodigo();
+        extenderVigenciaPorMeses(pago.getUsername(), pago.getMeses(), false, plan);
     }
 
-    private void extenderVigenciaPorMeses(String username, int meses, boolean enPeriodoPrueba)
+    private void extenderVigenciaPorMeses(String username, int meses, boolean enPeriodoPrueba, String planCodigo)
             throws SQLException {
         Suscripcion actual = suscripcionRepository.porUsername(username);
         LocalDateTime base = LocalDateTime.now();
@@ -188,9 +200,11 @@ public class SuscripcionServiceImpl implements SuscripcionService {
             nueva.setFechaFin(nuevaFin);
             nueva.setEnPeriodoPrueba(enPeriodoPrueba);
             nueva.setEstado("ACTIVA");
+            nueva.setPlanCodigo(planCodigo);
             suscripcionRepository.guardar(nueva);
         } else {
             suscripcionRepository.extenderVigencia(username, nuevaFin, enPeriodoPrueba);
+            suscripcionRepository.actualizarPlan(username, planCodigo, enPeriodoPrueba);
         }
     }
 

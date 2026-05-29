@@ -46,8 +46,13 @@
             </div>
         </c:if>
         <c:if test="${sessionScope.rol eq 'ADMIN'}">
+        <div class="alert alert-info mt-3 mx-auto text-start" style="max-width: 520px;">
+            <strong>Plan:</strong> ${planNombre}<br>
+            <span class="small">Vendedores: ${vendedoresUsados} / ${vendedoresMax} ·
+            Productos: ${productosUsados} / ${productosMax}</span>
+        </div>
         <a href="${pageContext.request.contextPath}/suscripcion" class="btn btn-outline-primary btn-sm mt-2">
-            Ver mi suscripcion prepago
+            Ver planes y suscripcion
         </a>
         </c:if>
     </div>

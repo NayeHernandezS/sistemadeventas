@@ -13,4 +13,6 @@ public interface SuscripcionRepository {
     void guardar(Suscripcion suscripcion) throws SQLException;
 
     void extenderVigencia(String username, LocalDateTime nuevaFechaFin, boolean enPeriodoPrueba) throws SQLException;
+
+    void actualizarPlan(String username, String planCodigo, boolean enPeriodoPrueba) throws SQLException;
 }

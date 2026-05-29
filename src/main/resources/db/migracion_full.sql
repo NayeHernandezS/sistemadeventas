@@ -24,3 +24,6 @@ SOURCE migracion_devoluciones.sql;
 
 -- 8) Solicitudes de soporte
 SOURCE migracion_soporte.sql;
+
+-- 9) Planes de suscripcion (3 niveles)
+SOURCE migracion_planes.sql;

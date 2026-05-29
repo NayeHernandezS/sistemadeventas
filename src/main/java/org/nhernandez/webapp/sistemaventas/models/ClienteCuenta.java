@@ -16,6 +16,7 @@ public class ClienteCuenta {
     private boolean enPeriodoPrueba;
     private String estadoSuscripcion;
     private boolean vigente;
+    private String planCodigo;
 
     public Long getId() {
         return id;
@@ -87,5 +88,13 @@ public class ClienteCuenta {
 
     public void setVigente(boolean vigente) {
         this.vigente = vigente;
+    }
+
+    public String getPlanCodigo() {
+        return planCodigo;
+    }
+
+    public void setPlanCodigo(String planCodigo) {
+        this.planCodigo = planCodigo;
     }
 }

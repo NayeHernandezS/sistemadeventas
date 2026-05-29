@@ -18,7 +18,7 @@ public class SuscripcionRepositoryJdbcImpl implements SuscripcionRepository {
 
     @Override
     public Suscripcion porUsername(String username) throws SQLException {
-        String sql = "SELECT id, username, fecha_inicio, fecha_fin, en_periodo_prueba, estado "
+        String sql = "SELECT id, username, fecha_inicio, fecha_fin, en_periodo_prueba, estado, plan_codigo "
                 + "FROM suscripciones WHERE username = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
@@ -33,14 +33,27 @@ public class SuscripcionRepositoryJdbcImpl implements SuscripcionRepository {
 
     @Override
     public void guardar(Suscripcion suscripcion) throws SQLException {
-        String sql = "INSERT INTO suscripciones (username, fecha_inicio, fecha_fin, en_periodo_prueba, estado) "
-                + "VALUES (?,?,?,?,?)";
+        String sql = "INSERT INTO suscripciones (username, fecha_inicio, fecha_fin, en_periodo_prueba, estado, plan_codigo) "
+                + "VALUES (?,?,?,?,?,?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, suscripcion.getUsername());
             stmt.setTimestamp(2, Timestamp.valueOf(suscripcion.getFechaInicio()));
             stmt.setTimestamp(3, Timestamp.valueOf(suscripcion.getFechaFin()));
             stmt.setBoolean(4, suscripcion.isEnPeriodoPrueba());
             stmt.setString(5, suscripcion.getEstado());
+            stmt.setString(6, suscripcion.getPlanCodigo() != null ? suscripcion.getPlanCodigo() : "EMPRENDEDOR");
+            stmt.executeUpdate();
+        }
+    }
+
+    @Override
+    public void actualizarPlan(String username, String planCodigo, boolean enPeriodoPrueba) throws SQLException {
+        String sql = "UPDATE suscripciones SET plan_codigo = ?, en_periodo_prueba = ?, estado = 'ACTIVA' "
+                + "WHERE username = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, planCodigo);
+            stmt.setBoolean(2, enPeriodoPrueba);
+            stmt.setString(3, username);
             stmt.executeUpdate();
         }
     }
@@ -66,6 +79,14 @@ public class SuscripcionRepositoryJdbcImpl implements SuscripcionRepository {
         s.setFechaFin(rs.getTimestamp("fecha_fin").toLocalDateTime());
         s.setEnPeriodoPrueba(rs.getBoolean("en_periodo_prueba"));
         s.setEstado(rs.getString("estado"));
+        try {
+            s.setPlanCodigo(rs.getString("plan_codigo"));
+        } catch (SQLException ignored) {
+            s.setPlanCodigo("EMPRENDEDOR");
+        }
+        if (s.getPlanCodigo() == null || s.getPlanCodigo().isBlank()) {
+            s.setPlanCodigo("EMPRENDEDOR");
+        }
         return s;
     }
 }

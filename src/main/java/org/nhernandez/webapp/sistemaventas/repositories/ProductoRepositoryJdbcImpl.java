@@ -130,6 +130,20 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
     }
 
     @Override
+    public int contarPorOwner(String ownerUsername) throws SQLException {
+        String sql = "SELECT COUNT(*) AS total FROM productos WHERE owner_username = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, ownerUsername);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total");
+                }
+            }
+        }
+        return 0;
+    }
+
+    @Override
     public void agregarExistencias(Long id, String ownerUsername, int cantidad) throws SQLException {
         if (cantidad <= 0) {
             return;
