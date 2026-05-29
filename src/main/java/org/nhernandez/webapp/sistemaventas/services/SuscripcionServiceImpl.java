@@ -137,17 +137,60 @@ public class SuscripcionServiceImpl implements SuscripcionService {
             if (!tenantOwner.equals(pago.getUsername())) {
                 throw new ServiceJdbcException("No puedes confirmar pagos de otra cuenta", null);
             }
-            pagoRepository.confirmar(pagoId);
-
-            Suscripcion actual = suscripcionRepository.porUsername(pago.getUsername());
-            LocalDateTime base = LocalDateTime.now();
-            if (actual != null && actual.getFechaFin().isAfter(base)) {
-                base = actual.getFechaFin();
-            }
-            LocalDateTime nuevaFin = base.plusMonths(pago.getMeses());
-            suscripcionRepository.extenderVigencia(pago.getUsername(), nuevaFin, false);
+            aplicarConfirmacionPago(pagoId, pago);
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void confirmarPagoPlataforma(Long pagoId) {
+        try {
+            PagoSuscripcion pago = pagoRepository.porId(pagoId);
+            if (pago == null || !"PENDIENTE".equals(pago.getEstado())) {
+                throw new ServiceJdbcException("Pago no valido para confirmar", null);
+            }
+            aplicarConfirmacionPago(pagoId, pago);
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void extenderSuscripcionMeses(String username, int meses) {
+        if (meses < 1 || meses > 24) {
+            throw new ServiceJdbcException("Los meses deben estar entre 1 y 24", null);
+        }
+        try {
+            extenderVigenciaPorMeses(username, meses, false);
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
+        }
+    }
+
+    private void aplicarConfirmacionPago(Long pagoId, PagoSuscripcion pago) throws SQLException {
+        pagoRepository.confirmar(pagoId);
+        extenderVigenciaPorMeses(pago.getUsername(), pago.getMeses(), false);
+    }
+
+    private void extenderVigenciaPorMeses(String username, int meses, boolean enPeriodoPrueba)
+            throws SQLException {
+        Suscripcion actual = suscripcionRepository.porUsername(username);
+        LocalDateTime base = LocalDateTime.now();
+        if (actual != null && actual.getFechaFin() != null && actual.getFechaFin().isAfter(base)) {
+            base = actual.getFechaFin();
+        }
+        LocalDateTime nuevaFin = base.plusMonths(meses);
+        if (actual == null) {
+            Suscripcion nueva = new Suscripcion();
+            nueva.setUsername(username);
+            nueva.setFechaInicio(LocalDateTime.now());
+            nueva.setFechaFin(nuevaFin);
+            nueva.setEnPeriodoPrueba(enPeriodoPrueba);
+            nueva.setEstado("ACTIVA");
+            suscripcionRepository.guardar(nueva);
+        } else {
+            suscripcionRepository.extenderVigencia(username, nuevaFin, enPeriodoPrueba);
         }
     }
 

@@ -28,4 +28,8 @@ public interface SuscripcionService {
     List<PagoSuscripcion> pagosPendientesDelTenant(String tenantOwner);
 
     void confirmarPago(Long pagoId, String tenantOwner);
+
+    void confirmarPagoPlataforma(Long pagoId);
+
+    void extenderSuscripcionMeses(String username, int meses);
 }

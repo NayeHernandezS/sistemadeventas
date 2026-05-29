@@ -13,13 +13,20 @@ public final class TenantUtil {
 
     public static void inicializarSesion(HttpSession session, Usuario usuario) {
         session.setAttribute("username", usuario.getUsername());
-        session.setAttribute("rol", usuario.getRol());
+        if (PlataformaUtil.esOperadorPlataforma(usuario)) {
+            session.setAttribute("rol", RolUtil.ROL_SUPER_ADMIN);
+        } else {
+            session.setAttribute("rol", usuario.getRol());
+        }
         session.setAttribute(SESSION_TENANT, resolverTenant(usuario));
     }
 
     public static String resolverTenant(Usuario usuario) {
         if (usuario == null) {
             return null;
+        }
+        if (PlataformaUtil.esOperadorPlataforma(usuario)) {
+            return usuario.getUsername();
         }
         if (RolUtil.esAdmin(usuario)) {
             return usuario.getUsername();

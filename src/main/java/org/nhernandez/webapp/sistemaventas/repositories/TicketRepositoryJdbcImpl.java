@@ -26,7 +26,7 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
 
     @Override
     public List<TicketVenta> listar() throws SQLException {
-        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total from tickets_venta order by fecha_venta desc";
+        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta order by fecha_venta desc";
         List<TicketVenta> tickets = new ArrayList<>();
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -41,7 +41,7 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
 
     @Override
     public TicketVenta porId(Long id) throws SQLException {
-        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total from tickets_venta where id = ?";
+        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta where id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -98,7 +98,7 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
 
     @Override
     public List<TicketVenta> listarPorVendedor(String usernameVendedor) throws SQLException {
-        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total from tickets_venta where username_vendedor = ? order by fecha_venta desc";
+        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta where username_vendedor = ? order by fecha_venta desc";
         List<TicketVenta> tickets = new ArrayList<>();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, usernameVendedor);
@@ -115,7 +115,7 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
 
     @Override
     public List<TicketVenta> listarPorTenant(String tenantOwner) throws SQLException {
-        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total from tickets_venta "
+        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta "
                 + "where tenant_owner = ? order by fecha_venta desc";
         List<TicketVenta> tickets = new ArrayList<>();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -133,7 +133,7 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
 
     @Override
     public TicketVenta porFolioDeTenant(String folio, String tenantOwner) throws SQLException {
-        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total from tickets_venta "
+        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta "
                 + "where folio = ? and tenant_owner = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, folio);
@@ -149,8 +149,38 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
         return null;
     }
 
+    @Override
+    public TicketVenta porIdDeTenant(Long id, String tenantOwner) throws SQLException {
+        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta "
+                + "where id = ? and tenant_owner = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            stmt.setString(2, tenantOwner);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    TicketVenta ticket = mapTicket(rs);
+                    ticket.setItems(obtenerItemsPorTicket(ticket.getId()));
+                    return ticket;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void actualizarEstado(Long ticketId, String tenantOwner, String estado) throws SQLException {
+        String sql = "UPDATE tickets_venta SET estado = ? WHERE id = ? AND tenant_owner = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, estado);
+            stmt.setLong(2, ticketId);
+            stmt.setString(3, tenantOwner);
+            stmt.executeUpdate();
+        }
+    }
+
     private void insertarTicket(TicketVenta ticket) throws SQLException {
-        String sql = "insert into tickets_venta (folio, username_vendedor, tenant_owner, fecha_venta, total) values (?, ?, ?, ?, ?)";
+        String sql = "insert into tickets_venta (folio, username_vendedor, tenant_owner, fecha_venta, total, estado) "
+                + "values (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, ticket.getFolio());
             stmt.setString(2, ticket.getUsernameVendedor());
@@ -161,6 +191,7 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
                 stmt.setNull(4, Types.TIMESTAMP);
             }
             stmt.setInt(5, ticket.getTotal());
+            stmt.setString(6, ticket.getEstado() != null ? ticket.getEstado() : "ACTIVO");
             stmt.executeUpdate();
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -243,6 +274,14 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
         Timestamp timestamp = rs.getTimestamp("fecha_venta");
         ticket.setFechaVenta(timestamp != null ? timestamp.toLocalDateTime() : null);
         ticket.setTotal(rs.getInt("total"));
+        try {
+            ticket.setEstado(rs.getString("estado"));
+        } catch (SQLException ignored) {
+            ticket.setEstado("ACTIVO");
+        }
+        if (ticket.getEstado() == null || ticket.getEstado().isBlank()) {
+            ticket.setEstado("ACTIVO");
+        }
         return ticket;
     }
 }

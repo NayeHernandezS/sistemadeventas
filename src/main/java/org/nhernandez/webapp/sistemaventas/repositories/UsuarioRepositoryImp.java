@@ -4,9 +4,12 @@ import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.nhernandez.webapp.sistemaventas.configs.MysqlConn;
 
+import org.nhernandez.webapp.sistemaventas.models.ClienteCuenta;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
+import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,6 +124,53 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
 
             stmt.executeUpdate();
         }
+    }
+
+    @Override
+    public List<ClienteCuenta> listarCuentasCliente() throws SQLException {
+        String sql = """
+                SELECT u.id, u.username, u.email, u.tipo_negocio,
+                       s.fecha_fin, s.en_periodo_prueba, s.estado AS estado_suscripcion,
+                       (SELECT COUNT(*) FROM usuarios v
+                        WHERE v.admin_owner = u.username
+                          AND UPPER(v.rol) = 'VENDEDOR') AS cantidad_vendedores
+                FROM usuarios u
+                LEFT JOIN suscripciones s ON s.username = u.username
+                WHERE UPPER(u.rol) = ?
+                ORDER BY u.username
+                """;
+        List<ClienteCuenta> lista = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, RolUtil.ROL_ADMIN);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ClienteCuenta c = new ClienteCuenta();
+                    c.setId(rs.getLong("id"));
+                    c.setUsername(rs.getString("username"));
+                    c.setEmail(rs.getString("email"));
+                    try {
+                        c.setTipoNegocio(rs.getString("tipo_negocio"));
+                    } catch (SQLException ignored) {
+                    }
+                    c.setCantidadVendedores(rs.getInt("cantidad_vendedores"));
+                    Timestamp fin = rs.getTimestamp("fecha_fin");
+                    if (fin != null) {
+                        LocalDateTime fechaFin = fin.toLocalDateTime();
+                        c.setFechaFinSuscripcion(fechaFin);
+                        c.setVigente(!LocalDateTime.now().isAfter(fechaFin));
+                    } else {
+                        c.setVigente(false);
+                    }
+                    try {
+                        c.setEnPeriodoPrueba(rs.getBoolean("en_periodo_prueba"));
+                        c.setEstadoSuscripcion(rs.getString("estado_suscripcion"));
+                    } catch (SQLException ignored) {
+                    }
+                    lista.add(c);
+                }
+            }
+        }
+        return lista;
     }
 
     @Override

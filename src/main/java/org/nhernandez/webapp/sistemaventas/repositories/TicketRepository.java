@@ -11,4 +11,8 @@ public interface TicketRepository extends CrudRepository<TicketVenta> {
     List<TicketVenta> listarPorTenant(String tenantOwner) throws SQLException;
 
     TicketVenta porFolioDeTenant(String folio, String tenantOwner) throws SQLException;
+
+    TicketVenta porIdDeTenant(Long id, String tenantOwner) throws SQLException;
+
+    void actualizarEstado(Long ticketId, String tenantOwner, String estado) throws SQLException;
 }

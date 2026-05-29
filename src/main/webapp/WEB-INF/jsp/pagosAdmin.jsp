@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <title>Confirmar pagos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
 </head>
 <body>
 <div class="container py-4">

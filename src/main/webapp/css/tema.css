@@ -1,0 +1,227 @@
+:root {
+    /* Paleta: morado, negro y dorado */
+    --color-morado: #5B2A86;
+    --color-morado-oscuro: #3B136B;
+    --color-morado-claro: #6D28D9;
+
+    --color-negro: #0f0f14;
+    --color-negro-suave: #23232b;
+    --color-negro-medio: #34343d;
+
+    --color-dorado: #C9A227;
+    --color-dorado-claro: #E7D7A6;
+    --color-dorado-oscuro: #A47F1C;
+
+    --color-fondo: #f7f4fb;
+
+    /* RGB para rgba(var(--...-rgb), x) */
+    --color-morado-rgb: 91, 42, 134;
+    --color-negro-rgb: 15, 15, 20;
+    --color-dorado-rgb: 201, 162, 39;
+
+    /* Bootstrap */
+    --bs-primary: var(--color-morado);
+    --bs-primary-rgb: var(--color-morado-rgb);
+    --bs-warning: var(--color-dorado);
+    --bs-warning-rgb: var(--color-dorado-rgb);
+    --bs-dark: var(--color-negro);
+    --bs-dark-rgb: var(--color-negro-rgb);
+    --bs-link-color: var(--color-morado);
+    --bs-link-hover-color: var(--color-morado-oscuro);
+    --bs-body-bg: var(--color-fondo);
+    --bs-body-color: var(--color-negro-suave);
+    --bs-border-color: rgba(91, 42, 134, 0.18);
+    --bs-focus-ring-color: rgba(var(--color-dorado-rgb), 0.28);
+}
+
+body {
+    background-color: var(--color-fondo);
+    color: var(--color-negro-suave);
+}
+
+.bg-light {
+    background-color: var(--color-fondo) !important;
+}
+
+a {
+    color: var(--color-morado);
+}
+
+a:hover {
+    color: var(--color-morado-oscuro);
+}
+
+h1, h2, h3, .h1, .h2, .h3 {
+    color: var(--color-morado);
+}
+
+.text-primary {
+    color: var(--color-morado) !important;
+}
+
+.text-warning {
+    color: var(--color-dorado) !important;
+}
+
+.text-muted {
+    color: #5c5c5c !important;
+}
+
+.bg-primary {
+    background-color: var(--color-morado) !important;
+}
+
+/* Barra superior (inicio y paginas internas) */
+.navbar-app {
+    background: var(--color-negro) !important;
+    border-bottom: 2px solid rgba(var(--color-dorado-rgb), 0.85);
+}
+
+.navbar-app .navbar-brand,
+.navbar-app .nav-link,
+.navbar-app .text-muted {
+    color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.navbar-app .text-primary {
+    color: var(--color-dorado) !important;
+}
+
+.navbar-app .text-warning {
+    color: var(--color-morado-claro) !important;
+}
+
+.navbar-app .btn-outline-light {
+    --bs-btn-color: var(--color-dorado);
+    --bs-btn-border-color: var(--color-dorado);
+    --bs-btn-hover-bg: var(--color-dorado);
+    --bs-btn-hover-border-color: var(--color-dorado);
+    --bs-btn-hover-color: var(--color-negro);
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--color-morado);
+    --bs-btn-border-color: var(--color-morado);
+    --bs-btn-hover-bg: var(--color-morado-oscuro);
+    --bs-btn-hover-border-color: var(--color-morado-oscuro);
+    --bs-btn-active-bg: var(--color-morado-oscuro);
+    --bs-btn-active-border-color: var(--color-morado-oscuro);
+    --bs-btn-disabled-bg: var(--color-morado);
+    --bs-btn-disabled-border-color: var(--color-morado);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--color-morado);
+    --bs-btn-border-color: var(--color-morado);
+    --bs-btn-hover-bg: var(--color-morado);
+    --bs-btn-hover-border-color: var(--color-morado);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: var(--color-morado-oscuro);
+    --bs-btn-active-border-color: var(--color-morado-oscuro);
+}
+
+.btn-success {
+    --bs-btn-color: var(--color-negro);
+    --bs-btn-bg: var(--color-dorado);
+    --bs-btn-border-color: var(--color-dorado-oscuro);
+    --bs-btn-hover-color: var(--color-negro);
+    --bs-btn-hover-bg: var(--color-dorado-claro);
+    --bs-btn-hover-border-color: var(--color-dorado);
+    --bs-btn-active-bg: var(--color-dorado-oscuro);
+    --bs-btn-active-border-color: var(--color-dorado-oscuro);
+}
+
+.btn-secondary {
+    --bs-btn-bg: var(--color-negro-medio);
+    --bs-btn-border-color: var(--color-negro-medio);
+    --bs-btn-hover-bg: var(--color-negro);
+    --bs-btn-hover-border-color: var(--color-negro);
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: var(--color-negro-medio);
+    --bs-btn-border-color: var(--color-negro-medio);
+    --bs-btn-hover-bg: var(--color-negro-medio);
+    --bs-btn-hover-border-color: var(--color-negro-medio);
+    --bs-btn-hover-color: #fff;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--color-dorado);
+    box-shadow: 0 0 0 0.2rem rgba(var(--color-dorado-rgb), 0.24);
+}
+
+.alert-warning {
+    --bs-alert-color: var(--color-negro-suave);
+    --bs-alert-bg: rgba(var(--color-dorado-rgb), 0.12);
+    --bs-alert-border-color: rgba(var(--color-dorado-rgb), 0.65);
+}
+
+.alert-info {
+    --bs-alert-color: var(--color-negro-suave);
+    --bs-alert-bg: rgba(var(--color-morado-rgb), 0.07);
+    --bs-alert-border-color: rgba(var(--color-morado-rgb), 0.5);
+}
+
+.alert-success {
+    --bs-alert-color: var(--color-negro-suave);
+    --bs-alert-bg: rgba(var(--color-dorado-rgb), 0.09);
+    --bs-alert-border-color: rgba(var(--color-dorado-rgb), 0.65);
+}
+
+.card {
+    border-color: rgba(var(--color-morado-rgb), 0.12);
+}
+
+.card-header {
+    background-color: var(--color-negro);
+    color: var(--color-dorado);
+    border-bottom: 1px solid rgba(var(--color-dorado-rgb), 0.85);
+}
+
+.table {
+    --bs-table-border-color: rgba(107, 33, 168, 0.15);
+}
+
+.table thead th {
+    background-color: var(--color-negro);
+    color: var(--color-dorado);
+    border-color: var(--color-negro-medio);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: rgba(var(--color-morado-rgb), 0.035);
+    color: var(--color-negro-suave);
+}
+
+.table-hover > tbody > tr:hover > * {
+    background-color: rgba(var(--color-dorado-rgb), 0.075);
+}
+
+.table-primary {
+    --bs-table-bg: rgba(107, 33, 168, 0.08);
+    --bs-table-color: var(--color-negro-suave);
+}
+
+.badge.bg-primary {
+    background-color: var(--color-morado) !important;
+}
+
+.badge.bg-warning,
+.badge.text-bg-warning {
+    background-color: var(--color-dorado) !important;
+    color: var(--color-negro) !important;
+}
+
+.border-warning {
+    border-color: var(--color-dorado) !important;
+}
+
+.border-primary {
+    border-color: var(--color-morado) !important;
+}
+
+.pagina-error .card {
+    border-top: 3px solid rgba(var(--color-dorado-rgb), 0.85);
+}

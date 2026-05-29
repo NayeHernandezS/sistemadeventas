@@ -42,6 +42,11 @@ public class SuscripcionFiltro implements Filter {
             return;
         }
 
+        if (RolUtil.esSuperAdmin(req)) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         // Sin conexion JDBC (p. ej. rutas publicas de ConexionFilter): no evaluar suscripcion aqui.
         if (JdbcConnectionHolder.get() == null) {
             chain.doFilter(request, response);
@@ -86,6 +91,9 @@ public class SuscripcionFiltro implements Filter {
 
     private static boolean rutaPermitidaSinPlan(String path, HttpServletRequest req) {
         if (path.startsWith("/suscripcion")) {
+            return true;
+        }
+        if (path.startsWith("/soporte")) {
             return true;
         }
         if (RolUtil.esAdmin(req) && path.startsWith("/admin/pagos")) {

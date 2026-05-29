@@ -7,14 +7,16 @@ body {
 
 .sidebar {
     width: 250px;
-    background-color: #333;
+    background-color: var(--color-negro, #0a0a0a);
     color: white;
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+    border-right: 2px solid rgba(var(--color-dorado-rgb), 0.75);
 }
 
 .sidebar h2 {
     text-align: center;
+    color: var(--color-dorado-claro, #E7D7A6);
 }
 
 .sidebar ul {
@@ -32,54 +34,59 @@ body {
     padding: 10px;
     display: block;
     transition: background 0.3s;
+    width: 100%;
+    background: transparent;
+    border: none;
+    text-align: left;
+    cursor: pointer;
 }
 
 .sidebar ul li button:hover {
-    background-color: #575757;
+    background-color: rgba(var(--color-dorado-rgb), 0.12);
 }
 
 .content {
     padding: 20px;
     flex-grow: 1;
-    background-color: #f4f4f4;
+    background-color: var(--color-fondo, #f5f3f8);
 }
 
- form {
- display: none;
+form {
+    display: none;
 }
 
-        input[type="text"],
-        input[type="email"] {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 10px 15px;
-            background-color: #Fd6A01;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #Fd6A01;
-        }
+input[type="text"],
+input[type="email"] {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
 
+button {
+    padding: 10px 15px;
+    background-color: rgba(var(--color-morado-rgb), 0.88);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
+button:hover {
+    background-color: var(--color-morado-oscuro, #4C1D95);
+}
 
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
+th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
 
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
+th {
+    background-color: rgba(var(--color-morado-rgb), 0.08);
+    color: var(--color-negro-suave, #1a1a1a);
+}

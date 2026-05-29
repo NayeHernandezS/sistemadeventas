@@ -11,6 +11,8 @@ public class TicketVenta {
     private String tenantOwner;
     private LocalDateTime fechaVenta;
     private int total;
+    /** ACTIVO, DEVUELTO_PARCIAL, DEVUELTO_TOTAL */
+    private String estado = "ACTIVO";
     private List<TicketItem> items = new ArrayList<>();
 
     public Long getId() {
@@ -67,5 +69,17 @@ public class TicketVenta {
 
     public void setItems(List<TicketItem> items) {
         this.items = items;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public boolean permiteDevolucion() {
+        return estado == null || "ACTIVO".equals(estado) || "DEVUELTO_PARCIAL".equals(estado);
     }
 }

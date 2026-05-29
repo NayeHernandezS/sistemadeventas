@@ -1,0 +1,16 @@
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-app shadow-sm py-3 mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="${pageContext.request.contextPath}/plataforma">
+            <i class="bi bi-shield-lock"></i> Panel plataforma
+        </a>
+        <div class="d-flex gap-2 flex-wrap">
+            <a class="btn btn-sm btn-outline-light" href="${pageContext.request.contextPath}/plataforma">Inicio</a>
+            <a class="btn btn-sm btn-outline-light" href="${pageContext.request.contextPath}/plataforma/clientes">Clientes</a>
+            <a class="btn btn-sm btn-outline-light" href="${pageContext.request.contextPath}/plataforma/pagos">Pagos</a>
+            <a class="btn btn-sm btn-outline-light" href="${pageContext.request.contextPath}/plataforma/soporte">Soporte</a>
+            <span class="text-muted small align-self-center d-none d-md-inline ms-2">${sessionScope.username}</span>
+            <a class="btn btn-sm btn-outline-warning" href="${pageContext.request.contextPath}/logout">Salir</a>
+        </div>
+    </div>
+</nav>

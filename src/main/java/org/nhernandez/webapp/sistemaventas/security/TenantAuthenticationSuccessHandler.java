@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
 import org.nhernandez.webapp.sistemaventas.services.SuscripcionService;
+import org.nhernandez.webapp.sistemaventas.util.PlataformaUtil;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
 import org.springframework.security.core.Authentication;
@@ -44,6 +45,11 @@ public class TenantAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         TenantUtil.inicializarSesion(request.getSession(), usuario);
+
+        if (PlataformaUtil.esOperadorPlataforma(usuario)) {
+            getRedirectStrategy().sendRedirect(request, response, request.getContextPath() + "/plataforma");
+            return;
+        }
 
         if (!suscripcionService.tieneAccesoActivo(tenant)) {
             String destino = RolUtil.esAdmin(usuario)

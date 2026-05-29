@@ -130,6 +130,23 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
     }
 
     @Override
+    public void agregarExistencias(Long id, String ownerUsername, int cantidad) throws SQLException {
+        if (cantidad <= 0) {
+            return;
+        }
+        String sql = "UPDATE productos SET existencias = existencias + ? WHERE id = ? AND owner_username = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, cantidad);
+            stmt.setLong(2, id);
+            stmt.setString(3, ownerUsername);
+            int filas = stmt.executeUpdate();
+            if (filas == 0) {
+                throw new SQLException("Producto no encontrado para reintegrar inventario");
+            }
+        }
+    }
+
+    @Override
     public void eliminarPorOwner(Long id, String ownerUsername) throws SQLException {
         String sql = "DELETE FROM productos WHERE id=? AND owner_username=?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {

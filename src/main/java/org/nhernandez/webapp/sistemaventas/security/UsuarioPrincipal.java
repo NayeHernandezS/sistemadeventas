@@ -1,6 +1,7 @@
 package org.nhernandez.webapp.sistemaventas.security;
 
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
+import org.nhernandez.webapp.sistemaventas.util.PlataformaUtil;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,9 +24,12 @@ public class UsuarioPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (PlataformaUtil.esOperadorPlataforma(usuario)) {
+            return List.of(new SimpleGrantedAuthority(RolUtil.AUTHORITY_SUPER_ADMIN));
+        }
         String rol = usuario.getRol() != null ? usuario.getRol().trim().toUpperCase() : "";
         if (RolUtil.ROL_ADMIN.equalsIgnoreCase(rol)) {
-            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            return List.of(new SimpleGrantedAuthority(RolUtil.AUTHORITY_ADMIN));
         }
         return List.of(new SimpleGrantedAuthority("ROLE_VENDEDOR"));
     }

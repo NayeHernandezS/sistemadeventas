@@ -14,4 +14,6 @@ public interface UsuarioReposository extends CrudRepository<Usuario> {
     List<Usuario> listarPorAdminOwner(String adminOwner) throws SQLException;
 
     Usuario porIdDeTenant(Long id, String adminOwner) throws SQLException;
+
+    List<org.nhernandez.webapp.sistemaventas.models.ClienteCuenta> listarCuentasCliente() throws SQLException;
 }

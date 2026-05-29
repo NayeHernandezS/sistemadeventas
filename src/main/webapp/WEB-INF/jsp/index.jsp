@@ -7,11 +7,12 @@
     <title>Sistema de Ventas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/estiloindex.css">
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-app shadow-sm py-3">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2" href="${pageContext.request.contextPath}/">
             <img src="${pageContext.request.contextPath}/img/logo.png"
@@ -22,7 +23,7 @@
         </a>
         <div class="ms-auto d-flex align-items-center gap-2">
             <span class="text-muted small d-none d-md-inline">Hola, ${sessionScope.username}</span>
-            <a class="btn btn-outline-danger btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/logout">
+            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/logout">
                 Cerrar sesion <i class="bi bi-power"></i>
             </a>
         </div>
@@ -76,6 +77,13 @@
 
         <div class="col-md-4 col-lg-3">
             <div class="card h-100 menu-card p-4">
+                <div class="icon-circle"><i class="bi bi-arrow-return-left"></i></div>
+                <a href="${pageContext.request.contextPath}/devoluciones" class="menu-link stretched-link">Devoluciones</a>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg-3">
+            <div class="card h-100 menu-card p-4">
                 <div class="icon-circle"><i class="bi bi-calendar2-check"></i></div>
                 <a href="${pageContext.request.contextPath}/reportes" class="menu-link stretched-link">Reportes</a>
             </div>
@@ -89,9 +97,15 @@
             </div>
         </div>
         <div class="col-md-4 col-lg-3">
-            <div class="card h-100 menu-card p-4 border-start border-success border-3">
+            <div class="card h-100 menu-card p-4 border-start border-primary border-3">
                 <div class="icon-circle"><i class="bi bi-credit-card"></i></div>
                 <a href="${pageContext.request.contextPath}/admin/pagos" class="menu-link stretched-link">Mis pagos pendientes</a>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card h-100 menu-card p-4 border-start border-info border-3">
+                <div class="icon-circle"><i class="bi bi-headset"></i></div>
+                <a href="${pageContext.request.contextPath}/soporte" class="menu-link stretched-link">Soporte</a>
             </div>
         </div>
         </c:if>

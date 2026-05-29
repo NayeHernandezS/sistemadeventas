@@ -37,6 +37,9 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/img/**")
                         ).permitAll()
                         .requestMatchers(
+                                new AntPathRequestMatcher("/plataforma/**")
+                        ).hasRole("SUPER_ADMIN")
+                        .requestMatchers(
                                 new AntPathRequestMatcher("/usuarios/**"),
                                 new AntPathRequestMatcher("/admin/**"),
                                 new AntPathRequestMatcher("/productos/form"),
