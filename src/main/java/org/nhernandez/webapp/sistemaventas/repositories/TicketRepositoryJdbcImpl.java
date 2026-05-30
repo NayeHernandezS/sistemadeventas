@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.nhernandez.webapp.sistemaventas.configs.MysqlConn;
 
+import org.nhernandez.webapp.sistemaventas.models.ResumenVentasVendedor;
 import org.nhernandez.webapp.sistemaventas.models.TicketItem;
 import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 
@@ -14,6 +15,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +61,53 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
             }
         }
         return tickets;
+    }
+
+    @Override
+    public List<TicketVenta> listarRecientesPorVendedor(String usernameVendedor, int limite) throws SQLException {
+        int max = limite > 0 ? limite : 5;
+        String sql = """
+                SELECT id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado
+                FROM tickets_venta
+                WHERE username_vendedor = ?
+                ORDER BY fecha_venta DESC
+                LIMIT ?
+                """;
+        List<TicketVenta> tickets = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, usernameVendedor);
+            stmt.setInt(2, max);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    tickets.add(mapTicket(rs));
+                }
+            }
+        }
+        return tickets;
+    }
+
+    @Override
+    public ResumenVentasVendedor resumenPorVendedorEnPeriodo(String usernameVendedor,
+                                                             LocalDateTime inicio,
+                                                             LocalDateTime fin) throws SQLException {
+        String sql = """
+                SELECT COUNT(*) AS cantidad, COALESCE(SUM(total), 0) AS total_importe
+                FROM tickets_venta
+                WHERE username_vendedor = ?
+                  AND fecha_venta >= ?
+                  AND fecha_venta < ?
+                """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, usernameVendedor);
+            stmt.setTimestamp(2, Timestamp.valueOf(inicio));
+            stmt.setTimestamp(3, Timestamp.valueOf(fin));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new ResumenVentasVendedor(rs.getInt("cantidad"), rs.getLong("total_importe"));
+                }
+            }
+        }
+        return new ResumenVentasVendedor(0, 0);
     }
 
     @Override

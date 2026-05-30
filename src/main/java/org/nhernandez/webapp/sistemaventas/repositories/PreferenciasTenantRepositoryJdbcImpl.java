@@ -1,0 +1,62 @@
+package org.nhernandez.webapp.sistemaventas.repositories;
+
+import org.nhernandez.webapp.sistemaventas.configs.MysqlConn;
+import org.nhernandez.webapp.sistemaventas.models.PreferenciasTenant;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+
+@Repository
+public class PreferenciasTenantRepositoryJdbcImpl implements PreferenciasTenantRepository {
+
+    @Autowired
+    @MysqlConn
+    private Connection conn;
+
+    @Override
+    public PreferenciasTenant porTenant(String tenantUsername) throws SQLException {
+        String sql = """
+                SELECT tenant_username, stock_minimo
+                FROM preferencias_tenant
+                WHERE tenant_username = ?
+                """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, tenantUsername);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    PreferenciasTenant pref = new PreferenciasTenant();
+                    pref.setTenantUsername(rs.getString("tenant_username"));
+                    int stock = rs.getInt("stock_minimo");
+                    if (!rs.wasNull()) {
+                        pref.setStockMinimo(stock);
+                    }
+                    return pref;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void guardar(PreferenciasTenant preferencias) throws SQLException {
+        String sql = """
+                INSERT INTO preferencias_tenant (tenant_username, stock_minimo)
+                VALUES (?, ?)
+                ON DUPLICATE KEY UPDATE stock_minimo = VALUES(stock_minimo)
+                """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, preferencias.getTenantUsername());
+            if (preferencias.getStockMinimo() == null) {
+                stmt.setNull(2, Types.INTEGER);
+            } else {
+                stmt.setInt(2, preferencias.getStockMinimo());
+            }
+            stmt.executeUpdate();
+        }
+    }
+}

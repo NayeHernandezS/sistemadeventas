@@ -20,4 +20,10 @@ public interface UsuarioService {
     void registrarCuentaAdmin(Usuario usuario, String planCodigo);
 
     void cambiarPassword(String username, String passwordActual, String passwordNueva);
+
+    Optional<Usuario> porUsername(String username);
+
+    void actualizarEmail(String username, String emailNuevo);
+
+    void actualizarTipoNegocio(String username, String tipoNegocio);
 }

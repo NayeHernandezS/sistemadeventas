@@ -31,32 +31,7 @@ public class FilterConfig {
             SuscripcionService suscripcionService) {
         FilterRegistrationBean<SuscripcionFiltro> registration =
                 new FilterRegistrationBean<>(new SuscripcionFiltro(loginService, suscripcionService));
-        registration.addUrlPatterns(
-                "/carro/*",
-                "/productos",
-                "/productos.html",
-                "/crudprod",
-                "/crudprod.html",
-                "/productos/form",
-                "/productos/form/*",
-                "/productos/eliminar",
-                "/productos/eliminar/*",
-                "/categorias",
-                "/categorias/*",
-                "/tickets",
-                "/reportes",
-                "/reportes/export",
-                "/factura",
-                "/factura/pdf",
-                "/devoluciones",
-                "/devoluciones/*",
-                "/suscripcion",
-                "/suscripcion/*",
-                "/usuarios",
-                "/usuarios/*",
-                "/admin/pagos",
-                "/admin/pagos/*"
-        );
+        registration.addUrlPatterns("/*");
         registration.setOrder(SecurityProperties.DEFAULT_FILTER_ORDER + 1);
         return registration;
     }

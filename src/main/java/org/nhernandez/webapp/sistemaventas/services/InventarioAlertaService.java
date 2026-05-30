@@ -9,11 +9,21 @@ import java.util.List;
 @Service
 public class InventarioAlertaService {
 
+    private final PreferenciasTenantService preferenciasTenantService;
+
     @Value("${inventario.stock.minimo:5}")
-    private int stockMinimo;
+    private int stockMinimoGlobal;
+
+    public InventarioAlertaService(PreferenciasTenantService preferenciasTenantService) {
+        this.preferenciasTenantService = preferenciasTenantService;
+    }
 
     public int getStockMinimo() {
-        return stockMinimo;
+        return stockMinimoGlobal;
+    }
+
+    public int getStockMinimo(String tenantOwner) {
+        return preferenciasTenantService.resolverStockMinimo(tenantOwner, stockMinimoGlobal);
     }
 
     public boolean esAgotado(Producto producto) {
@@ -21,13 +31,29 @@ public class InventarioAlertaService {
     }
 
     public boolean esStockBajo(Producto producto) {
+        return esStockBajo(producto, stockMinimoGlobal);
+    }
+
+    public boolean esStockBajo(Producto producto, String tenantOwner) {
+        return esStockBajo(producto, getStockMinimo(tenantOwner));
+    }
+
+    public boolean esStockBajo(Producto producto, int umbral) {
         return producto != null
                 && producto.getExistencias() > 0
-                && producto.getExistencias() <= stockMinimo;
+                && producto.getExistencias() <= umbral;
     }
 
     public boolean requiereAlerta(Producto producto) {
-        return esAgotado(producto) || esStockBajo(producto);
+        return requiereAlerta(producto, stockMinimoGlobal);
+    }
+
+    public boolean requiereAlerta(Producto producto, String tenantOwner) {
+        return esAgotado(producto) || esStockBajo(producto, tenantOwner);
+    }
+
+    public boolean requiereAlerta(Producto producto, int umbral) {
+        return esAgotado(producto) || esStockBajo(producto, umbral);
     }
 
     public int contarAgotados(List<Producto> productos) {
@@ -38,16 +64,25 @@ public class InventarioAlertaService {
     }
 
     public int contarStockBajo(List<Producto> productos) {
+        return contarStockBajo(productos, stockMinimoGlobal);
+    }
+
+    public int contarStockBajo(List<Producto> productos, String tenantOwner) {
+        int umbral = getStockMinimo(tenantOwner);
         if (productos == null) {
             return 0;
         }
-        return (int) productos.stream().filter(this::esStockBajo).count();
+        return (int) productos.stream().filter(p -> esStockBajo(p, umbral)).count();
     }
 
     public int contarConAlerta(List<Producto> productos) {
+        return contarConAlerta(productos, stockMinimoGlobal);
+    }
+
+    public int contarConAlerta(List<Producto> productos, String tenantOwner) {
         if (productos == null) {
             return 0;
         }
-        return (int) productos.stream().filter(this::requiereAlerta).count();
+        return (int) productos.stream().filter(p -> requiereAlerta(p, tenantOwner)).count();
     }
 }

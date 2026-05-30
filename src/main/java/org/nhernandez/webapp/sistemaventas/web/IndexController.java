@@ -41,12 +41,12 @@ public class IndexController {
             model.addAttribute("productosMax", plan.getMaxProductos());
 
             var productos = productoService.listarPorOwner(tenant);
-            int conAlerta = inventarioAlertaService.contarConAlerta(productos);
+            int conAlerta = inventarioAlertaService.contarConAlerta(productos, tenant);
             if (conAlerta > 0) {
-                model.addAttribute("stockMinimo", inventarioAlertaService.getStockMinimo());
+                model.addAttribute("stockMinimo", inventarioAlertaService.getStockMinimo(tenant));
                 model.addAttribute("cantidadConAlerta", conAlerta);
                 model.addAttribute("cantidadAgotados", inventarioAlertaService.contarAgotados(productos));
-                model.addAttribute("cantidadStockBajo", inventarioAlertaService.contarStockBajo(productos));
+                model.addAttribute("cantidadStockBajo", inventarioAlertaService.contarStockBajo(productos, tenant));
             }
         }
         return "index";

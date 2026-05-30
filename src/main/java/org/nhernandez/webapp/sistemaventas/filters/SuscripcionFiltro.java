@@ -20,6 +20,9 @@ import java.io.IOException;
 /**
  * Registrado solo desde {@link org.nhernandez.webapp.sistemaventas.config.FilterConfig}.
  * Requiere que {@link ConexionFilter} haya abierto la conexion JDBC en la misma peticion.
+ * <p>
+ * Usuarios autenticados sin suscripcion activa solo pueden acceder a rutas de renovacion,
+ * soporte y cierre de sesion; el resto del sistema queda bloqueado.
  */
 public class SuscripcionFiltro implements Filter {
 
@@ -36,6 +39,11 @@ public class SuscripcionFiltro implements Filter {
             throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
+
+        if (esRutaExenta(req)) {
+            chain.doFilter(request, response);
+            return;
+        }
 
         if (loginService.getUsername(req).isEmpty()) {
             chain.doFilter(request, response);
@@ -67,6 +75,10 @@ public class SuscripcionFiltro implements Filter {
         }
 
         if (rutaPermitidaSinPlan(path, req)) {
+            if ("/".equals(path) && RolUtil.esAdmin(req)) {
+                resp.sendRedirect(req.getContextPath() + "/suscripcion?requierePago=1");
+                return;
+            }
             chain.doFilter(request, response);
             return;
         }
@@ -78,7 +90,7 @@ public class SuscripcionFiltro implements Filter {
         resp.sendRedirect(req.getContextPath() + "/?sinPlan=1");
     }
 
-    private static String normalizarPath(HttpServletRequest req) {
+    static String normalizarPath(HttpServletRequest req) {
         String path = req.getRequestURI().substring(req.getContextPath().length());
         if (path.isEmpty()) {
             return "/";
@@ -90,10 +102,47 @@ public class SuscripcionFiltro implements Filter {
     }
 
     /**
-     * Rutas accesibles con suscripcion vencida (renovacion, soporte, consulta de pagos).
-     * Devoluciones, ventas, inventario y demas modulos requieren plan activo.
+     * Rutas que no requieren evaluacion de suscripcion (publicas o estaticas).
      */
-    private static boolean rutaPermitidaSinPlan(String path, HttpServletRequest req) {
+    static boolean esRutaExenta(HttpServletRequest req) {
+        String path = normalizarPath(req);
+        String method = req.getMethod();
+        if (path.equals("/login") || path.equals("/login.html")) {
+            return "GET".equalsIgnoreCase(method);
+        }
+        if (path.equals("/registro")) {
+            return "GET".equalsIgnoreCase(method);
+        }
+        if (path.startsWith("/recuperar")) {
+            return true;
+        }
+        if (path.equals("/logout") || path.equals("/error") || path.equals("/acceso-denegado")) {
+            return true;
+        }
+        return path.startsWith("/css/")
+                || path.startsWith("/img/")
+                || esRecursoEstatico(path);
+    }
+
+    private static boolean esRecursoEstatico(String path) {
+        return path.endsWith(".css")
+                || path.endsWith(".js")
+                || path.endsWith(".svg")
+                || path.endsWith(".png");
+    }
+
+    /**
+     * Rutas accesibles con suscripcion vencida (renovacion, soporte, aviso sin plan).
+     * Ventas, inventario, reportes y demas modulos requieren plan activo.
+     * Perfil permite gestionar cuenta (email, contraseña) aunque el plan este vencido.
+     */
+    static boolean rutaPermitidaSinPlan(String path, HttpServletRequest req) {
+        if (path.equals("/") || path.equals("/index.jsp")) {
+            return true;
+        }
+        if (path.equals("/perfil") || path.startsWith("/perfil/")) {
+            return true;
+        }
         if (path.startsWith("/suscripcion")) {
             return true;
         }

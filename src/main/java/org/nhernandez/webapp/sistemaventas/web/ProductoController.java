@@ -45,7 +45,7 @@ public class ProductoController {
         List<Producto> productos = service.listarPorOwner(tenant);
         model.addAttribute("productos", productos);
         model.addAttribute("username", auth.getUsername(req));
-        agregarAlertasStock(model, productos);
+        agregarAlertasStock(model, productos, tenant);
         return "listar";
     }
 
@@ -58,7 +58,7 @@ public class ProductoController {
         model.addAttribute("username", auth.getUsername(req));
         model.addAttribute("esAdmin", esAdmin);
         model.addAttribute("soloLectura", !esAdmin);
-        agregarAlertasStock(model, productos);
+        agregarAlertasStock(model, productos, tenant);
         return "inventario";
     }
 
@@ -172,11 +172,11 @@ public class ProductoController {
         return errores;
     }
 
-    private void agregarAlertasStock(Model model, List<Producto> productos) {
-        model.addAttribute("stockMinimo", inventarioAlertaService.getStockMinimo());
+    private void agregarAlertasStock(Model model, List<Producto> productos, String tenant) {
+        model.addAttribute("stockMinimo", inventarioAlertaService.getStockMinimo(tenant));
         model.addAttribute("cantidadAgotados", inventarioAlertaService.contarAgotados(productos));
-        model.addAttribute("cantidadStockBajo", inventarioAlertaService.contarStockBajo(productos));
-        model.addAttribute("cantidadConAlerta", inventarioAlertaService.contarConAlerta(productos));
+        model.addAttribute("cantidadStockBajo", inventarioAlertaService.contarStockBajo(productos, tenant));
+        model.addAttribute("cantidadConAlerta", inventarioAlertaService.contarConAlerta(productos, tenant));
     }
 
     private long parseLong(String value, long defaultValue) {

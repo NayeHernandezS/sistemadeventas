@@ -87,6 +87,8 @@ Orden de migraciones (`migracion_full.sql`):
 8. Soporte
 9. Planes (`plan_codigo`)
 10. Recuperación de contraseña (`tokens_recuperacion`)
+11. Datos fiscales por defecto del negocio (`datos_fiscales_negocio`)
+12. Preferencias del tenant (`preferencias_tenant`)
 
 ---
 
@@ -216,7 +218,7 @@ Cierra sesion y vuelve a entrar. El SUPER_ADMIN es redirigido a **/plataforma**.
 - **Devoluciones** — parciales o totales por ticket
 - **Suscripciones** — planes Emprendedor ($149), Negocio ($249), Pro ($399); pagos manuales (demo)
 - **Reportes** — ventas por vendedor y periodo; totales netos restando devoluciones; exportacion CSV
-- **Perfil** — cambio de contraseña con BCrypt (`/perfil`)
+- **Perfil** — datos de cuenta, email, tipo de negocio, uso del plan, datos fiscales por defecto (ADMIN), preferencias de stock (ADMIN), actividad del vendedor, resumen de suscripcion (ADMIN) y cambio de contraseña (`/perfil`)
 - **Recuperación de acceso** — olvidé mi contraseña por email (`/recuperar`); modo demo sin SMTP
 
 ---
@@ -224,6 +226,9 @@ Cierra sesion y vuelve a entrar. El SUPER_ADMIN es redirigido a **/plataforma**.
 ## Notas importantes
 
 - **Pagos de suscripcion**: el ADMIN solicita el pago en `/suscripcion`; solo un **SUPER_ADMIN** puede confirmarlo en `/plataforma/pagos`. El ADMIN consulta el estado en `/admin/pagos` (solo lectura).
+- **Acceso sin plan activo**: ventas, inventario, reportes y demas modulos quedan bloqueados hasta renovar; disponibles `/perfil`, `/suscripcion`, `/soporte`, `/admin/pagos` (ADMIN) y el inicio con aviso (`/?sinPlan=1` para vendedores).
+- **Mi perfil** (`/perfil`): datos de cuenta, email, tipo de negocio (ADMIN), uso del plan, datos fiscales por defecto (ADMIN), preferencias de stock bajo por tenant (ADMIN), actividad mensual y tickets recientes (VENDEDOR), resumen de suscripcion (ADMIN) y cambio de contraseña. Los datos fiscales se precargan en el carrito al facturar.
+- **Alertas de stock**: el umbral global se configura en `inventario.stock.minimo`; cada ADMIN puede personalizarlo en `/perfil` → Preferencias del negocio.
 - **Contrasenas**: nuevas cuentas y cambios de password se guardan con **BCrypt** (`{bcrypt}`). Las contrasenas legacy en texto plano siguen funcionando hasta que el usuario cambie la contrasena. Recuperacion en `/recuperar` (requiere tabla `tokens_recuperacion` y opcionalmente SMTP).
 - **Facturacion**: registra datos fiscales, folio interno y PDF descargable desde `/factura`; no genera XML/PDF CFDI ni timbrado SAT.
 - No subas `.env` al repositorio (contiene credenciales).
@@ -253,5 +258,7 @@ src/main/resources/db/         Migraciones SQL
 | Error de conexion a MySQL | Verifica que MySQL este activo y que `.env` tenga `DB_PASSWORD` correcto |
 | `Unknown column 'plan_codigo'` | Ejecuta `migracion_planes.sql` o `migracion_full.sql` |
 | Acceso denegado a `/plataforma` | Asigna rol `SUPER_ADMIN` o agrega tu usuario en `plataforma.superadmins` |
-| Plan vencido pero accede a devoluciones | Ejecuta la app actualizada; `/devoluciones` ya pasa por `SuscripcionFiltro` |
+| Plan vencido pero accede al sistema | Sin suscripcion activa solo `/perfil`, `/suscripcion`, `/soporte`, `/admin/pagos` (ADMIN) e inicio con aviso; el resto redirige a renovacion o `/?sinPlan=1` |
+| Error al guardar datos fiscales en perfil | Ejecuta `migracion_datos_fiscales_negocio.sql` en bases existentes |
+| Error al guardar preferencias en perfil | Ejecuta `migracion_preferencias_tenant.sql` en bases existentes |
 | Pagina en blanco / error JSP | Confirma JDK 21 y que Tomcat embebido incluya Jasper (ya en `pom.xml`) |

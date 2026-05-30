@@ -8,16 +8,302 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
 </head>
-<body>
-<div class="container my-5" style="max-width: 520px;">
+<body class="bg-light">
+<div class="container my-5" style="max-width: 720px;">
     <h1 class="h3 mb-4">Mi perfil</h1>
-    <p class="text-muted">Cuenta: <strong>${username}</strong></p>
 
     <c:if test="${not empty mensajeExito}">
         <div class="alert alert-success">${mensajeExito}</div>
     </c:if>
     <c:if test="${not empty mensajeError}">
         <div class="alert alert-danger">${mensajeError}</div>
+    </c:if>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">Datos de la cuenta</div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Usuario</dt>
+                <dd class="col-sm-8"><strong>${username}</strong></dd>
+
+                <dt class="col-sm-4">Rol</dt>
+                <dd class="col-sm-8">${rolEtiqueta}</dd>
+
+                <c:if test="${not empty tenantOwner}">
+                    <dt class="col-sm-4">Cuenta del negocio</dt>
+                    <dd class="col-sm-8">${tenantOwner}</dd>
+                </c:if>
+
+                <c:if test="${not empty adminOwner}">
+                    <dt class="col-sm-4">Administrador</dt>
+                    <dd class="col-sm-8">${adminOwner}</dd>
+                </c:if>
+
+                <c:if test="${not empty tipoNegocioEtiqueta}">
+                    <dt class="col-sm-4">Tipo de negocio</dt>
+                    <dd class="col-sm-8">${tipoNegocioEtiqueta}</dd>
+                </c:if>
+            </dl>
+        </div>
+    </div>
+
+    <c:if test="${not empty planActivo}">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Uso del plan</div>
+            <div class="card-body">
+                <p class="mb-3"><strong>Plan:</strong> ${planNombre}</p>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>Vendedores</span>
+                        <span>${vendedoresUsados} / ${planActivo.maxVendedores}</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar" role="progressbar"
+                             style="width: ${porcentajeVendedores}%"
+                             aria-valuenow="${porcentajeVendedores}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>Productos</span>
+                        <span>${productosUsados} / ${planActivo.maxProductos}</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-info" role="progressbar"
+                             style="width: ${porcentajeProductos}%"
+                             aria-valuenow="${porcentajeProductos}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </c:if>
+
+    <c:if test="${not esAdmin and not empty resumenMes}">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Mi actividad</span>
+                <a href="${pageContext.request.contextPath}/tickets" class="btn btn-sm btn-outline-primary">Ver todos</a>
+            </div>
+            <div class="card-body">
+                <p class="mb-3 text-muted">Resumen de <strong>${mesActividad}</strong></p>
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="small text-muted">Tickets generados</div>
+                            <div class="h4 mb-0">${resumenMes.cantidadTickets}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="border rounded p-3 h-100">
+                            <div class="small text-muted">Total vendido</div>
+                            <div class="h4 mb-0">$${resumenMes.totalImporte}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="h6">Tickets recientes</h2>
+                <c:choose>
+                    <c:when test="${not empty ticketsRecientes}">
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                <tr>
+                                    <th>Folio</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <c:forEach var="t" items="${ticketsRecientes}">
+                                    <tr>
+                                        <td>
+                                            <a href="${pageContext.request.contextPath}/factura?folioTicket=${t.folio}">${t.folio}</a>
+                                        </td>
+                                        <td>${t.fechaVenta.format(formatoTicket)}</td>
+                                        <td>$${t.total}</td>
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${t.estado == 'DEVUELTO_TOTAL'}">
+                                                    <span class="badge bg-secondary">Devuelto</span>
+                                                </c:when>
+                                                <c:when test="${t.estado == 'DEVUELTO_PARCIAL'}">
+                                                    <span class="badge bg-warning text-dark">Parcial</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="badge bg-success">Activo</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <p class="text-muted mb-0">Aun no has registrado ventas este mes.</p>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+    </c:if>
+
+    <c:if test="${esAdmin}">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Tipo de negocio</div>
+            <div class="card-body">
+                <form method="post" action="${pageContext.request.contextPath}/perfil/tipo-negocio">
+                    <%@ include file="csrf.jspf" %>
+                    <div class="mb-3">
+                        <label for="tipoNegocio" class="form-label">Rubro del negocio</label>
+                        <select id="tipoNegocio" name="tipoNegocio" class="form-select" required>
+                            <option value="">Selecciona una opcion</option>
+                            <c:forEach var="entry" items="${tiposNegocio}">
+                                <option value="${entry.key}" ${tipoNegocio == entry.key ? 'selected' : ''}>${entry.value}</option>
+                            </c:forEach>
+                        </select>
+                        <c:if test="${not empty errores.tipoNegocio}">
+                            <div class="text-danger small">${errores.tipoNegocio}</div>
+                        </c:if>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar tipo de negocio</button>
+                </form>
+            </div>
+        </div>
+    </c:if>
+
+    <c:if test="${esAdmin}">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Preferencias del negocio</div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    Personaliza alertas de inventario para tu cuenta. Si dejas el campo vacio se usa el valor global
+                    (${stockMinimoGlobal} unidades).
+                </p>
+                <form method="post" action="${pageContext.request.contextPath}/perfil/preferencias">
+                    <%@ include file="csrf.jspf" %>
+                    <div class="mb-3">
+                        <label for="stockMinimo" class="form-label">Umbral de stock bajo (unidades)</label>
+                        <input type="number" class="form-control" id="stockMinimo" name="stockMinimo"
+                               min="1" max="999" style="max-width: 8rem"
+                               value="${stockMinimoTenant}"
+                               placeholder="${stockMinimoGlobal}">
+                        <c:if test="${not empty errores.stockMinimo}">
+                            <div class="text-danger small">${errores.stockMinimo}</div>
+                        </c:if>
+                    </div>
+                    <p class="small mb-3">
+                        Umbral activo ahora: <strong>${stockMinimoEfectivo}</strong> unidades
+                    </p>
+                    <button type="submit" class="btn btn-primary">Guardar preferencias</button>
+                </form>
+            </div>
+        </div>
+    </c:if>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">Correo electronico</div>
+        <div class="card-body">
+            <form method="post" action="${pageContext.request.contextPath}/perfil/email">
+                <%@ include file="csrf.jspf" %>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email de la cuenta</label>
+                    <input type="email" class="form-control" id="email" name="email"
+                           value="${email}" required maxlength="150">
+                    <c:if test="${not empty errores.email}">
+                        <div class="text-danger small">${errores.email}</div>
+                    </c:if>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar email</button>
+            </form>
+        </div>
+    </div>
+
+    <c:if test="${esAdmin}">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Suscripcion del negocio</span>
+                <a href="${pageContext.request.contextPath}/suscripcion" class="btn btn-sm btn-outline-primary">
+                    Gestionar plan
+                </a>
+            </div>
+            <div class="card-body">
+                <c:choose>
+                    <c:when test="${not empty suscripcion}">
+                        <p class="mb-2">
+                            <strong>Plan:</strong> ${planNombre}
+                            <c:if test="${suscripcion.enPeriodoPrueba}">
+                                <span class="badge bg-warning text-dark">Periodo de prueba</span>
+                            </c:if>
+                        </p>
+                        <p class="mb-2"><strong>Vigente hasta:</strong> ${fechaFinTexto}</p>
+                        <p class="mb-2">
+                            <strong>Estado:</strong>
+                            <c:choose>
+                                <c:when test="${suscripcionVigente}">
+                                    <span class="badge bg-success">Activa</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="badge bg-secondary">Vencida</span>
+                                </c:otherwise>
+                            </c:choose>
+                        </p>
+                        <c:if test="${not suscripcionVigente}">
+                            <div class="alert alert-warning mb-0">
+                                Tu suscripcion ha vencido.
+                                <a href="${pageContext.request.contextPath}/suscripcion?requierePago=1">Renovar ahora</a>
+                            </div>
+                        </c:if>
+                    </c:when>
+                    <c:otherwise>
+                        <p class="text-muted mb-2">No hay suscripcion registrada para esta cuenta.</p>
+                        <a href="${pageContext.request.contextPath}/suscripcion?requierePago=1"
+                           class="btn btn-sm btn-primary">Contratar plan</a>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Datos fiscales por defecto</div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    Se precargan en el carrito al facturar una venta. Puedes modificarlos en cada ticket.
+                </p>
+                <form method="post" action="${pageContext.request.contextPath}/perfil/datos-fiscales">
+                    <%@ include file="csrf.jspf" %>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label for="rfcDefault" class="form-label">RFC</label>
+                            <input type="text" class="form-control" id="rfcDefault" name="rfcDefault"
+                                   maxlength="13" value="${datosFiscales.rfc}">
+                        </div>
+                        <div class="col-md-8">
+                            <label for="razonSocialDefault" class="form-label">Razon social o nombre</label>
+                            <input type="text" class="form-control" id="razonSocialDefault" name="razonSocialDefault"
+                                   maxlength="200" value="${datosFiscales.razonSocial}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="emailFiscalDefault" class="form-label">Correo (opcional)</label>
+                            <input type="email" class="form-control" id="emailFiscalDefault" name="emailFiscalDefault"
+                                   maxlength="150" value="${datosFiscales.email}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="usoCfdiDefault" class="form-label">Uso CFDI (opcional)</label>
+                            <input type="text" class="form-control" id="usoCfdiDefault" name="usoCfdiDefault"
+                                   maxlength="10" placeholder="ej. G03" value="${datosFiscales.usoCfdi}">
+                        </div>
+                        <div class="col-12">
+                            <label for="direccionDefault" class="form-label">Direccion (opcional)</label>
+                            <input type="text" class="form-control" id="direccionDefault" name="direccionDefault"
+                                   maxlength="255" value="${datosFiscales.direccion}">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Guardar datos fiscales</button>
+                </form>
+            </div>
+        </div>
     </c:if>
 
     <div class="card shadow-sm">
@@ -48,7 +334,7 @@
                         <div class="text-danger small">${errores.passwordConfirmacion}</div>
                     </c:if>
                 </div>
-                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="submit" class="btn btn-primary">Guardar contraseña</button>
                 <a href="${pageContext.request.contextPath}/" class="btn btn-outline-secondary">Volver</a>
             </form>
         </div>

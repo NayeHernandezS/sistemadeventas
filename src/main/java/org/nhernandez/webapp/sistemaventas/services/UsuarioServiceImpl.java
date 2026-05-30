@@ -8,6 +8,7 @@ import org.nhernandez.webapp.sistemaventas.repositories.UsuarioReposository;
 import org.nhernandez.webapp.sistemaventas.util.CategoriaPlantillaUtil;
 import org.nhernandez.webapp.sistemaventas.util.PasswordEncodingHelper;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
+import org.nhernandez.webapp.sistemaventas.util.TipoNegocioUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.SQLException;
@@ -105,6 +106,60 @@ public class UsuarioServiceImpl implements UsuarioService {
             suscripcionService.iniciarMesGratis(usuario.getUsername(), planCodigo);
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e.getCause());
+        }
+    }
+
+    @Override
+    public Optional<Usuario> porUsername(String username) {
+        try {
+            return Optional.ofNullable(usuarioReposository.porUsername(username));
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void actualizarEmail(String username, String emailNuevo) {
+        if (emailNuevo == null || emailNuevo.isBlank()) {
+            throw new ServiceJdbcException("El email es requerido", null);
+        }
+        String email = emailNuevo.trim();
+        if (!email.contains("@") || email.length() < 5) {
+            throw new ServiceJdbcException("Indica un email valido", null);
+        }
+        try {
+            Usuario usuario = usuarioReposository.porUsername(username);
+            if (usuario == null) {
+                throw new ServiceJdbcException("Usuario no encontrado", null);
+            }
+            Usuario otro = usuarioReposository.porEmail(email);
+            if (otro != null && !otro.getUsername().equalsIgnoreCase(username)) {
+                throw new ServiceJdbcException("Ese email ya esta registrado en otra cuenta", null);
+            }
+            usuario.setEmail(email);
+            usuarioReposository.guardar(usuario);
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void actualizarTipoNegocio(String username, String tipoNegocio) {
+        if (!TipoNegocioUtil.esValido(tipoNegocio)) {
+            throw new ServiceJdbcException("Selecciona un tipo de negocio valido", null);
+        }
+        try {
+            Usuario usuario = usuarioReposository.porUsername(username);
+            if (usuario == null) {
+                throw new ServiceJdbcException("Usuario no encontrado", null);
+            }
+            if (!RolUtil.esAdmin(usuario)) {
+                throw new ServiceJdbcException("Solo el administrador puede cambiar el tipo de negocio", null);
+            }
+            usuario.setTipoNegocio(tipoNegocio.trim().toLowerCase());
+            usuarioReposository.guardar(usuario);
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
         }
     }
 

@@ -31,3 +31,9 @@ SOURCE migracion_planes.sql;
 
 -- 10) Recuperacion de contraseña
 SOURCE migracion_recuperacion_password.sql;
+
+-- 11) Datos fiscales por defecto del negocio (perfil / carrito)
+SOURCE migracion_datos_fiscales_negocio.sql;
+
+-- 12) Preferencias del tenant (perfil / alertas inventario)
+SOURCE migracion_preferencias_tenant.sql;

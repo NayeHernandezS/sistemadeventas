@@ -68,26 +68,34 @@
                 <label class="form-check-label" for="requiereFactura">El cliente requiere factura</label>
             </div>
             <p class="small text-muted">Si marca esta opción, complete RFC y razón social. El resto es opcional.</p>
+            <c:if test="${not empty facturaDefaults}">
+                <p class="small text-info">Datos precargados desde Mi perfil; puede editarlos para este ticket.</p>
+            </c:if>
             <div class="row g-2">
                 <div class="col-md-4">
                     <label class="form-label" for="rfcFactura">RFC</label>
-                    <input class="form-control" type="text" name="rfcFactura" id="rfcFactura" maxlength="13" placeholder="12 o 13 caracteres">
+                    <input class="form-control" type="text" name="rfcFactura" id="rfcFactura" maxlength="13"
+                           placeholder="12 o 13 caracteres" value="${facturaDefaults.rfc}">
                 </div>
                 <div class="col-md-8">
                     <label class="form-label" for="razonSocial">Razón social o nombre</label>
-                    <input class="form-control" type="text" name="razonSocial" id="razonSocial" placeholder="Nombre fiscal">
+                    <input class="form-control" type="text" name="razonSocial" id="razonSocial"
+                           placeholder="Nombre fiscal" value="${facturaDefaults.razonSocial}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="emailFactura">Correo (opcional)</label>
-                    <input class="form-control" type="email" name="emailFactura" id="emailFactura">
+                    <input class="form-control" type="email" name="emailFactura" id="emailFactura"
+                           value="${facturaDefaults.email}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="usoCfdi">Uso CFDI (opcional)</label>
-                    <input class="form-control" type="text" name="usoCfdi" id="usoCfdi" maxlength="10" placeholder="ej. G03">
+                    <input class="form-control" type="text" name="usoCfdi" id="usoCfdi" maxlength="10"
+                           placeholder="ej. G03" value="${facturaDefaults.usoCfdi}">
                 </div>
                 <div class="col-12">
                     <label class="form-label" for="direccionFactura">Dirección (opcional)</label>
-                    <input class="form-control" type="text" name="direccionFactura" id="direccionFactura">
+                    <input class="form-control" type="text" name="direccionFactura" id="direccionFactura"
+                           value="${facturaDefaults.direccion}">
                 </div>
             </div>
         </div>

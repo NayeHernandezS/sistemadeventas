@@ -4,12 +4,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
 import org.nhernandez.webapp.sistemaventas.models.*;
+import org.nhernandez.webapp.sistemaventas.services.DatosFiscalesNegocioService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ProductoService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
 import org.nhernandez.webapp.sistemaventas.services.VentaService;
+import org.nhernandez.webapp.sistemaventas.util.FacturaDatosUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,19 +35,27 @@ public class CarroController {
     private final Carro carro;
     private final LoginService loginService;
     private final VentaService ventaService;
+    private final DatosFiscalesNegocioService datosFiscalesNegocioService;
 
     public CarroController(@ProductoServicePrincipal ProductoService productoService,
                              Carro carro,
                              LoginService loginService,
-                             VentaService ventaService) {
+                             VentaService ventaService,
+                             DatosFiscalesNegocioService datosFiscalesNegocioService) {
         this.productoService = productoService;
         this.carro = carro;
         this.loginService = loginService;
         this.ventaService = ventaService;
+        this.datosFiscalesNegocioService = datosFiscalesNegocioService;
     }
 
     @GetMapping("/ver")
-    public String verCarro() {
+    public String verCarro(HttpServletRequest req, Model model) {
+        String tenant = TenantUtil.getTenantOwner(req);
+        if (tenant != null) {
+            datosFiscalesNegocioService.consultar(tenant)
+                    .ifPresent(d -> model.addAttribute("facturaDefaults", d));
+        }
         return "carro";
     }
 
@@ -176,12 +187,9 @@ public class CarroController {
         if (razonSocial.isBlank()) {
             return "Para facturar indique la razón social o nombre del cliente.";
         }
-        if (rfc.isBlank()) {
-            return "Para facturar indique el RFC del cliente.";
-        }
-        String rfcNorm = rfc.toUpperCase().replaceAll("\\s", "");
-        if (rfcNorm.length() < 12 || rfcNorm.length() > 13 || !rfcNorm.matches("[A-ZÑ&0-9]+")) {
-            return "RFC inválido (debe tener 12 o 13 caracteres alfanuméricos).";
+        String errorRfc = FacturaDatosUtil.validarRfcObligatorio(rfc);
+        if (errorRfc != null) {
+            return errorRfc.replace("Indica el RFC.", "Para facturar indique el RFC del cliente.");
         }
         return null;
     }

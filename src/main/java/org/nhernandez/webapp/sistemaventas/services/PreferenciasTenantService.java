@@ -1,0 +1,14 @@
+package org.nhernandez.webapp.sistemaventas.services;
+
+import org.nhernandez.webapp.sistemaventas.models.PreferenciasTenant;
+
+import java.util.Optional;
+
+public interface PreferenciasTenantService {
+
+    Optional<PreferenciasTenant> consultar(String tenantUsername);
+
+    void guardarStockMinimo(String tenantUsername, Integer stockMinimo);
+
+    int resolverStockMinimo(String tenantUsername, int valorGlobalPorDefecto);
+}
