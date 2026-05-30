@@ -38,14 +38,6 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
     }
 
     @Override
-    public List<Producto> listar() throws SQLException {
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(SELECT_BASE + "ORDER BY p.id ASC")) {
-            return mapProductos(rs);
-        }
-    }
-
-    @Override
     public List<Producto> listarPorOwner(String ownerUsername) throws SQLException {
         String sql = SELECT_BASE + "WHERE p.owner_username = ? ORDER BY p.id ASC";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -54,20 +46,6 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
                 return mapProductos(rs);
             }
         }
-    }
-
-    @Override
-    public Producto porId(Long id) throws SQLException {
-        String sql = SELECT_BASE + "WHERE p.id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return getProducto(rs);
-                }
-            }
-        }
-        return null;
     }
 
     @Override
@@ -117,15 +95,6 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
             if (filas == 0) {
                 throw new SQLException("No se pudo guardar el producto o no pertenece al usuario");
             }
-        }
-    }
-
-    @Override
-    public void eliminar(Long id) throws SQLException {
-        String sql = "DELETE FROM productos WHERE id=?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, id);
-            stmt.executeUpdate();
         }
     }
 

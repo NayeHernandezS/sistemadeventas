@@ -39,18 +39,6 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
     }
 
     @Override
-    public List<Usuario> listar() throws SQLException {
-        List<Usuario> usuarios = new ArrayList<>();
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("select * from usuarios")) {
-            while (rs.next()) {
-                usuarios.add(getUsuario(rs));
-            }
-        }
-        return usuarios;
-    }
-
-    @Override
     public List<Usuario> listarPorAdminOwner(String adminOwner) throws SQLException {
         String sql = "select * from usuarios where admin_owner = ? order by username";
         List<Usuario> usuarios = new ArrayList<>();
@@ -63,20 +51,6 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
             }
         }
         return usuarios;
-    }
-
-    @Override
-    public Usuario porId(Long id) throws SQLException {
-        Usuario usuario = null;
-        try (PreparedStatement stmt = conn.prepareStatement("select * from usuarios where id=?")) {
-            stmt.setLong(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    usuario = getUsuario(rs);
-                }
-            }
-        }
-        return usuario;
     }
 
     @Override

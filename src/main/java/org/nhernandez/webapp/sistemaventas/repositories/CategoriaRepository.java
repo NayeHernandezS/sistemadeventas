@@ -5,7 +5,10 @@ import org.nhernandez.webapp.sistemaventas.models.Categoria;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface CategoriaRepository extends CrudRepository<Categoria> {
+public interface CategoriaRepository {
+
+    void guardar(Categoria categoria) throws SQLException;
+
     List<Categoria> listarPorOwner(String ownerUsername) throws SQLException;
 
     Categoria porIdPorOwner(Long id, String ownerUsername) throws SQLException;

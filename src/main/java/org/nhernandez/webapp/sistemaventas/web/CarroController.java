@@ -2,7 +2,6 @@ package org.nhernandez.webapp.sistemaventas.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
 import org.nhernandez.webapp.sistemaventas.models.*;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
@@ -28,8 +27,6 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/carro")
 public class CarroController {
-
-    private static final String SESSION_TICKETS_KEY = "ticketsVenta";
 
     private final ProductoService productoService;
     private final Carro carro;
@@ -136,7 +133,6 @@ public class CarroController {
             return;
         }
 
-        guardarTicketEnSesion(req.getSession(), ticket);
         carro.vaciar();
         String msg = "Venta finalizada. Ticket " + ticket.getFolio() + " generado.";
         if (requiereFactura) {
@@ -222,15 +218,5 @@ public class CarroController {
         String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").format(LocalDateTime.now());
         String sufijo = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
         return "TCK-" + timestamp + "-" + sufijo;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void guardarTicketEnSesion(HttpSession session, TicketVenta ticket) {
-        List<TicketVenta> tickets = (List<TicketVenta>) session.getAttribute(SESSION_TICKETS_KEY);
-        if (tickets == null) {
-            tickets = new ArrayList<>();
-        }
-        tickets.add(0, ticket);
-        session.setAttribute(SESSION_TICKETS_KEY, tickets);
     }
 }

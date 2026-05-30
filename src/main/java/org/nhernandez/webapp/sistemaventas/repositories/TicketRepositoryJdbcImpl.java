@@ -28,69 +28,13 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
     private ProductoRepository productoRepository;
 
     @Override
-    public List<TicketVenta> listar() throws SQLException {
-        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta order by fecha_venta desc";
-        List<TicketVenta> tickets = new ArrayList<>();
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                TicketVenta ticket = mapTicket(rs);
-                ticket.setItems(obtenerItemsPorTicket(ticket.getId()));
-                tickets.add(ticket);
-            }
-        }
-        return tickets;
-    }
-
-    @Override
-    public TicketVenta porId(Long id) throws SQLException {
-        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta where id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    TicketVenta ticket = mapTicket(rs);
-                    ticket.setItems(obtenerItemsPorTicket(ticket.getId()));
-                    return ticket;
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
     public void guardar(TicketVenta ticket) throws SQLException {
         boolean previousAutoCommit = conn.getAutoCommit();
         conn.setAutoCommit(false);
         try {
-            if (ticket.getId() != null && ticket.getId() > 0) {
-                actualizarTicket(ticket);
-                eliminarItems(ticket.getId());
-                insertarItems(ticket);
-            } else {
-                descontarInventario(ticket);
-                insertarTicket(ticket);
-                insertarItems(ticket);
-            }
-            conn.commit();
-        } catch (SQLException e) {
-            conn.rollback();
-            throw e;
-        } finally {
-            conn.setAutoCommit(previousAutoCommit);
-        }
-    }
-
-    @Override
-    public void eliminar(Long id) throws SQLException {
-        boolean previousAutoCommit = conn.getAutoCommit();
-        conn.setAutoCommit(false);
-        try {
-            eliminarItems(id);
-            try (PreparedStatement stmt = conn.prepareStatement("delete from tickets_venta where id = ?")) {
-                stmt.setLong(1, id);
-                stmt.executeUpdate();
-            }
+            descontarInventario(ticket);
+            insertarTicket(ticket);
+            insertarItems(ticket);
             conn.commit();
         } catch (SQLException e) {
             conn.rollback();
@@ -219,23 +163,6 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
         }
     }
 
-    private void actualizarTicket(TicketVenta ticket) throws SQLException {
-        String sql = "update tickets_venta set folio = ?, username_vendedor = ?, tenant_owner = ?, fecha_venta = ?, total = ? where id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, ticket.getFolio());
-            stmt.setString(2, ticket.getUsernameVendedor());
-            stmt.setString(3, ticket.getTenantOwner());
-            if (ticket.getFechaVenta() != null) {
-                stmt.setTimestamp(4, Timestamp.valueOf(ticket.getFechaVenta()));
-            } else {
-                stmt.setNull(4, Types.TIMESTAMP);
-            }
-            stmt.setInt(5, ticket.getTotal());
-            stmt.setLong(6, ticket.getId());
-            stmt.executeUpdate();
-        }
-    }
-
     private void insertarItems(TicketVenta ticket) throws SQLException {
         if (ticket.getItems() == null || ticket.getItems().isEmpty()) {
             return;
@@ -274,13 +201,6 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
             }
         }
         return items;
-    }
-
-    private void eliminarItems(Long ticketId) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement("delete from ticket_items where ticket_id = ?")) {
-            stmt.setLong(1, ticketId);
-            stmt.executeUpdate();
-        }
     }
 
     private TicketVenta mapTicket(ResultSet rs) throws SQLException {

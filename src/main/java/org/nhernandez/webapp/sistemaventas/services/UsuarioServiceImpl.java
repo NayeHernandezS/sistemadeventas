@@ -37,22 +37,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public Optional<Usuario> login(String username, String password) {
-        try {
-            Usuario usuario = usuarioReposository.porUsername(username);
-            if (usuario == null) {
-                return Optional.empty();
-            }
-            if (PasswordEncodingHelper.matches(passwordEncoder, password, usuario.getPassword())) {
-                return Optional.of(usuario);
-            }
-            return Optional.empty();
-        } catch (SQLException e) {
-            throw new ServiceJdbcException(e.getMessage(), e);
-        }
-    }
-
-    @Override
     public List<Usuario> listarVendedoresDelTenant(String tenantOwner) {
         try {
             return usuarioReposository.listarPorAdminOwner(tenantOwner);
@@ -113,7 +97,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             }
             usuario.setRol(RolUtil.ROL_ADMIN);
             usuario.setAdminOwner(null);
-            usuarioReposository.guardar(usuario);
+            guardar(usuario);
             categoriaRepository.crearSugeridasSiNoExisten(
                     usuario.getUsername(),
                     CategoriaPlantillaUtil.paraTipoNegocio(usuario.getTipoNegocio())

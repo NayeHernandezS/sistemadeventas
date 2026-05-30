@@ -1,12 +1,17 @@
 package org.nhernandez.webapp.sistemaventas.repositories;
-import org.springframework.stereotype.Repository;
 
+import org.nhernandez.webapp.sistemaventas.models.ClienteCuenta;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
 
 import java.sql.SQLException;
 import java.util.List;
 
-public interface UsuarioReposository extends CrudRepository<Usuario> {
+public interface UsuarioReposository {
+
+    void guardar(Usuario usuario) throws SQLException;
+
+    void eliminar(Long id) throws SQLException;
+
     Usuario porUsername(String username) throws SQLException;
 
     boolean existeUsername(String username) throws SQLException;
@@ -15,5 +20,5 @@ public interface UsuarioReposository extends CrudRepository<Usuario> {
 
     Usuario porIdDeTenant(Long id, String adminOwner) throws SQLException;
 
-    List<org.nhernandez.webapp.sistemaventas.models.ClienteCuenta> listarCuentasCliente() throws SQLException;
+    List<ClienteCuenta> listarCuentasCliente() throws SQLException;
 }

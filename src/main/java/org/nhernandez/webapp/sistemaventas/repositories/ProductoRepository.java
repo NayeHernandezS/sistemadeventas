@@ -1,12 +1,13 @@
 package org.nhernandez.webapp.sistemaventas.repositories;
-import org.springframework.stereotype.Repository;
 
 import org.nhernandez.webapp.sistemaventas.models.Producto;
 
 import java.sql.SQLException;
 import java.util.List;
 
-public interface ProductoRepository extends CrudRepository<Producto> {
+public interface ProductoRepository {
+
+    void guardar(Producto producto) throws SQLException;
 
     List<Producto> listarPorOwner(String ownerUsername) throws SQLException;
 

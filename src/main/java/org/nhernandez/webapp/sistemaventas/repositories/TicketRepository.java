@@ -5,7 +5,10 @@ import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface TicketRepository extends CrudRepository<TicketVenta> {
+public interface TicketRepository {
+
+    void guardar(TicketVenta ticket) throws SQLException;
+
     List<TicketVenta> listarPorVendedor(String usernameVendedor) throws SQLException;
 
     List<TicketVenta> listarPorTenant(String tenantOwner) throws SQLException;

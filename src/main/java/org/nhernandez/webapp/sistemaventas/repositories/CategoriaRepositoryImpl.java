@@ -21,20 +21,6 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
     }
 
     @Override
-    public List<Categoria> listar() throws SQLException {
-        List<Categoria> categorias = new ArrayList<>();
-        try(Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("select * from categorias")){
-            while (rs.next()) {
-                Categoria categoria = getCategoria(rs);
-                categorias.add(categoria);
-            }
-
-        }
-        return categorias;
-    }
-
-    @Override
     public List<Categoria> listarPorOwner(String ownerUsername) throws SQLException {
         List<Categoria> categorias = new ArrayList<>();
         String sql = "select id, nombre from categorias where owner_username = ? order by nombre asc";
@@ -47,20 +33,6 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
             }
         }
         return categorias;
-    }
-
-    @Override
-    public Categoria porId(Long id) throws SQLException {
-        Categoria categoria = null;
-        try (PreparedStatement stmt = conn.prepareStatement("select id, nombre, owner_username from categorias where id=?")) {
-            stmt.setLong(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    categoria = getCategoria(rs);
-                }
-            }
-        }
-        return categoria;
     }
 
     @Override
@@ -106,14 +78,6 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
             if (filas == 0) {
                 throw new SQLException("No se pudo guardar la categoria o no pertenece a tu cuenta");
             }
-        }
-    }
-
-    @Override
-    public void eliminar(Long id) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM categorias WHERE id = ?")) {
-            stmt.setLong(1, id);
-            stmt.executeUpdate();
         }
     }
 
