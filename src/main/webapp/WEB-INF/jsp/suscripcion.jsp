@@ -89,7 +89,8 @@
                     </form>
 
                     <p class="small text-muted mt-3">
-                        La solicitud queda <strong>PENDIENTE</strong> hasta que se confirme el pago y se active tu plan.
+                        La solicitud queda <strong>PENDIENTE</strong> hasta que la plataforma confirme el pago recibido.
+                        Puedes consultar el estado en <a href="${pageContext.request.contextPath}/admin/pagos">Estado de mis pagos</a>.
                     </p>
 
                     <c:if test="${not empty pagos}">

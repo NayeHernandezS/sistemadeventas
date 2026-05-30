@@ -1,6 +1,7 @@
 package org.nhernandez.webapp.sistemaventas.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.nhernandez.webapp.sistemaventas.models.PagoSuscripcion;
 import org.nhernandez.webapp.sistemaventas.models.PlanSuscripcion;
@@ -8,15 +9,12 @@ import org.nhernandez.webapp.sistemaventas.models.Suscripcion;
 import org.nhernandez.webapp.sistemaventas.repositories.PagoSuscripcionRepository;
 import org.nhernandez.webapp.sistemaventas.repositories.SuscripcionRepository;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 
 @Service
 public class SuscripcionServiceImpl implements SuscripcionService {
@@ -29,7 +27,8 @@ public class SuscripcionServiceImpl implements SuscripcionService {
     @Autowired
     private PagoSuscripcionRepository pagoRepository;
 
-    private final Properties config = loadConfig();
+    @Value("${suscripcion.meses.gratis:1}")
+    private int mesesGratis;
 
     @Override
     public void iniciarMesGratis(String username, String planCodigo) {
@@ -39,11 +38,11 @@ public class SuscripcionServiceImpl implements SuscripcionService {
             }
             PlanSuscripcion plan = PlanSuscripcion.porCodigoODefault(planCodigo);
             LocalDateTime inicio = LocalDateTime.now();
-            int mesesGratis = mesesGratisConfig();
+            int meses = mesesGratis > 0 ? mesesGratis : MESES_GRATIS_DEFAULT;
             Suscripcion suscripcion = new Suscripcion();
             suscripcion.setUsername(username);
             suscripcion.setFechaInicio(inicio);
-            suscripcion.setFechaFin(inicio.plusMonths(mesesGratis));
+            suscripcion.setFechaFin(inicio.plusMonths(meses));
             suscripcion.setEnPeriodoPrueba(true);
             suscripcion.setEstado("ACTIVA");
             suscripcion.setPlanCodigo(plan.getCodigo());
@@ -138,22 +137,6 @@ public class SuscripcionServiceImpl implements SuscripcionService {
     }
 
     @Override
-    public void confirmarPago(Long pagoId, String tenantOwner) {
-        try {
-            PagoSuscripcion pago = pagoRepository.porId(pagoId);
-            if (pago == null || !"PENDIENTE".equals(pago.getEstado())) {
-                throw new ServiceJdbcException("Pago no valido para confirmar", null);
-            }
-            if (!tenantOwner.equals(pago.getUsername())) {
-                throw new ServiceJdbcException("No puedes confirmar pagos de otra cuenta", null);
-            }
-            aplicarConfirmacionPago(pagoId, pago);
-        } catch (SQLException e) {
-            throw new ServiceJdbcException(e.getMessage(), e);
-        }
-    }
-
-    @Override
     public void confirmarPagoPlataforma(Long pagoId) {
         try {
             PagoSuscripcion pago = pagoRepository.porId(pagoId);
@@ -206,24 +189,5 @@ public class SuscripcionServiceImpl implements SuscripcionService {
             suscripcionRepository.extenderVigencia(username, nuevaFin, enPeriodoPrueba);
             suscripcionRepository.actualizarPlan(username, planCodigo, enPeriodoPrueba);
         }
-    }
-
-    private int mesesGratisConfig() {
-        try {
-            return Integer.parseInt(config.getProperty("suscripcion.meses.gratis", "1"));
-        } catch (NumberFormatException e) {
-            return MESES_GRATIS_DEFAULT;
-        }
-    }
-
-    private Properties loadConfig() {
-        Properties properties = new Properties();
-        try (InputStream in = getClass().getClassLoader().getResourceAsStream("application.properties")) {
-            if (in != null) {
-                properties.load(in);
-            }
-        } catch (IOException ignored) {
-        }
-        return properties;
     }
 }

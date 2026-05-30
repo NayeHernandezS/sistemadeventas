@@ -1,12 +1,39 @@
 -- Planes de suscripcion: EMPRENDEDOR, NEGOCIO, PRO (ver PlanSuscripcion.java)
--- Si plan_codigo ya existe (error 1060), no ejecutes los ALTER comentados abajo.
+-- Idempotente: se puede ejecutar varias veces sin error 1060
 USE java_curso;
 
--- Solo en instalacion nueva (descomenta una vez):
--- ALTER TABLE suscripciones ADD COLUMN plan_codigo VARCHAR(30) NOT NULL DEFAULT 'EMPRENDEDOR';
--- ALTER TABLE pagos_suscripcion ADD COLUMN plan_codigo VARCHAR(30) NOT NULL DEFAULT 'EMPRENDEDOR';
+SET @exists_plan_sus := (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'suscripciones'
+      AND COLUMN_NAME = 'plan_codigo'
+);
+SET @sql_plan_sus := IF(
+    @exists_plan_sus = 0,
+    'ALTER TABLE suscripciones ADD COLUMN plan_codigo VARCHAR(30) NOT NULL DEFAULT ''EMPRENDEDOR''',
+    'SELECT 1'
+);
+PREPARE stmt_plan_sus FROM @sql_plan_sus;
+EXECUTE stmt_plan_sus;
+DEALLOCATE PREPARE stmt_plan_sus;
 
--- Vacios o nulos (compatible con safe updates: WHERE usa id)
+SET @exists_plan_pagos := (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'pagos_suscripcion'
+      AND COLUMN_NAME = 'plan_codigo'
+);
+SET @sql_plan_pagos := IF(
+    @exists_plan_pagos = 0,
+    'ALTER TABLE pagos_suscripcion ADD COLUMN plan_codigo VARCHAR(30) NOT NULL DEFAULT ''EMPRENDEDOR''',
+    'SELECT 1'
+);
+PREPARE stmt_plan_pagos FROM @sql_plan_pagos;
+EXECUTE stmt_plan_pagos;
+DEALLOCATE PREPARE stmt_plan_pagos;
+
 UPDATE suscripciones
 SET plan_codigo = 'EMPRENDEDOR'
 WHERE id > 0 AND (plan_codigo IS NULL OR TRIM(plan_codigo) = '');
@@ -15,7 +42,6 @@ UPDATE pagos_suscripcion
 SET plan_codigo = 'EMPRENDEDOR'
 WHERE id > 0 AND (plan_codigo IS NULL OR TRIM(plan_codigo) = '');
 
--- Codigos que no existen en la app (typos, planes viejos, etc.)
 UPDATE suscripciones
 SET plan_codigo = 'EMPRENDEDOR'
 WHERE id > 0
@@ -26,7 +52,7 @@ SET plan_codigo = 'EMPRENDEDOR'
 WHERE id > 0
   AND UPPER(TRIM(plan_codigo)) NOT IN ('EMPRENDEDOR', 'NEGOCIO', 'PRO');
 
--- --- Verificacion (debe devolver 0 filas en "invalidos") ---
+-- Verificacion (debe devolver 0 filas en "invalidos")
 SELECT plan_codigo, COUNT(*) AS total
 FROM suscripciones
 GROUP BY plan_codigo;

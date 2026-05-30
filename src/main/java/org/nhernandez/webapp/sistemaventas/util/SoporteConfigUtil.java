@@ -1,8 +1,6 @@
 package org.nhernandez.webapp.sistemaventas.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import org.nhernandez.webapp.sistemaventas.config.AppEnvironmentHolder;
 
 public final class SoporteConfigUtil {
 
@@ -22,19 +20,7 @@ public final class SoporteConfigUtil {
     }
 
     private static String prop(String key, String defaultValue) {
-        String v = loadConfig().getProperty(key, defaultValue);
+        String v = AppEnvironmentHolder.getProperty(key, defaultValue);
         return v != null ? v.trim() : defaultValue;
-    }
-
-    private static Properties loadConfig() {
-        Properties properties = new Properties();
-        try (InputStream in = SoporteConfigUtil.class.getClassLoader()
-                .getResourceAsStream("application.properties")) {
-            if (in != null) {
-                properties.load(in);
-            }
-        } catch (IOException ignored) {
-        }
-        return properties;
     }
 }

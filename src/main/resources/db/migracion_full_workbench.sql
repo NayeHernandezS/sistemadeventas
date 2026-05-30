@@ -167,7 +167,8 @@ CREATE TABLE IF NOT EXISTS suscripciones (
     fecha_inicio DATETIME NOT NULL,
     fecha_fin DATETIME NOT NULL,
     en_periodo_prueba TINYINT(1) NOT NULL DEFAULT 1,
-    estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVA'
+    estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVA',
+    plan_codigo VARCHAR(30) NOT NULL DEFAULT 'EMPRENDEDOR'
 );
 
 CREATE TABLE IF NOT EXISTS pagos_suscripcion (
@@ -178,7 +179,8 @@ CREATE TABLE IF NOT EXISTS pagos_suscripcion (
     fecha_solicitud DATETIME NOT NULL,
     fecha_confirmacion DATETIME NULL,
     estado VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
-    notas VARCHAR(255) NULL
+    notas VARCHAR(255) NULL,
+    plan_codigo VARCHAR(30) NOT NULL DEFAULT 'EMPRENDEDOR'
 );
 
 SET @idx_pagos_username := (
@@ -302,3 +304,126 @@ SET @sql_uk_categorias_owner_nombre := IF(
 PREPARE stmt_uk_categorias_owner_nombre FROM @sql_uk_categorias_owner_nombre;
 EXECUTE stmt_uk_categorias_owner_nombre;
 DEALLOCATE PREPARE stmt_uk_categorias_owner_nombre;
+
+-- =========================================================
+-- 6) SUPER_ADMIN (manual: ver migracion_super_admin.sql)
+-- UPDATE usuarios SET rol = 'SUPER_ADMIN' WHERE id = 1;
+-- =========================================================
+
+-- =========================================================
+-- 7) DEVOLUCIONES DE VENTAS
+-- =========================================================
+SET @exists_ticket_estado := (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'tickets_venta'
+      AND COLUMN_NAME = 'estado'
+);
+SET @sql_ticket_estado := IF(
+    @exists_ticket_estado = 0,
+    'ALTER TABLE tickets_venta ADD COLUMN estado VARCHAR(20) NOT NULL DEFAULT ''ACTIVO''',
+    'SELECT 1'
+);
+PREPARE stmt_ticket_estado FROM @sql_ticket_estado;
+EXECUTE stmt_ticket_estado;
+DEALLOCATE PREPARE stmt_ticket_estado;
+
+UPDATE tickets_venta SET estado = 'ACTIVO' WHERE id > 0 AND (estado IS NULL OR estado = '');
+
+CREATE TABLE IF NOT EXISTS devoluciones (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    folio VARCHAR(40) NOT NULL,
+    ticket_id BIGINT NOT NULL,
+    ticket_folio VARCHAR(40) NOT NULL,
+    tenant_owner VARCHAR(100) NOT NULL,
+    username_registro VARCHAR(100) NOT NULL,
+    fecha_devolucion DATETIME NOT NULL,
+    motivo VARCHAR(255) NULL,
+    total_devuelto INT NOT NULL,
+    INDEX idx_devoluciones_tenant (tenant_owner),
+    INDEX idx_devoluciones_ticket (ticket_id)
+);
+
+CREATE TABLE IF NOT EXISTS devolucion_items (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    devolucion_id BIGINT NOT NULL,
+    ticket_id BIGINT NOT NULL,
+    producto_id BIGINT NOT NULL,
+    nombre_producto VARCHAR(200) NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario INT NOT NULL,
+    importe INT NOT NULL,
+    INDEX idx_dev_items_devolucion (devolucion_id),
+    INDEX idx_dev_items_ticket_prod (ticket_id, producto_id)
+);
+
+-- =========================================================
+-- 8) SOLICITUDES DE SOPORTE
+-- =========================================================
+CREATE TABLE IF NOT EXISTS solicitudes_soporte (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_owner VARCHAR(100) NOT NULL,
+    username VARCHAR(100) NOT NULL,
+    email_contacto VARCHAR(150) NULL,
+    asunto VARCHAR(120) NOT NULL,
+    mensaje TEXT NOT NULL,
+    fecha_solicitud DATETIME NOT NULL,
+    estado VARCHAR(20) NOT NULL DEFAULT 'ABIERTA',
+    INDEX idx_soporte_tenant (tenant_owner),
+    INDEX idx_soporte_estado (estado),
+    INDEX idx_soporte_fecha (fecha_solicitud)
+);
+
+-- =========================================================
+-- 9) PLANES DE SUSCRIPCION (EMPRENDEDOR, NEGOCIO, PRO)
+-- =========================================================
+SET @exists_plan_sus := (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'suscripciones'
+      AND COLUMN_NAME = 'plan_codigo'
+);
+SET @sql_plan_sus := IF(
+    @exists_plan_sus = 0,
+    'ALTER TABLE suscripciones ADD COLUMN plan_codigo VARCHAR(30) NOT NULL DEFAULT ''EMPRENDEDOR''',
+    'SELECT 1'
+);
+PREPARE stmt_plan_sus FROM @sql_plan_sus;
+EXECUTE stmt_plan_sus;
+DEALLOCATE PREPARE stmt_plan_sus;
+
+SET @exists_plan_pagos := (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'pagos_suscripcion'
+      AND COLUMN_NAME = 'plan_codigo'
+);
+SET @sql_plan_pagos := IF(
+    @exists_plan_pagos = 0,
+    'ALTER TABLE pagos_suscripcion ADD COLUMN plan_codigo VARCHAR(30) NOT NULL DEFAULT ''EMPRENDEDOR''',
+    'SELECT 1'
+);
+PREPARE stmt_plan_pagos FROM @sql_plan_pagos;
+EXECUTE stmt_plan_pagos;
+DEALLOCATE PREPARE stmt_plan_pagos;
+
+UPDATE suscripciones
+SET plan_codigo = 'EMPRENDEDOR'
+WHERE id > 0 AND (plan_codigo IS NULL OR TRIM(plan_codigo) = '');
+
+UPDATE pagos_suscripcion
+SET plan_codigo = 'EMPRENDEDOR'
+WHERE id > 0 AND (plan_codigo IS NULL OR TRIM(plan_codigo) = '');
+
+UPDATE suscripciones
+SET plan_codigo = 'EMPRENDEDOR'
+WHERE id > 0
+  AND UPPER(TRIM(plan_codigo)) NOT IN ('EMPRENDEDOR', 'NEGOCIO', 'PRO');
+
+UPDATE pagos_suscripcion
+SET plan_codigo = 'EMPRENDEDOR'
+WHERE id > 0
+  AND UPPER(TRIM(plan_codigo)) NOT IN ('EMPRENDEDOR', 'NEGOCIO', 'PRO');

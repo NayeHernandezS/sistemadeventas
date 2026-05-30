@@ -1,10 +1,23 @@
--- Devoluciones de ventas (ejecutar una vez en java_curso)
+-- Devoluciones de ventas (idempotente)
 USE java_curso;
 
-ALTER TABLE tickets_venta
-    ADD COLUMN estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVO';
+SET @exists_ticket_estado := (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'tickets_venta'
+      AND COLUMN_NAME = 'estado'
+);
+SET @sql_ticket_estado := IF(
+    @exists_ticket_estado = 0,
+    'ALTER TABLE tickets_venta ADD COLUMN estado VARCHAR(20) NOT NULL DEFAULT ''ACTIVO''',
+    'SELECT 1'
+);
+PREPARE stmt_ticket_estado FROM @sql_ticket_estado;
+EXECUTE stmt_ticket_estado;
+DEALLOCATE PREPARE stmt_ticket_estado;
 
-UPDATE tickets_venta SET estado = 'ACTIVO' WHERE estado IS NULL OR estado = '';
+UPDATE tickets_venta SET estado = 'ACTIVO' WHERE id > 0 AND (estado IS NULL OR estado = '');
 
 CREATE TABLE IF NOT EXISTS devoluciones (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

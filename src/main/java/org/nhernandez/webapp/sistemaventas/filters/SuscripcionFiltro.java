@@ -89,6 +89,10 @@ public class SuscripcionFiltro implements Filter {
         return path;
     }
 
+    /**
+     * Rutas accesibles con suscripcion vencida (renovacion, soporte, consulta de pagos).
+     * Devoluciones, ventas, inventario y demas modulos requieren plan activo.
+     */
     private static boolean rutaPermitidaSinPlan(String path, HttpServletRequest req) {
         if (path.startsWith("/suscripcion")) {
             return true;

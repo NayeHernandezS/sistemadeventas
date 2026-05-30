@@ -30,6 +30,7 @@
             <a class="btn btn-secondary" href="${pageContext.request.contextPath}/">Volver</a>
             <c:if test="${esAdmin}">
                 <a class="btn btn-primary ms-2" href="${pageContext.request.contextPath}/productos/form">Crear producto [+]</a>
+                <a class="btn btn-outline-primary ms-2" href="${pageContext.request.contextPath}/categorias">Categorias</a>
             </c:if>
         </div>
     </c:if>

@@ -24,6 +24,9 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
     @MysqlConn
     private Connection conn;
 
+    @Autowired
+    private ProductoRepository productoRepository;
+
     @Override
     public List<TicketVenta> listar() throws SQLException {
         String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta order by fecha_venta desc";
@@ -65,6 +68,7 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
                 eliminarItems(ticket.getId());
                 insertarItems(ticket);
             } else {
+                descontarInventario(ticket);
                 insertarTicket(ticket);
                 insertarItems(ticket);
             }
@@ -175,6 +179,20 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
             stmt.setLong(2, ticketId);
             stmt.setString(3, tenantOwner);
             stmt.executeUpdate();
+        }
+    }
+
+    private void descontarInventario(TicketVenta ticket) throws SQLException {
+        if (ticket.getItems() == null || ticket.getItems().isEmpty()) {
+            return;
+        }
+        String tenantOwner = ticket.getTenantOwner();
+        if (tenantOwner == null || tenantOwner.isBlank()) {
+            throw new SQLException("tenant_owner es obligatorio para descontar inventario");
+        }
+        for (TicketItem item : ticket.getItems()) {
+            productoRepository.descontarExistencias(
+                    item.getProductoId(), tenantOwner, item.getCantidad());
         }
     }
 

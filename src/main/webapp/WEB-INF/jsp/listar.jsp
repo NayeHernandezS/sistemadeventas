@@ -14,6 +14,10 @@
 <body>
 <div class="container">
 <h1>Listado de productos</h1>
+<c:if test="${not empty sessionScope.mensajeError}">
+    <div class="alert alert-danger">${sessionScope.mensajeError}</div>
+    <c:remove var="mensajeError" scope="session"/>
+</c:if>
 <c:if test="${not empty sessionScope.username}">
    <div class="alert alert-info">Hola ${sessionScope.username}, bienvenido!</div>
 </c:if>
@@ -72,6 +76,7 @@
         <th>Tipo</th>
         <c:if test="${not empty sessionScope.username}">
         <th>Precio</th>
+        <th>Existencias</th>
         <th>Agregar</th>
         </c:if>
     </tr>
@@ -84,7 +89,17 @@
         <td>${p.categoria.nombre}</td>
         <c:if test="${not empty sessionScope.username}">
         <td>${p.precio}</td>
-        <td><a class="btn btn-sm btn-primary" href="${pageContext.request.contextPath}/carro/agregar?id=${p.id}">Agregar al carro</a></td>
+        <td>${p.existencias}</td>
+        <td>
+            <c:choose>
+                <c:when test="${p.existencias > 0}">
+                    <a class="btn btn-sm btn-primary" href="${pageContext.request.contextPath}/carro/agregar?id=${p.id}">Agregar al carro</a>
+                </c:when>
+                <c:otherwise>
+                    <span class="text-muted small">Sin stock</span>
+                </c:otherwise>
+            </c:choose>
+        </td>
         </c:if>
     </tr>
     </c:forEach>

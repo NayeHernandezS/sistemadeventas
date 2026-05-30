@@ -6,11 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.nhernandez.webapp.sistemaventas.repositories.UsuarioReposository;
 import org.nhernandez.webapp.sistemaventas.util.CategoriaPlantillaUtil;
+import org.nhernandez.webapp.sistemaventas.util.PasswordEncodingHelper;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -18,6 +19,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioReposository usuarioReposository;
     private final CategoriaRepository categoriaRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     private SuscripcionService suscripcionService;
@@ -27,16 +29,24 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     public UsuarioServiceImpl(UsuarioReposository usuarioReposository,
-                              CategoriaRepository categoriaRepository) {
+                              CategoriaRepository categoriaRepository,
+                              PasswordEncoder passwordEncoder) {
         this.usuarioReposository = usuarioReposository;
         this.categoriaRepository = categoriaRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public Optional<Usuario> login(String username, String password) {
         try {
-            return Optional.ofNullable(usuarioReposository.porUsername(username))
-                    .filter(u -> Objects.equals(u.getPassword(), password));
+            Usuario usuario = usuarioReposository.porUsername(username);
+            if (usuario == null) {
+                return Optional.empty();
+            }
+            if (PasswordEncodingHelper.matches(passwordEncoder, password, usuario.getPassword())) {
+                return Optional.of(usuario);
+            }
+            return Optional.empty();
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e);
         }
@@ -62,6 +72,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public void guardar(Usuario usuario) {
+        if (usuario.getPassword() != null && !usuario.getPassword().isBlank()) {
+            usuario.setPassword(PasswordEncodingHelper.encodeIfPlain(passwordEncoder, usuario.getPassword()));
+        }
         try {
             usuarioReposository.guardar(usuario);
         } catch (SQLException e) {

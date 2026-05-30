@@ -5,10 +5,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
 import org.nhernandez.webapp.sistemaventas.models.*;
-import org.nhernandez.webapp.sistemaventas.repositories.FacturaRepository;
-import org.nhernandez.webapp.sistemaventas.repositories.TicketRepository;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ProductoService;
+import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
+import org.nhernandez.webapp.sistemaventas.services.VentaService;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -35,19 +34,16 @@ public class CarroController {
     private final ProductoService productoService;
     private final Carro carro;
     private final LoginService loginService;
-    private final TicketRepository ticketRepository;
-    private final FacturaRepository facturaRepository;
+    private final VentaService ventaService;
 
     public CarroController(@ProductoServicePrincipal ProductoService productoService,
                              Carro carro,
                              LoginService loginService,
-                             TicketRepository ticketRepository,
-                             FacturaRepository facturaRepository) {
+                             VentaService ventaService) {
         this.productoService = productoService;
         this.carro = carro;
         this.loginService = loginService;
-        this.ticketRepository = ticketRepository;
-        this.facturaRepository = facturaRepository;
+        this.ventaService = ventaService;
     }
 
     @GetMapping("/ver")
@@ -60,9 +56,18 @@ public class CarroController {
         Long id = Long.parseLong(req.getParameter("id"));
         String tenant = TenantUtil.getTenantOwner(req);
         Optional<Producto> producto = productoService.porIdPorOwner(id, tenant);
-        if (producto.isPresent()) {
-            carro.addItemCarro(new ItemCarro(1, producto.get()));
+        if (producto.isEmpty()) {
+            req.getSession().setAttribute("mensajeError", "Producto no encontrado.");
+            return "redirect:/productos";
         }
+        int cantidadNueva = carro.getCantidadEnCarro(id) + 1;
+        try {
+            ventaService.validarStock(tenant, id, cantidadNueva);
+        } catch (ServiceJdbcException e) {
+            req.getSession().setAttribute("mensajeError", e.getMessage());
+            return "redirect:/productos";
+        }
+        carro.addItemCarro(new ItemCarro(1, producto.get()));
         return "redirect:/carro/ver";
     }
 
@@ -70,11 +75,17 @@ public class CarroController {
     public String actualizar(HttpServletRequest req) {
         updateProductos(req, carro);
         updateCantidades(req, carro);
+        String tenant = TenantUtil.getTenantOwner(req);
+        try {
+            ventaService.validarStockCarrito(tenant, carro.getItems());
+        } catch (ServiceJdbcException e) {
+            req.getSession().setAttribute("mensajeError", e.getMessage());
+        }
         return "redirect:/carro/ver";
     }
 
     @PostMapping("/finalizar")
-    public void finalizar(HttpServletRequest req, HttpServletResponse resp) throws IOException, SQLException {
+    public void finalizar(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Optional<String> usernameOpt = loginService.getUsername(req);
         if (usernameOpt.isEmpty()) {
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Debe iniciar sesión para generar tickets.");
@@ -97,7 +108,7 @@ public class CarroController {
         if (requiereFactura) {
             String error = validarDatosFactura(rfc, razonSocial);
             if (error != null) {
-                req.getSession().setAttribute("mensajeTicket", error);
+                req.getSession().setAttribute("mensajeError", error);
                 resp.sendRedirect(req.getContextPath() + "/carro/ver");
                 return;
             }
@@ -105,10 +116,9 @@ public class CarroController {
 
         String tenant = TenantUtil.getTenantOwner(req);
         TicketVenta ticket = construirTicket(carro, usernameOpt.get(), tenant);
-        ticketRepository.guardar(ticket);
-        if (requiereFactura && ticket.getId() != null) {
-            Factura factura = new Factura();
-            factura.setTicketId(ticket.getId());
+        Factura factura = null;
+        if (requiereFactura) {
+            factura = new Factura();
             factura.setFolioFactura(generarFolioFactura());
             factura.setRfc(rfc.toUpperCase());
             factura.setRazonSocial(razonSocial);
@@ -116,8 +126,16 @@ public class CarroController {
             factura.setDireccion(direccion.isEmpty() ? null : direccion);
             factura.setUsoCfdi(usoCfdi.isEmpty() ? null : usoCfdi);
             factura.setFechaEmision(LocalDateTime.now());
-            facturaRepository.guardar(factura);
         }
+
+        try {
+            ventaService.registrarVenta(ticket, factura);
+        } catch (ServiceJdbcException e) {
+            req.getSession().setAttribute("mensajeError", e.getMessage());
+            resp.sendRedirect(req.getContextPath() + "/carro/ver");
+            return;
+        }
+
         guardarTicketEnSesion(req.getSession(), ticket);
         carro.vaciar();
         String msg = "Venta finalizada. Ticket " + ticket.getFolio() + " generado.";
@@ -143,7 +161,12 @@ public class CarroController {
                 String id = paramName.substring(5);
                 String cantidad = request.getParameter(paramName);
                 if (cantidad != null) {
-                    carro.updateCantidad(id, Integer.parseInt(cantidad));
+                    int cant = Integer.parseInt(cantidad);
+                    if (cant <= 0) {
+                        carro.removeProducto(id);
+                    } else {
+                        carro.updateCantidad(id, cant);
+                    }
                 }
             }
         }

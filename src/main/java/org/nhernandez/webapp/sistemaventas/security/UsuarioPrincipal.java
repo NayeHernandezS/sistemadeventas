@@ -1,6 +1,7 @@
 package org.nhernandez.webapp.sistemaventas.security;
 
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
+import org.nhernandez.webapp.sistemaventas.util.PasswordEncodingHelper;
 import org.nhernandez.webapp.sistemaventas.util.PlataformaUtil;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,7 +37,7 @@ public class UsuarioPrincipal implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "{noop}" + usuario.getPassword();
+        return PasswordEncodingHelper.toAuthenticationFormat(usuario.getPassword());
     }
 
     @Override

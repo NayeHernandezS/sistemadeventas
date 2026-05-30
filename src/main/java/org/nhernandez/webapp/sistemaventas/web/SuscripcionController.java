@@ -72,7 +72,7 @@ public class SuscripcionController {
         try {
             suscripcionService.solicitarPago(tenant, meses, planCodigo.trim().toUpperCase());
             model.addAttribute("mensajeExito",
-                    "Solicitud registrada por " + meses + " mes(es). Confirma el pago en tu panel.");
+                    "Solicitud registrada por " + meses + " mes(es). La plataforma confirmara tu pago pronto.");
         } catch (ServiceJdbcException e) {
             errores.put("general", e.getMessage());
             model.addAttribute("errores", errores);
@@ -88,27 +88,6 @@ public class SuscripcionController {
             return null;
         }
         String tenant = TenantUtil.getTenantOwner(req);
-        model.addAttribute("pagosPendientes", suscripcionService.pagosPendientesDelTenant(tenant));
-        return "pagosAdmin";
-    }
-
-    @PostMapping("/admin/pagos")
-    public String pagosPost(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
-        if (!RolUtil.esAdmin(req)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Solo administrador de la cuenta");
-            return null;
-        }
-        String tenant = TenantUtil.getTenantOwner(req);
-        long pagoId;
-        try {
-            pagoId = Long.parseLong(req.getParameter("pagoId"));
-        } catch (NumberFormatException e) {
-            pagoId = 0;
-        }
-        if (pagoId > 0) {
-            suscripcionService.confirmarPago(pagoId, tenant);
-            model.addAttribute("mensajeExito", "Pago confirmado. Suscripcion extendida.");
-        }
         model.addAttribute("pagosPendientes", suscripcionService.pagosPendientesDelTenant(tenant));
         return "pagosAdmin";
     }

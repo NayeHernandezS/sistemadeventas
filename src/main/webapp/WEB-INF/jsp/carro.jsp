@@ -13,6 +13,10 @@
 <body>
 <div class="container">
 <h1>Carro de Compras</h1>
+<c:if test="${not empty sessionScope.mensajeError}">
+    <div class="alert alert-danger">${sessionScope.mensajeError}</div>
+    <c:remove var="mensajeError" scope="session"/>
+</c:if>
 <c:choose>
 <c:when test="${empty carro.items}">
 <div class="alert alert-warning">Lo sentimos, no hay productos en el carro de compras.</div>
@@ -26,6 +30,7 @@
         <th>Id</th>
         <th>Nombre</th>
         <th>Precio</th>
+        <th>Existencias</th>
         <th>Cantidad</th>
         <th>Importe</th>
         <th>Borrar</th>
@@ -37,7 +42,8 @@
         <td>${item.producto.id}</td>
         <td>${item.producto.nombre}</td>
         <td>${item.producto.precio}</td>
-        <td><input type="text" size="4" name="cant_${item.producto.id}" value="${item.cantidad}" /></td>
+        <td>${item.producto.existencias}</td>
+        <td><input type="number" min="1" size="4" name="cant_${item.producto.id}" value="${item.cantidad}" /></td>
         <td>${item.importe}</td>
         <td><input type="checkbox" value="${item.producto.id}" name="deleteProductos" /></td>
     </tr>
@@ -45,7 +51,7 @@
     </tbody>
     <tfoot>
     <tr>
-        <td colspan="4" class="text-end"><strong>Total:</strong></td>
+        <td colspan="5" class="text-end"><strong>Total:</strong></td>
         <td colspan="2"><strong>${carro.total}</strong></td>
     </tr>
     </tfoot>

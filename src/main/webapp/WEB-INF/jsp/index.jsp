@@ -96,6 +96,12 @@
 
         <c:if test="${sessionScope.rol eq 'ADMIN'}">
         <div class="col-md-4 col-lg-3">
+            <div class="card h-100 menu-card p-4 border-start border-success border-3">
+                <div class="icon-circle"><i class="bi bi-tags"></i></div>
+                <a href="${pageContext.request.contextPath}/categorias" class="menu-link stretched-link">Categorias</a>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
             <div class="card h-100 menu-card p-4 border-start border-warning border-3">
                 <div class="icon-circle"><i class="bi bi-people"></i></div>
                 <a href="${pageContext.request.contextPath}/usuarios" class="menu-link stretched-link">Mis vendedores</a>
@@ -104,7 +110,7 @@
         <div class="col-md-4 col-lg-3">
             <div class="card h-100 menu-card p-4 border-start border-primary border-3">
                 <div class="icon-circle"><i class="bi bi-credit-card"></i></div>
-                <a href="${pageContext.request.contextPath}/admin/pagos" class="menu-link stretched-link">Mis pagos pendientes</a>
+                <a href="${pageContext.request.contextPath}/admin/pagos" class="menu-link stretched-link">Estado de mis pagos</a>
             </div>
         </div>
         <div class="col-md-4 col-lg-3">

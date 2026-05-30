@@ -78,6 +78,14 @@ public class Carro implements Serializable {
                 .findAny();
     }
 
+    public int getCantidadEnCarro(Long productoId) {
+        return items.stream()
+                .filter(item -> productoId.equals(item.getProducto().getId()))
+                .mapToInt(ItemCarro::getCantidad)
+                .findFirst()
+                .orElse(0);
+    }
+
     public void vaciar() {
         items.clear();
     }

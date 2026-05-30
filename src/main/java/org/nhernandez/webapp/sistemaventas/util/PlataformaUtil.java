@@ -1,12 +1,10 @@
 package org.nhernandez.webapp.sistemaventas.util;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.nhernandez.webapp.sistemaventas.config.AppEnvironmentHolder;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,7 +43,7 @@ public final class PlataformaUtil {
     }
 
     private static Set<String> usuariosConfigurados() {
-        String raw = loadConfig().getProperty(PROP_SUPERADMINS, "").trim();
+        String raw = AppEnvironmentHolder.getProperty(PROP_SUPERADMINS, "").trim();
         if (raw.isEmpty()) {
             return Set.of();
         }
@@ -54,17 +52,5 @@ public final class PlataformaUtil {
                 .filter(s -> !s.isEmpty())
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-    }
-
-    private static Properties loadConfig() {
-        Properties properties = new Properties();
-        try (InputStream in = PlataformaUtil.class.getClassLoader()
-                .getResourceAsStream("application.properties")) {
-            if (in != null) {
-                properties.load(in);
-            }
-        } catch (IOException ignored) {
-        }
-        return properties;
     }
 }

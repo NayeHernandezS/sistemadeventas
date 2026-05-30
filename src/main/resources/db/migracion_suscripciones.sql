@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS suscripciones (
     fecha_inicio DATETIME NOT NULL,
     fecha_fin DATETIME NOT NULL,
     en_periodo_prueba TINYINT(1) NOT NULL DEFAULT 1,
-    estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVA'
+    estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVA',
+    plan_codigo VARCHAR(30) NOT NULL DEFAULT 'EMPRENDEDOR'
 );
 
 CREATE TABLE IF NOT EXISTS pagos_suscripcion (
@@ -19,6 +20,7 @@ CREATE TABLE IF NOT EXISTS pagos_suscripcion (
     fecha_confirmacion DATETIME NULL,
     estado VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
     notas VARCHAR(255) NULL,
+    plan_codigo VARCHAR(30) NOT NULL DEFAULT 'EMPRENDEDOR',
     INDEX idx_pagos_username (username),
     INDEX idx_pagos_estado (estado)
 );
