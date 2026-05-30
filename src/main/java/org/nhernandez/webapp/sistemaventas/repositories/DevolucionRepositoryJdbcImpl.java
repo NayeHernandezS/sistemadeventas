@@ -13,7 +13,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class DevolucionRepositoryJdbcImpl implements DevolucionRepository {
@@ -89,6 +91,22 @@ public class DevolucionRepositoryJdbcImpl implements DevolucionRepository {
             }
         }
         return 0;
+    }
+
+    @Override
+    public Map<Long, Integer> totalesDevueltosPorTenant(String tenantOwner) throws SQLException {
+        String sql = "SELECT ticket_id, COALESCE(SUM(total_devuelto), 0) AS total "
+                + "FROM devoluciones WHERE tenant_owner = ? GROUP BY ticket_id";
+        Map<Long, Integer> mapa = new HashMap<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, tenantOwner);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    mapa.put(rs.getLong("ticket_id"), rs.getInt("total"));
+                }
+            }
+        }
+        return mapa;
     }
 
     private void insertarItems(Devolucion devolucion) throws SQLException {

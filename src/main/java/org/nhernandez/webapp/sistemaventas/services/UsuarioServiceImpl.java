@@ -107,4 +107,24 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new ServiceJdbcException(e.getMessage(), e.getCause());
         }
     }
+
+    @Override
+    public void cambiarPassword(String username, String passwordActual, String passwordNueva) {
+        if (passwordNueva == null || passwordNueva.length() < 4) {
+            throw new ServiceJdbcException("La nueva contraseña debe tener al menos 4 caracteres", null);
+        }
+        try {
+            Usuario usuario = usuarioReposository.porUsername(username);
+            if (usuario == null) {
+                throw new ServiceJdbcException("Usuario no encontrado", null);
+            }
+            if (!PasswordEncodingHelper.matches(passwordEncoder, passwordActual, usuario.getPassword())) {
+                throw new ServiceJdbcException("La contraseña actual no es correcta", null);
+            }
+            usuario.setPassword(PasswordEncodingHelper.encodeIfPlain(passwordEncoder, passwordNueva));
+            usuarioReposository.guardar(usuario);
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e.getCause());
+        }
+    }
 }

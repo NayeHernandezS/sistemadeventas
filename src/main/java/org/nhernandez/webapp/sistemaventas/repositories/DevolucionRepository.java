@@ -4,6 +4,7 @@ import org.nhernandez.webapp.sistemaventas.models.Devolucion;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public interface DevolucionRepository {
 
@@ -12,4 +13,6 @@ public interface DevolucionRepository {
     List<Devolucion> listarPorTenant(String tenantOwner) throws SQLException;
 
     int cantidadDevueltaDeProducto(Long ticketId, Long productoId) throws SQLException;
+
+    Map<Long, Integer> totalesDevueltosPorTenant(String tenantOwner) throws SQLException;
 }

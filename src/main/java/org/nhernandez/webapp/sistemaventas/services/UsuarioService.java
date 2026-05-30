@@ -18,4 +18,6 @@ public interface UsuarioService {
     void eliminarDeTenant(Long id, String tenantOwner);
 
     void registrarCuentaAdmin(Usuario usuario, String planCodigo);
+
+    void cambiarPassword(String username, String passwordActual, String passwordNueva);
 }

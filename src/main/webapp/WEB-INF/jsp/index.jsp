@@ -23,6 +23,9 @@
         </a>
         <div class="ms-auto d-flex align-items-center gap-2">
             <span class="text-muted small d-none d-md-inline">Hola, ${sessionScope.username}</span>
+            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/perfil">
+                Mi perfil
+            </a>
             <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/logout">
                 Cerrar sesion <i class="bi bi-power"></i>
             </a>

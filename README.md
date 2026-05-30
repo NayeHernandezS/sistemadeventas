@@ -20,14 +20,34 @@ Herramientas recomendadas: IntelliJ IDEA, MySQL Workbench.
 
 ## Base de datos
 
-### Esquema base
+### Instalacion desde cero (recomendado)
 
-Este proyecto asume que ya existe la base `java_curso` con las tablas del curso de Java EE:
+Si partes sin tablas previas, ejecuta el esquema completo y los datos de demo:
+
+```bash
+cd src/main/resources/db
+mysql -u root -p < schema.sql
+mysql -u root -p < datos_ejemplo.sql
+```
+
+Credenciales de prueba (`datos_ejemplo.sql`):
+
+| Usuario | Contraseña | Rol |
+|---------|------------|-----|
+| `tienda1` | `admin123` | ADMIN de negocio |
+| `vendedor1` | `vendedor1` | VENDEDOR de tienda1 |
+| `plataforma` | `plataforma1` | SUPER_ADMIN |
+
+### Esquema base (curso Java EE)
+
+Si ya tienes la base `java_curso` del curso con tablas originales, puedes usar las migraciones incrementales en lugar de `schema.sql`.
+
+Tablas originales del curso:
 
 - `usuarios`, `productos`, `categorias`
 - `tickets_venta`, `ticket_items`, `facturas`
 
-Si partes de cero, crea la base y las tablas originales antes de ejecutar las migraciones.
+Si partes de cero sin `schema.sql`, crea la base antes de migrar:
 
 ```sql
 CREATE DATABASE IF NOT EXISTS java_curso
@@ -136,7 +156,9 @@ Genera `target/sistema-ventas.war` para desplegar en un servidor Tomcat externo.
 mvn test
 ```
 
-Pruebas unitarias en `src/test/java` (JUnit 5 + Mockito): suscripciones, limites de plan y devoluciones.
+Pruebas unitarias en `src/test/java` (JUnit 5 + Mockito): suscripciones, limites de plan, devoluciones, ventas y reportes.
+
+El repositorio incluye CI en GitHub Actions (`.github/workflows/ci.yml`) que ejecuta `mvn test` en cada push a `main`.
 
 ---
 
@@ -189,7 +211,8 @@ Cierra sesion y vuelve a entrar. El SUPER_ADMIN es redirigido a **/plataforma**.
 - **Categorias** — CRUD por tenant (solo ADMIN)
 - **Devoluciones** — parciales o totales por ticket
 - **Suscripciones** — planes Emprendedor ($149), Negocio ($249), Pro ($399); pagos manuales (demo)
-- **Reportes** — ventas por vendedor y periodo
+- **Reportes** — ventas por vendedor y periodo; totales netos restando devoluciones
+- **Perfil** — cambio de contraseña con BCrypt (`/perfil`)
 
 ---
 

@@ -11,22 +11,23 @@
 <body>
 <div class="container my-4">
     <h1 class="mb-4">Reporte de Ventas</h1>
+    <p class="text-muted small">Los totales <strong>netos</strong> restan las devoluciones registradas por ticket.</p>
 
     <form class="row g-3 mb-4" method="get" action="${pageContext.request.contextPath}/reportes">
         <div class="col-md-3">
             <label class="form-label" for="fechaInicio">Fecha inicio</label>
-            <input class="form-control" type="date" id="fechaInicio" name="fechaInicio" value="${fechaInicio}">
+            <input class="form-control" type="date" id="fechaInicio" name="fechaInicio" value="${reporte.fechaInicio}">
         </div>
         <div class="col-md-3">
             <label class="form-label" for="fechaFin">Fecha fin</label>
-            <input class="form-control" type="date" id="fechaFin" name="fechaFin" value="${fechaFin}">
+            <input class="form-control" type="date" id="fechaFin" name="fechaFin" value="${reporte.fechaFin}">
         </div>
         <div class="col-md-3">
             <label class="form-label" for="vendedor">Vendedor</label>
             <select class="form-select" id="vendedor" name="vendedor">
                 <option value="">Todos</option>
-                <c:forEach items="${vendedores}" var="ven">
-                    <option value="${ven}" ${ven == vendedorSeleccionado ? 'selected' : ''}>${ven}</option>
+                <c:forEach items="${reporte.vendedores}" var="ven">
+                    <option value="${ven}" ${ven == reporte.vendedorSeleccionado ? 'selected' : ''}>${ven}</option>
                 </c:forEach>
             </select>
         </div>
@@ -38,7 +39,10 @@
 
     <div class="alert alert-info mb-4">
         <strong>Resultado de filtros:</strong>
-        Tickets ${cantidadFiltrada} | Total $${totalFiltrado}
+        Tickets ${reporte.cantidadFiltrada} |
+        Bruto $${reporte.totalFiltradoBruto} |
+        Devuelto $${reporte.totalDevueltoFiltrado} |
+        <strong>Neto $${reporte.totalFiltradoNeto}</strong>
     </div>
 
     <div class="row g-3 mb-4">
@@ -46,8 +50,9 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title">Hoy</h5>
-                    <p class="mb-1"><strong>Tickets:</strong> ${cantidadDia}</p>
-                    <p class="mb-0"><strong>Total:</strong> $${totalDia}</p>
+                    <p class="mb-1"><strong>Tickets:</strong> ${reporte.cantidadDia}</p>
+                    <p class="mb-1"><strong>Bruto:</strong> $${reporte.totalDiaBruto}</p>
+                    <p class="mb-0"><strong>Neto:</strong> $${reporte.totalDiaNeto}</p>
                 </div>
             </div>
         </div>
@@ -55,8 +60,9 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title">Semana actual</h5>
-                    <p class="mb-1"><strong>Tickets:</strong> ${cantidadSemana}</p>
-                    <p class="mb-0"><strong>Total:</strong> $${totalSemana}</p>
+                    <p class="mb-1"><strong>Tickets:</strong> ${reporte.cantidadSemana}</p>
+                    <p class="mb-1"><strong>Bruto:</strong> $${reporte.totalSemanaBruto}</p>
+                    <p class="mb-0"><strong>Neto:</strong> $${reporte.totalSemanaNeto}</p>
                 </div>
             </div>
         </div>
@@ -64,8 +70,9 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title">Mes actual</h5>
-                    <p class="mb-1"><strong>Tickets:</strong> ${cantidadMes}</p>
-                    <p class="mb-0"><strong>Total:</strong> $${totalMes}</p>
+                    <p class="mb-1"><strong>Tickets:</strong> ${reporte.cantidadMes}</p>
+                    <p class="mb-1"><strong>Bruto:</strong> $${reporte.totalMesBruto}</p>
+                    <p class="mb-0"><strong>Neto:</strong> $${reporte.totalMesNeto}</p>
                 </div>
             </div>
         </div>
@@ -73,7 +80,7 @@
 
     <h3>Detalle del día</h3>
     <c:choose>
-        <c:when test="${empty ticketsDia}">
+        <c:when test="${empty reporte.ticketsDia}">
             <div class="alert alert-warning">No hay ventas registradas hoy.</div>
         </c:when>
         <c:otherwise>
@@ -83,16 +90,20 @@
                     <th>Folio</th>
                     <th>Vendedor</th>
                     <th>Fecha</th>
-                    <th>Total</th>
+                    <th>Bruto</th>
+                    <th>Devuelto</th>
+                    <th>Neto</th>
                 </tr>
                 </thead>
                 <tbody>
-                <c:forEach items="${ticketsDia}" var="ticket">
+                <c:forEach items="${reporte.ticketsDia}" var="ticket">
                     <tr>
                         <td>${ticket.folio}</td>
                         <td>${ticket.usernameVendedor}</td>
                         <td>${ticket.fechaVenta}</td>
                         <td>$${ticket.total}</td>
+                        <td>$${reporte.totalDevuelto(ticket)}</td>
+                        <td>$${reporte.totalNeto(ticket)}</td>
                     </tr>
                 </c:forEach>
                 </tbody>
@@ -102,7 +113,7 @@
 
     <h3>Detalle de la semana</h3>
     <c:choose>
-        <c:when test="${empty ticketsSemana}">
+        <c:when test="${empty reporte.ticketsSemana}">
             <div class="alert alert-warning">No hay ventas registradas esta semana.</div>
         </c:when>
         <c:otherwise>
@@ -112,16 +123,20 @@
                     <th>Folio</th>
                     <th>Vendedor</th>
                     <th>Fecha</th>
-                    <th>Total</th>
+                    <th>Bruto</th>
+                    <th>Devuelto</th>
+                    <th>Neto</th>
                 </tr>
                 </thead>
                 <tbody>
-                <c:forEach items="${ticketsSemana}" var="ticket">
+                <c:forEach items="${reporte.ticketsSemana}" var="ticket">
                     <tr>
                         <td>${ticket.folio}</td>
                         <td>${ticket.usernameVendedor}</td>
                         <td>${ticket.fechaVenta}</td>
                         <td>$${ticket.total}</td>
+                        <td>$${reporte.totalDevuelto(ticket)}</td>
+                        <td>$${reporte.totalNeto(ticket)}</td>
                     </tr>
                 </c:forEach>
                 </tbody>
@@ -131,7 +146,7 @@
 
     <h3>Detalle del mes</h3>
     <c:choose>
-        <c:when test="${empty ticketsMes}">
+        <c:when test="${empty reporte.ticketsMes}">
             <div class="alert alert-warning">No hay ventas registradas este mes.</div>
         </c:when>
         <c:otherwise>
@@ -141,16 +156,20 @@
                     <th>Folio</th>
                     <th>Vendedor</th>
                     <th>Fecha</th>
-                    <th>Total</th>
+                    <th>Bruto</th>
+                    <th>Devuelto</th>
+                    <th>Neto</th>
                 </tr>
                 </thead>
                 <tbody>
-                <c:forEach items="${ticketsMes}" var="ticket">
+                <c:forEach items="${reporte.ticketsMes}" var="ticket">
                     <tr>
                         <td>${ticket.folio}</td>
                         <td>${ticket.usernameVendedor}</td>
                         <td>${ticket.fechaVenta}</td>
                         <td>$${ticket.total}</td>
+                        <td>$${reporte.totalDevuelto(ticket)}</td>
+                        <td>$${reporte.totalNeto(ticket)}</td>
                     </tr>
                 </c:forEach>
                 </tbody>
