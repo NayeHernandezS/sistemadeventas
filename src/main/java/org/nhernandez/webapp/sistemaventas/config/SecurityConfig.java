@@ -31,6 +31,8 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/login.jsp"),
                                 new AntPathRequestMatcher("/registro"),
                                 new AntPathRequestMatcher("/registro/**"),
+                                new AntPathRequestMatcher("/recuperar"),
+                                new AntPathRequestMatcher("/recuperar/**"),
                                 new AntPathRequestMatcher("/logout"),
                                 new AntPathRequestMatcher("/error"),
                                 new AntPathRequestMatcher("/css/**"),

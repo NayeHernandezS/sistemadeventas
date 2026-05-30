@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <title>Reporte de Ventas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
 </head>
 <body>
@@ -31,9 +32,17 @@
                 </c:forEach>
             </select>
         </div>
-        <div class="col-md-3 d-flex align-items-end gap-2">
+        <div class="col-md-3 d-flex align-items-end gap-2 flex-wrap">
             <button class="btn btn-primary" type="submit">Filtrar</button>
             <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/reportes">Limpiar</a>
+            <c:url var="exportUrl" value="/reportes/export">
+                <c:param name="fechaInicio" value="${reporte.fechaInicio}"/>
+                <c:param name="fechaFin" value="${reporte.fechaFin}"/>
+                <c:param name="vendedor" value="${reporte.vendedorSeleccionado}"/>
+            </c:url>
+            <a class="btn btn-success" href="${exportUrl}">
+                <i class="bi bi-download"></i> Exportar CSV
+            </a>
         </div>
     </form>
 

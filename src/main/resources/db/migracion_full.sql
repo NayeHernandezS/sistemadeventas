@@ -28,3 +28,6 @@ SOURCE migracion_soporte.sql;
 
 -- 9) Planes de suscripcion (3 niveles)
 SOURCE migracion_planes.sql;
+
+-- 10) Recuperacion de contraseña
+SOURCE migracion_recuperacion_password.sql;

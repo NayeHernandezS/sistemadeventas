@@ -39,6 +39,23 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
     }
 
     @Override
+    public Usuario porEmail(String email) throws SQLException {
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+        String sql = "SELECT * FROM usuarios WHERE LOWER(TRIM(email)) = LOWER(TRIM(?)) LIMIT 1";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return getUsuario(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public List<Usuario> listarPorAdminOwner(String adminOwner) throws SQLException {
         String sql = "select * from usuarios where admin_owner = ? order by username";
         List<Usuario> usuarios = new ArrayList<>();

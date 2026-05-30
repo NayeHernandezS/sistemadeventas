@@ -86,6 +86,7 @@ Orden de migraciones (`migracion_full.sql`):
 7. Devoluciones
 8. Soporte
 9. Planes (`plan_codigo`)
+10. Recuperación de contraseña (`tokens_recuperacion`)
 
 ---
 
@@ -121,6 +122,10 @@ En `src/main/resources/application.properties`:
 | `soporte.whatsapp` | Numero WhatsApp (opcional) | vacio |
 | `soporte.horario` | Horario de atencion | L-V 9-18 |
 | `inventario.stock.minimo` | Umbral de alerta de stock bajo (unidades) | `5` |
+| `recuperacion.token.horas` | Validez del enlace de recuperación | `2` |
+| `recuperacion.mail.from` | Remitente del correo de recuperación | `noreply@misistema.com` |
+| `app.base-url` | URL pública de la app (enlaces en correos) | vacío (se deduce del request) |
+| `spring.mail.host` | Servidor SMTP (opcional) | vacío = modo demo en pantalla |
 
 Tambien puedes sobreescribirlas en `.env` usando el mismo nombre de propiedad.
 
@@ -157,7 +162,7 @@ Genera `target/sistema-ventas.war` para desplegar en un servidor Tomcat externo.
 mvn test
 ```
 
-Pruebas unitarias en `src/test/java` (JUnit 5 + Mockito): suscripciones, limites de plan, devoluciones, ventas, reportes e inventario.
+Pruebas unitarias en `src/test/java` (JUnit 5 + Mockito): suscripciones, limites de plan, devoluciones, ventas, reportes, inventario y exportacion CSV.
 
 ---
 
@@ -205,21 +210,22 @@ Cierra sesion y vuelve a entrar. El SUPER_ADMIN es redirigido a **/plataforma**.
 
 ## Modulos principales
 
-- **Ventas** — catalogo, carrito, tickets, facturacion basica (RFC, sin CFDI real)
+- **Ventas** — catalogo, carrito, tickets, facturacion basica (RFC, PDF descargable; sin CFDI real)
 - **Inventario** — CRUD de productos con existencias; alertas de stock bajo y agotado; el stock se descuenta al vender y se reintegra en devoluciones
 - **Categorias** — CRUD por tenant (solo ADMIN)
 - **Devoluciones** — parciales o totales por ticket
 - **Suscripciones** — planes Emprendedor ($149), Negocio ($249), Pro ($399); pagos manuales (demo)
-- **Reportes** — ventas por vendedor y periodo; totales netos restando devoluciones
+- **Reportes** — ventas por vendedor y periodo; totales netos restando devoluciones; exportacion CSV
 - **Perfil** — cambio de contraseña con BCrypt (`/perfil`)
+- **Recuperación de acceso** — olvidé mi contraseña por email (`/recuperar`); modo demo sin SMTP
 
 ---
 
 ## Notas importantes
 
 - **Pagos de suscripcion**: el ADMIN solicita el pago en `/suscripcion`; solo un **SUPER_ADMIN** puede confirmarlo en `/plataforma/pagos`. El ADMIN consulta el estado en `/admin/pagos` (solo lectura).
-- **Contrasenas**: nuevas cuentas y cambios de password se guardan con **BCrypt** (`{bcrypt}`). Las contrasenas legacy en texto plano siguen funcionando hasta que el usuario cambie la contrasena.
-- **Facturacion**: registra datos fiscales y folio interno; no genera XML/PDF CFDI ni timbrado SAT.
+- **Contrasenas**: nuevas cuentas y cambios de password se guardan con **BCrypt** (`{bcrypt}`). Las contrasenas legacy en texto plano siguen funcionando hasta que el usuario cambie la contrasena. Recuperacion en `/recuperar` (requiere tabla `tokens_recuperacion` y opcionalmente SMTP).
+- **Facturacion**: registra datos fiscales, folio interno y PDF descargable desde `/factura`; no genera XML/PDF CFDI ni timbrado SAT.
 - No subas `.env` al repositorio (contiene credenciales).
 
 ---

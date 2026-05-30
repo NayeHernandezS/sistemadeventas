@@ -56,6 +56,9 @@
             ¿No tienes cuenta?
             <a href="${pageContext.request.contextPath}/registro">Crear cuenta gratis</a>
         </p>
+        <p class="text-center mt-2 mb-0 small">
+            <a href="${pageContext.request.contextPath}/recuperar">¿Olvidaste tu contraseña?</a>
+        </p>
     </div>
 </div>
 

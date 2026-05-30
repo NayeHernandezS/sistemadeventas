@@ -14,6 +14,8 @@ public interface UsuarioReposository {
 
     Usuario porUsername(String username) throws SQLException;
 
+    Usuario porEmail(String email) throws SQLException;
+
     boolean existeUsername(String username) throws SQLException;
 
     List<Usuario> listarPorAdminOwner(String adminOwner) throws SQLException;

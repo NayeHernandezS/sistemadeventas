@@ -81,7 +81,13 @@
             </div>
         </c:otherwise>
     </c:choose>
-    <div class="no-print mt-3">
+    <div class="no-print mt-3 d-flex flex-wrap gap-2">
+        <c:if test="${not empty factura}">
+            <a class="btn btn-primary"
+               href="${pageContext.request.contextPath}/factura/pdf?folioTicket=${ticket.folio}">
+                Descargar PDF
+            </a>
+        </c:if>
         <button type="button" class="btn btn-outline-primary" onclick="window.print()">Imprimir</button>
         <a class="btn btn-secondary" href="${pageContext.request.contextPath}/tickets">Volver a tickets</a>
     </div>
