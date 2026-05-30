@@ -68,6 +68,11 @@
 <a class="btn btn-sm btn-success" href="${pageContext.request.contextPath}/carro/ver">Ver carro</a>
 </div>
 <h2 class="h5 mt-3">Catálogo</h2>
+<c:if test="${cantidadConAlerta > 0}">
+    <div class="alert alert-warning py-2 small">
+        ${cantidadConAlerta} producto(s) con stock bajo o agotado (alerta desde ${stockMinimo} unidades).
+    </div>
+</c:if>
 <table class="table table-hover table-striped">
     <thead>
     <tr>
@@ -83,13 +88,21 @@
     </thead>
     <tbody>
     <c:forEach items="${productos}" var="p">
-    <tr>
+    <tr class="${p.existencias == 0 ? 'table-danger' : (p.existencias <= stockMinimo ? 'table-warning' : '')}">
         <td>${p.id}</td>
         <td>${p.nombre}</td>
         <td>${p.categoria.nombre}</td>
         <c:if test="${not empty sessionScope.username}">
         <td>${p.precio}</td>
-        <td>${p.existencias}</td>
+        <td>
+            ${p.existencias}
+            <c:if test="${p.existencias == 0}">
+                <span class="badge bg-danger ms-1">Agotado</span>
+            </c:if>
+            <c:if test="${p.existencias > 0 && p.existencias <= stockMinimo}">
+                <span class="badge bg-warning text-dark ms-1">Stock bajo</span>
+            </c:if>
+        </td>
         <td>
             <c:choose>
                 <c:when test="${p.existencias > 0}">

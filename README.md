@@ -120,6 +120,7 @@ En `src/main/resources/application.properties`:
 | `soporte.email` | Email visible en `/soporte` | `soporte@misistema.com` |
 | `soporte.whatsapp` | Numero WhatsApp (opcional) | vacio |
 | `soporte.horario` | Horario de atencion | L-V 9-18 |
+| `inventario.stock.minimo` | Umbral de alerta de stock bajo (unidades) | `5` |
 
 Tambien puedes sobreescribirlas en `.env` usando el mismo nombre de propiedad.
 
@@ -156,9 +157,7 @@ Genera `target/sistema-ventas.war` para desplegar en un servidor Tomcat externo.
 mvn test
 ```
 
-Pruebas unitarias en `src/test/java` (JUnit 5 + Mockito): suscripciones, limites de plan, devoluciones, ventas y reportes.
-
-El repositorio incluye CI en GitHub Actions (`.github/workflows/ci.yml`) que ejecuta `mvn test` en cada push a `main`.
+Pruebas unitarias en `src/test/java` (JUnit 5 + Mockito): suscripciones, limites de plan, devoluciones, ventas, reportes e inventario.
 
 ---
 
@@ -207,7 +206,7 @@ Cierra sesion y vuelve a entrar. El SUPER_ADMIN es redirigido a **/plataforma**.
 ## Modulos principales
 
 - **Ventas** — catalogo, carrito, tickets, facturacion basica (RFC, sin CFDI real)
-- **Inventario** — CRUD de productos con existencias; el stock se descuenta al vender y se reintegra en devoluciones
+- **Inventario** — CRUD de productos con existencias; alertas de stock bajo y agotado; el stock se descuenta al vender y se reintegra en devoluciones
 - **Categorias** — CRUD por tenant (solo ADMIN)
 - **Devoluciones** — parciales o totales por ticket
 - **Suscripciones** — planes Emprendedor ($149), Negocio ($249), Pro ($399); pagos manuales (demo)

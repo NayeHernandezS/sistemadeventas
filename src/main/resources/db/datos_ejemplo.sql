@@ -30,7 +30,7 @@ INSERT INTO categorias (nombre, owner_username) VALUES
 INSERT INTO productos (nombre, precio, existencias, sku, categoria_id, fecha_registro, owner_username) VALUES
 ('Agua 600ml', 15, 100, 'AGU-600', 1, CURDATE(), 'tienda1'),
 ('Refresco 355ml', 20, 80, 'REF-355', 1, CURDATE(), 'tienda1'),
-('Papas fritas', 25, 50, 'PAP-001', 2, CURDATE(), 'tienda1');
+('Papas fritas', 25, 3, 'PAP-001', 2, CURDATE(), 'tienda1');
 
 INSERT INTO suscripciones (username, fecha_inicio, fecha_fin, en_periodo_prueba, estado, plan_codigo) VALUES
 ('tienda1', NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH), 1, 'ACTIVA', 'EMPRENDEDOR');

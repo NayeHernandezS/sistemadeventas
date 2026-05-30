@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
 import org.nhernandez.webapp.sistemaventas.models.Categoria;
 import org.nhernandez.webapp.sistemaventas.models.Producto;
+import org.nhernandez.webapp.sistemaventas.services.InventarioAlertaService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ProductoService;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
@@ -20,25 +21,31 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Controller
 public class ProductoController {
 
     private final ProductoService service;
     private final LoginService auth;
+    private final InventarioAlertaService inventarioAlertaService;
 
-    public ProductoController(@ProductoServicePrincipal ProductoService service, LoginService auth) {
+    public ProductoController(@ProductoServicePrincipal ProductoService service,
+                              LoginService auth,
+                              InventarioAlertaService inventarioAlertaService) {
         this.service = service;
         this.auth = auth;
+        this.inventarioAlertaService = inventarioAlertaService;
     }
 
     @GetMapping({"/productos", "/productos.html"})
     public String listarVentas(HttpServletRequest req, Model model) {
         String tenant = TenantUtil.getTenantOwner(req);
-        model.addAttribute("productos", service.listarPorOwner(tenant));
+        List<Producto> productos = service.listarPorOwner(tenant);
+        model.addAttribute("productos", productos);
         model.addAttribute("username", auth.getUsername(req));
+        agregarAlertasStock(model, productos);
         return "listar";
     }
 
@@ -46,10 +53,12 @@ public class ProductoController {
     public String inventario(HttpServletRequest req, Model model) {
         String tenant = TenantUtil.getTenantOwner(req);
         boolean esAdmin = RolUtil.esAdmin(req);
-        model.addAttribute("productos", service.listarPorOwner(tenant));
+        List<Producto> productos = service.listarPorOwner(tenant);
+        model.addAttribute("productos", productos);
         model.addAttribute("username", auth.getUsername(req));
         model.addAttribute("esAdmin", esAdmin);
         model.addAttribute("soloLectura", !esAdmin);
+        agregarAlertasStock(model, productos);
         return "inventario";
     }
 
@@ -161,6 +170,13 @@ public class ProductoController {
             errores.put("categoria", "la categoria es requerida!");
         }
         return errores;
+    }
+
+    private void agregarAlertasStock(Model model, List<Producto> productos) {
+        model.addAttribute("stockMinimo", inventarioAlertaService.getStockMinimo());
+        model.addAttribute("cantidadAgotados", inventarioAlertaService.contarAgotados(productos));
+        model.addAttribute("cantidadStockBajo", inventarioAlertaService.contarStockBajo(productos));
+        model.addAttribute("cantidadConAlerta", inventarioAlertaService.contarConAlerta(productos));
     }
 
     private long parseLong(String value, long defaultValue) {

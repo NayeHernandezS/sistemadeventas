@@ -57,6 +57,16 @@
         <a href="${pageContext.request.contextPath}/suscripcion" class="btn btn-outline-primary btn-sm mt-2">
             Ver planes y suscripcion
         </a>
+        <c:if test="${cantidadConAlerta > 0}">
+        <div class="alert alert-warning mt-3 mx-auto text-start" style="max-width: 520px;">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Inventario:</strong>
+            ${cantidadConAlerta} producto(s) requieren atencion
+            (<c:if test="${cantidadAgotados > 0}">${cantidadAgotados} agotado(s)</c:if><c:if test="${cantidadAgotados > 0 && cantidadStockBajo > 0}">, </c:if><c:if test="${cantidadStockBajo > 0}">${cantidadStockBajo} stock bajo</c:if>).
+            Umbral: ${stockMinimo} uds.
+            <a href="${pageContext.request.contextPath}/crudprod" class="alert-link">Ver inventario</a>
+        </div>
+        </c:if>
         </c:if>
     </div>
 

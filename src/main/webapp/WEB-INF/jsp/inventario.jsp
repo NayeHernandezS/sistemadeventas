@@ -25,6 +25,26 @@
         </div>
     </c:if>
 
+    <c:if test="${cantidadConAlerta > 0}">
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Alertas de inventario</strong> (umbral: ${stockMinimo} unidades):
+            <c:if test="${cantidadAgotados > 0}">
+                ${cantidadAgotados} agotado(s)
+            </c:if>
+            <c:if test="${cantidadAgotados > 0 && cantidadStockBajo > 0}"> · </c:if>
+            <c:if test="${cantidadStockBajo > 0}">
+                ${cantidadStockBajo} con stock bajo
+            </c:if>
+        </div>
+    </c:if>
+
+    <c:if test="${cantidadConAlerta == 0 && not empty productos}">
+        <div class="alert alert-success py-2">
+            <i class="bi bi-check-circle"></i> Todos los productos tienen stock suficiente.
+        </div>
+    </c:if>
+
     <c:if test="${username.present}">
         <div class="mb-3">
             <a class="btn btn-secondary" href="${pageContext.request.contextPath}/">Volver</a>
@@ -55,7 +75,7 @@
         </thead>
         <tbody>
         <c:forEach items="${productos}" var="p">
-            <tr>
+            <tr class="${p.existencias == 0 ? 'table-danger' : (p.existencias <= stockMinimo ? 'table-warning' : '')}">
                 <c:if test="${esAdmin}">
                     <td>${p.id}</td>
                 </c:if>
@@ -63,7 +83,15 @@
                 <c:if test="${esAdmin}">
                     <td>${p.categoria.nombre}</td>
                 </c:if>
-                <td>${p.existencias}</td>
+                <td>
+                    ${p.existencias}
+                    <c:if test="${p.existencias == 0}">
+                        <span class="badge bg-danger ms-1">Agotado</span>
+                    </c:if>
+                    <c:if test="${p.existencias > 0 && p.existencias <= stockMinimo}">
+                        <span class="badge bg-warning text-dark ms-1">Stock bajo</span>
+                    </c:if>
+                </td>
                 <td>$${p.precio}</td>
                 <c:if test="${esAdmin}">
                     <td>
