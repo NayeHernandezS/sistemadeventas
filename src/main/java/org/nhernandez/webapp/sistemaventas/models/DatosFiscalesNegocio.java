@@ -8,6 +8,8 @@ public class DatosFiscalesNegocio {
     private String email;
     private String direccion;
     private String usoCfdi;
+    private String codigoPostal;
+    private String regimenFiscal;
 
     public String getTenantUsername() {
         return tenantUsername;
@@ -57,12 +59,35 @@ public class DatosFiscalesNegocio {
         this.usoCfdi = usoCfdi;
     }
 
+    public String getCodigoPostal() {
+        return codigoPostal;
+    }
+
+    public void setCodigoPostal(String codigoPostal) {
+        this.codigoPostal = codigoPostal;
+    }
+
+    public String getRegimenFiscal() {
+        return regimenFiscal;
+    }
+
+    public void setRegimenFiscal(String regimenFiscal) {
+        this.regimenFiscal = regimenFiscal;
+    }
+
+    public boolean listoParaTimbrarEmisor() {
+        return campoConValor(rfc) && campoConValor(razonSocial)
+                && campoConValor(codigoPostal) && campoConValor(regimenFiscal);
+    }
+
     public boolean tieneDatos() {
         return campoConValor(rfc)
                 || campoConValor(razonSocial)
                 || campoConValor(email)
                 || campoConValor(direccion)
-                || campoConValor(usoCfdi);
+                || campoConValor(usoCfdi)
+                || campoConValor(codigoPostal)
+                || campoConValor(regimenFiscal);
     }
 
     private static boolean campoConValor(String valor) {

@@ -37,6 +37,9 @@ class VentaServiceImplTest {
     @Mock
     private FacturaRepository facturaRepository;
 
+    @Mock
+    private CfdiTimbradoService cfdiTimbradoService;
+
     @InjectMocks
     private VentaServiceImpl ventaService;
 
@@ -80,6 +83,7 @@ class VentaServiceImplTest {
         assertEquals(99L, resultado.getId());
         verify(ticketRepository).guardar(ticket);
         verify(facturaRepository).guardar(factura);
+        verify(cfdiTimbradoService).intentarTimbrar("tienda1", ticket, factura);
     }
 
     @Test

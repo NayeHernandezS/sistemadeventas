@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
 </head>
 <body>
+<%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container my-4">
     <h1 class="mb-4">Reporte de Ventas</h1>
     <p class="text-muted small">Los totales <strong>netos</strong> restan las devoluciones registradas por ticket.</p>

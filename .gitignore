@@ -2,6 +2,9 @@ target/
 .idea/
 *.iml
 .env
+uploads/
+deploy/certs/*.pem
+deploy/certs/*.key
 **/.DS_Store
 .DS_Store
 src/main/resources/application-local.properties

@@ -21,7 +21,7 @@ public class PreferenciasTenantRepositoryJdbcImpl implements PreferenciasTenantR
     @Override
     public PreferenciasTenant porTenant(String tenantUsername) throws SQLException {
         String sql = """
-                SELECT tenant_username, stock_minimo
+                SELECT tenant_username, stock_minimo, logo_filename
                 FROM preferencias_tenant
                 WHERE tenant_username = ?
                 """;
@@ -35,6 +35,7 @@ public class PreferenciasTenantRepositoryJdbcImpl implements PreferenciasTenantR
                     if (!rs.wasNull()) {
                         pref.setStockMinimo(stock);
                     }
+                    pref.setLogoFilename(rs.getString("logo_filename"));
                     return pref;
                 }
             }
@@ -56,6 +57,29 @@ public class PreferenciasTenantRepositoryJdbcImpl implements PreferenciasTenantR
             } else {
                 stmt.setInt(2, preferencias.getStockMinimo());
             }
+            stmt.executeUpdate();
+        }
+    }
+
+    @Override
+    public void actualizarLogoFilename(String tenantUsername, String logoFilename) throws SQLException {
+        String sql = """
+                INSERT INTO preferencias_tenant (tenant_username, logo_filename)
+                VALUES (?, ?)
+                ON DUPLICATE KEY UPDATE logo_filename = VALUES(logo_filename)
+                """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, tenantUsername);
+            stmt.setString(2, logoFilename);
+            stmt.executeUpdate();
+        }
+    }
+
+    @Override
+    public void eliminarLogoFilename(String tenantUsername) throws SQLException {
+        String sql = "UPDATE preferencias_tenant SET logo_filename = NULL WHERE tenant_username = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, tenantUsername);
             stmt.executeUpdate();
         }
     }

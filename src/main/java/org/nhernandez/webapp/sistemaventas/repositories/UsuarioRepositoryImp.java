@@ -146,18 +146,21 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
                     }
                     c.setCantidadVendedores(rs.getInt("cantidad_vendedores"));
                     Timestamp fin = rs.getTimestamp("fecha_fin");
+                    String estadoSub = null;
+                    try {
+                        c.setEnPeriodoPrueba(rs.getBoolean("en_periodo_prueba"));
+                        estadoSub = rs.getString("estado_suscripcion");
+                        c.setEstadoSuscripcion(estadoSub);
+                        c.setPlanCodigo(rs.getString("plan_codigo"));
+                    } catch (SQLException ignored) {
+                    }
+                    boolean suspendida = estadoSub != null && "SUSPENDIDA".equalsIgnoreCase(estadoSub.trim());
                     if (fin != null) {
                         LocalDateTime fechaFin = fin.toLocalDateTime();
                         c.setFechaFinSuscripcion(fechaFin);
-                        c.setVigente(!LocalDateTime.now().isAfter(fechaFin));
+                        c.setVigente(!suspendida && !LocalDateTime.now().isAfter(fechaFin));
                     } else {
                         c.setVigente(false);
-                    }
-                    try {
-                        c.setEnPeriodoPrueba(rs.getBoolean("en_periodo_prueba"));
-                        c.setEstadoSuscripcion(rs.getString("estado_suscripcion"));
-                        c.setPlanCodigo(rs.getString("plan_codigo"));
-                    } catch (SQLException ignored) {
                     }
                     if (c.getPlanCodigo() == null || c.getPlanCodigo().isBlank()) {
                         c.setPlanCodigo("EMPRENDEDOR");

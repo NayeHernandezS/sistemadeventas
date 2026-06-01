@@ -53,4 +53,17 @@ public class RecuperacionCorreoService {
     public boolean correoHabilitado() {
         return mailHost != null && !mailHost.isBlank() && mailSender.isPresent();
     }
+
+    public void enviarTexto(String destino, String asunto, String cuerpo) {
+        if (!correoHabilitado()) {
+            log.info("Correo (modo demo) para {} — {}: {}", destino, asunto, cuerpo.lines().findFirst().orElse(""));
+            return;
+        }
+        SimpleMailMessage mensaje = new SimpleMailMessage();
+        mensaje.setFrom(mailFrom);
+        mensaje.setTo(destino);
+        mensaje.setSubject(asunto);
+        mensaje.setText(cuerpo);
+        mailSender.ifPresent(sender -> sender.send(mensaje));
+    }
 }

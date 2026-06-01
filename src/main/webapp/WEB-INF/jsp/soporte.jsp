@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
 </head>
 <body>
+<%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container my-4" style="max-width: 720px;">
     <h1 class="h3 mb-3"><i class="bi bi-headset"></i> Soporte</h1>
     <p class="text-muted">Contacta al equipo del sistema para ayuda con tu cuenta, suscripcion o el uso de la app.</p>

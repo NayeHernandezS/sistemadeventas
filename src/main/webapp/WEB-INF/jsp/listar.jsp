@@ -12,6 +12,7 @@
     <title>Listado de productos</title>
 </head>
 <body>
+<%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container">
 <h1>Listado de productos</h1>
 <c:if test="${not empty sessionScope.mensajeError}">

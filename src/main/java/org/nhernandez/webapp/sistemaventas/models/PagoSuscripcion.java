@@ -13,6 +13,9 @@ public class PagoSuscripcion {
     private LocalDateTime fechaConfirmacion;
     private String estado;
     private String notas;
+    private String mpPreferenceId;
+    private String mpPaymentId;
+    private String canal = "MANUAL";
     private String planCodigo = "EMPRENDEDOR";
 
     public Long getId() {
@@ -85,5 +88,29 @@ public class PagoSuscripcion {
 
     public void setPlanCodigo(String planCodigo) {
         this.planCodigo = planCodigo;
+    }
+
+    public String getMpPreferenceId() {
+        return mpPreferenceId;
+    }
+
+    public void setMpPreferenceId(String mpPreferenceId) {
+        this.mpPreferenceId = mpPreferenceId;
+    }
+
+    public String getMpPaymentId() {
+        return mpPaymentId;
+    }
+
+    public void setMpPaymentId(String mpPaymentId) {
+        this.mpPaymentId = mpPaymentId;
+    }
+
+    public String getCanal() {
+        return canal;
+    }
+
+    public void setCanal(String canal) {
+        this.canal = canal;
     }
 }

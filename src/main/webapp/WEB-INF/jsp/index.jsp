@@ -12,34 +12,13 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark navbar-app shadow-sm py-3">
-    <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="${pageContext.request.contextPath}/">
-            <img src="${pageContext.request.contextPath}/img/logo.png"
-                 alt="Logo del negocio"
-                 class="navbar-logo"
-                 onerror="this.onerror=null;this.src='${pageContext.request.contextPath}/img/logo-placeholder.svg';">
-            <span class="fw-bold fs-4 text-primary">Mi<span class="text-warning">Sistema</span> de Ventas</span>
-        </a>
-        <div class="ms-auto d-flex align-items-center gap-2">
-            <span class="text-muted small d-none d-md-inline">Hola, ${sessionScope.username}</span>
-            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/perfil">
-                Mi perfil
-            </a>
-            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/logout">
-                Cerrar sesion <i class="bi bi-power"></i>
-            </a>
-        </div>
-    </div>
-</nav>
+<%@ include file="fragmentos/nav-tenant.jspf" %>
 
 <main class="container my-5">
     <div class="text-center mb-5">
         <div class="logo-slot logo-slot--hero mx-auto mb-3">
-            <img src="${pageContext.request.contextPath}/img/logo.png"
-                 alt="Logo del negocio"
-                 class="logo-hero"
-                 onerror="this.onerror=null;this.src='${pageContext.request.contextPath}/img/logo-placeholder.svg';">
+            <c:set var="logoCssClass" value="logo-hero" scope="request"/>
+            <%@ include file="fragmentos/logo-tenant.jspf" %>
         </div>
         <h2 class="hero-title mb-2">Panel de ventas</h2>
         <p class="text-muted">Gestiona tu catalogo, ventas y reportes desde tu cuenta.</p>
@@ -49,6 +28,12 @@
             </div>
         </c:if>
         <c:if test="${sessionScope.rol eq 'ADMIN'}">
+        <c:if test="${not empty avisoSuscripcion}">
+            <div class="alert alert-${avisoSuscripcion.nivel} mt-3 mx-auto text-start" style="max-width: 520px;">
+                <i class="bi bi-exclamation-triangle"></i> ${avisoSuscripcion.mensaje}
+                <a href="${pageContext.request.contextPath}/suscripcion" class="alert-link ms-1">Renovar ahora</a>
+            </div>
+        </c:if>
         <div class="alert alert-info mt-3 mx-auto text-start" style="max-width: 520px;">
             <strong>Plan:</strong> ${planNombre}<br>
             <span class="small">Vendedores: ${vendedoresUsados} / ${vendedoresMax} ·

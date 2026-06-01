@@ -53,4 +53,42 @@ public class PreferenciasTenantServiceImpl implements PreferenciasTenantService 
                 .filter(v -> v != null && v > 0)
                 .orElse(valorGlobalPorDefecto);
     }
+
+    @Override
+    public boolean tieneLogo(String tenantUsername) {
+        if (tenantUsername == null || tenantUsername.isBlank()) {
+            return false;
+        }
+        return consultar(tenantUsername)
+                .map(PreferenciasTenant::getLogoFilename)
+                .filter(f -> f != null && !f.isBlank())
+                .isPresent();
+    }
+
+    @Override
+    public void guardarLogoFilename(String tenantUsername, String logoFilename) {
+        if (tenantUsername == null || tenantUsername.isBlank()) {
+            throw new ServiceJdbcException("Cuenta de negocio no valida", null);
+        }
+        if (logoFilename == null || logoFilename.isBlank()) {
+            throw new ServiceJdbcException("Nombre de logo no valido", null);
+        }
+        try {
+            repository.actualizarLogoFilename(tenantUsername.trim(), logoFilename.trim());
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void eliminarLogo(String tenantUsername) {
+        if (tenantUsername == null || tenantUsername.isBlank()) {
+            throw new ServiceJdbcException("Cuenta de negocio no valida", null);
+        }
+        try {
+            repository.eliminarLogoFilename(tenantUsername.trim());
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
+        }
+    }
 }

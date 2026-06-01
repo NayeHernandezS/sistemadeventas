@@ -11,6 +11,8 @@ public class Suscripcion {
     private boolean enPeriodoPrueba;
     private String estado;
     private String planCodigo = "EMPRENDEDOR";
+    private boolean renovacionAutomatica;
+    private String mpPreapprovalId;
 
     public Long getId() {
         return id;
@@ -64,11 +66,36 @@ public class Suscripcion {
         return fechaFin != null && !LocalDateTime.now().isAfter(fechaFin);
     }
 
+    public boolean estaSuspendida() {
+        return estado != null && "SUSPENDIDA".equalsIgnoreCase(estado.trim());
+    }
+
+    /** Acceso al sistema: vigente por fecha y no suspendida por plataforma. */
+    public boolean permiteAcceso() {
+        return estaVigente() && !estaSuspendida();
+    }
+
     public String getPlanCodigo() {
         return planCodigo;
     }
 
     public void setPlanCodigo(String planCodigo) {
         this.planCodigo = planCodigo;
+    }
+
+    public boolean isRenovacionAutomatica() {
+        return renovacionAutomatica;
+    }
+
+    public void setRenovacionAutomatica(boolean renovacionAutomatica) {
+        this.renovacionAutomatica = renovacionAutomatica;
+    }
+
+    public String getMpPreapprovalId() {
+        return mpPreapprovalId;
+    }
+
+    public void setMpPreapprovalId(String mpPreapprovalId) {
+        this.mpPreapprovalId = mpPreapprovalId;
     }
 }

@@ -64,7 +64,10 @@ public class InventarioAlertaService {
     }
 
     public int contarStockBajo(List<Producto> productos) {
-        return contarStockBajo(productos, stockMinimoGlobal);
+        if (productos == null) {
+            return 0;
+        }
+        return (int) productos.stream().filter(p -> esStockBajo(p, stockMinimoGlobal)).count();
     }
 
     public int contarStockBajo(List<Producto> productos, String tenantOwner) {
@@ -76,7 +79,10 @@ public class InventarioAlertaService {
     }
 
     public int contarConAlerta(List<Producto> productos) {
-        return contarConAlerta(productos, stockMinimoGlobal);
+        if (productos == null) {
+            return 0;
+        }
+        return (int) productos.stream().filter(p -> requiereAlerta(p, stockMinimoGlobal)).count();
     }
 
     public int contarConAlerta(List<Producto> productos, String tenantOwner) {

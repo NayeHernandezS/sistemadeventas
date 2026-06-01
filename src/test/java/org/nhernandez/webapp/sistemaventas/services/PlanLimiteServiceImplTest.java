@@ -92,6 +92,66 @@ class PlanLimiteServiceImplTest {
         planLimiteService.validarNuevoVendedor("tienda1");
     }
 
+    @Test
+    void validarPlanContratable_rechazaDowngradeConExcesoDeVendedores() throws SQLException {
+        when(usuarioRepository.listarPorAdminOwner("tienda1"))
+                .thenReturn(vendedores(4));
+        when(productoRepository.contarPorOwner("tienda1")).thenReturn(100);
+
+        ServiceJdbcException ex = assertThrows(ServiceJdbcException.class,
+                () -> planLimiteService.validarPlanContratable("tienda1", "EMPRENDEDOR"));
+
+        assertTrue(ex.getMessage().contains("4 vendedores"));
+        assertTrue(ex.getMessage().contains("2"));
+    }
+
+    @Test
+    void validarPlanContratable_rechazaDowngradeConExcesoDeProductos() throws SQLException {
+        when(usuarioRepository.listarPorAdminOwner("tienda1")).thenReturn(vendedores(1));
+        when(productoRepository.contarPorOwner("tienda1")).thenReturn(200);
+
+        ServiceJdbcException ex = assertThrows(ServiceJdbcException.class,
+                () -> planLimiteService.validarPlanContratable("tienda1", "EMPRENDEDOR"));
+
+        assertTrue(ex.getMessage().contains("200 productos"));
+        assertTrue(ex.getMessage().contains("150"));
+    }
+
+    @Test
+    void validarPlanContratable_permiteCuandoUsoCabeEnElPlan() throws SQLException {
+        when(usuarioRepository.listarPorAdminOwner("tienda1")).thenReturn(vendedores(2));
+        when(productoRepository.contarPorOwner("tienda1")).thenReturn(150);
+
+        planLimiteService.validarPlanContratable("tienda1", "EMPRENDEDOR");
+    }
+
+    @Test
+    void evaluarPlanContratable_marcaBloqueadoPorVendedoresYProductos() throws SQLException {
+        when(usuarioRepository.listarPorAdminOwner("tienda1")).thenReturn(vendedores(4));
+        when(productoRepository.contarPorOwner("tienda1")).thenReturn(200);
+
+        var evaluacion = planLimiteService.evaluarPlanContratable("tienda1", "EMPRENDEDOR");
+
+        assertEquals("EMPRENDEDOR", evaluacion.getPlanCodigo());
+        assertEquals(false, evaluacion.isContratable());
+        assertEquals(2, evaluacion.getMotivos().size());
+        assertEquals(2, evaluacion.getExcesoVendedores());
+        assertEquals(50, evaluacion.getExcesoProductos());
+    }
+
+    @Test
+    void evaluarPlanesContratables_incluyeTodosLosPlanes() throws SQLException {
+        when(usuarioRepository.listarPorAdminOwner("tienda1")).thenReturn(vendedores(1));
+        when(productoRepository.contarPorOwner("tienda1")).thenReturn(10);
+
+        var mapa = planLimiteService.evaluarPlanesContratables("tienda1");
+
+        assertEquals(3, mapa.size());
+        assertTrue(mapa.get("EMPRENDEDOR").isContratable());
+        assertTrue(mapa.get("NEGOCIO").isContratable());
+        assertTrue(mapa.get("PRO").isContratable());
+    }
+
     private static List<Usuario> vendedores(int cantidad) {
         return IntStream.range(0, cantidad)
                 .mapToObj(i -> {

@@ -33,6 +33,7 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/registro/**"),
                                 new AntPathRequestMatcher("/recuperar"),
                                 new AntPathRequestMatcher("/recuperar/**"),
+                                new AntPathRequestMatcher("/api/mercadopago/**"),
                                 new AntPathRequestMatcher("/logout"),
                                 new AntPathRequestMatcher("/error"),
                                 new AntPathRequestMatcher("/css/**"),

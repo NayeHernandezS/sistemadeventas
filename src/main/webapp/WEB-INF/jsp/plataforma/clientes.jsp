@@ -32,18 +32,21 @@
                 <tr>
                     <th>Cuenta</th>
                     <th>Email</th>
-                    <th>Tipo negocio</th>
                     <th>Plan</th>
                     <th>Vendedores</th>
                     <th>Vence</th>
                     <th>Estado</th>
-                    <th>Soporte</th>
+                    <th>Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
                 <c:forEach items="${clientes}" var="c">
                     <tr>
-                        <td><strong>${c.username}</strong></td>
+                        <td>
+                            <a href="${pageContext.request.contextPath}/plataforma/clientes/detalle?username=${c.username}">
+                                <strong>${c.username}</strong>
+                            </a>
+                        </td>
                         <td>
                             <c:choose>
                                 <c:when test="${not empty c.email}">
@@ -52,7 +55,6 @@
                                 <c:otherwise><span class="text-muted">—</span></c:otherwise>
                             </c:choose>
                         </td>
-                        <td>${empty c.tipoNegocio ? '—' : c.tipoNegocio}</td>
                         <td>${empty c.planCodigo ? '—' : c.planCodigo}</td>
                         <td>${c.cantidadVendedores}</td>
                         <td>
@@ -65,6 +67,9 @@
                         </td>
                         <td>
                             <c:choose>
+                                <c:when test="${c.estadoSuscripcion eq 'SUSPENDIDA'}">
+                                    <span class="badge bg-danger">Suspendida</span>
+                                </c:when>
                                 <c:when test="${c.vigente}">
                                     <span class="badge bg-success">Activa</span>
                                     <c:if test="${c.enPeriodoPrueba}"><span class="badge bg-warning text-dark">Prueba</span></c:if>
@@ -73,15 +78,21 @@
                             </c:choose>
                         </td>
                         <td>
-                            <form method="post"
-                                  action="${pageContext.request.contextPath}/plataforma/clientes/extender"
-                                  class="d-flex gap-1 flex-wrap">
-                                <%@ include file="../csrf.jspf" %>
-                                <input type="hidden" name="username" value="${c.username}">
-                                <input type="number" name="meses" class="form-control form-control-sm"
-                                       style="width:4.5rem" min="1" max="24" value="1" title="Meses a extender">
-                                <button type="submit" class="btn btn-sm btn-primary">Extender</button>
-                            </form>
+                            <div class="d-flex gap-1 flex-wrap align-items-center">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="${pageContext.request.contextPath}/plataforma/clientes/detalle?username=${c.username}">
+                                    Ver
+                                </a>
+                                <form method="post"
+                                      action="${pageContext.request.contextPath}/plataforma/clientes/extender"
+                                      class="d-flex gap-1">
+                                    <%@ include file="../csrf.jspf" %>
+                                    <input type="hidden" name="username" value="${c.username}">
+                                    <input type="number" name="meses" class="form-control form-control-sm"
+                                           style="width:4.5rem" min="1" max="24" value="1" title="Meses">
+                                    <button type="submit" class="btn btn-sm btn-primary">+ meses</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 </c:forEach>

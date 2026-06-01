@@ -7,6 +7,7 @@ import org.nhernandez.webapp.sistemaventas.models.ReporteVentas;
 import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 import org.nhernandez.webapp.sistemaventas.repositories.FacturaRepository;
 import org.nhernandez.webapp.sistemaventas.repositories.TicketRepository;
+import org.nhernandez.webapp.sistemaventas.services.CfdiTimbradoService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ReporteService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
@@ -37,19 +38,22 @@ public class TicketReporteController {
     private final ReporteService reporteService;
     private final ReporteCsvExporter reporteCsvExporter;
     private final FacturaPdfExporter facturaPdfExporter;
+    private final CfdiTimbradoService cfdiTimbradoService;
 
     public TicketReporteController(TicketRepository ticketRepository,
                                    FacturaRepository facturaRepository,
                                    LoginService loginService,
                                    ReporteService reporteService,
                                    ReporteCsvExporter reporteCsvExporter,
-                                   FacturaPdfExporter facturaPdfExporter) {
+                                   FacturaPdfExporter facturaPdfExporter,
+                                   CfdiTimbradoService cfdiTimbradoService) {
         this.ticketRepository = ticketRepository;
         this.facturaRepository = facturaRepository;
         this.loginService = loginService;
         this.reporteService = reporteService;
         this.reporteCsvExporter = reporteCsvExporter;
         this.facturaPdfExporter = facturaPdfExporter;
+        this.cfdiTimbradoService = cfdiTimbradoService;
     }
 
     @GetMapping("/tickets")
@@ -77,7 +81,56 @@ public class TicketReporteController {
         Factura factura = facturaRepository.porTicketId(ticket.getId());
         model.addAttribute("ticket", ticket);
         model.addAttribute("factura", factura);
+        model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoService.disponible());
         return "factura";
+    }
+
+    @GetMapping("/factura/cfdi/pdf")
+    public void facturaCfdiPdf(HttpServletRequest req, HttpServletResponse resp) throws IOException, SQLException {
+        Optional<TicketVenta> ticketOpt = cargarTicket(req, resp);
+        if (ticketOpt.isEmpty()) {
+            return;
+        }
+        Factura factura = facturaRepository.porTicketId(ticketOpt.get().getId());
+        if (factura == null || !factura.estaTimbrada()) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "No hay CFDI timbrado para este ticket.");
+            return;
+        }
+        try {
+            byte[] pdf = cfdiTimbradoService.descargarPdfTimbrado(factura);
+            String nombre = "cfdi-" + (factura.getCfdiUuid() != null ? factura.getCfdiUuid() : factura.getFolioFactura()) + ".pdf";
+            resp.setContentType("application/pdf");
+            resp.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + "\"");
+            resp.setContentLength(pdf.length);
+            resp.getOutputStream().write(pdf);
+            resp.getOutputStream().flush();
+        } catch (ServiceJdbcException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @GetMapping("/factura/cfdi/xml")
+    public void facturaCfdiXml(HttpServletRequest req, HttpServletResponse resp) throws IOException, SQLException {
+        Optional<TicketVenta> ticketOpt = cargarTicket(req, resp);
+        if (ticketOpt.isEmpty()) {
+            return;
+        }
+        Factura factura = facturaRepository.porTicketId(ticketOpt.get().getId());
+        if (factura == null || !factura.estaTimbrada()) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "No hay CFDI timbrado para este ticket.");
+            return;
+        }
+        try {
+            byte[] xml = cfdiTimbradoService.descargarXmlTimbrado(factura);
+            String nombre = "cfdi-" + (factura.getCfdiUuid() != null ? factura.getCfdiUuid() : factura.getFolioFactura()) + ".xml";
+            resp.setContentType("application/xml");
+            resp.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + "\"");
+            resp.setContentLength(xml.length);
+            resp.getOutputStream().write(xml);
+            resp.getOutputStream().flush();
+        } catch (ServiceJdbcException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     @GetMapping("/factura/pdf")

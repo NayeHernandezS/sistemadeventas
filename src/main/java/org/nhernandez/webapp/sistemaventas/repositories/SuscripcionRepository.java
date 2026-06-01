@@ -15,4 +15,17 @@ public interface SuscripcionRepository {
     void extenderVigencia(String username, LocalDateTime nuevaFechaFin, boolean enPeriodoPrueba) throws SQLException;
 
     void actualizarPlan(String username, String planCodigo, boolean enPeriodoPrueba) throws SQLException;
+
+    /**
+     * Suscripciones vigentes cuya fecha_fin cae en el dia indicado (0 = hoy, 1 = manana, etc.).
+     */
+    java.util.List<Suscripcion> listarVigentesQueVencenEn(int diasDesdeHoy) throws SQLException;
+
+    void activarRenovacionAutomatica(String username, String planCodigo, String mpPreapprovalId) throws SQLException;
+
+    void desactivarRenovacionAutomatica(String username) throws SQLException;
+
+    Suscripcion porPreapprovalId(String mpPreapprovalId) throws SQLException;
+
+    void actualizarEstado(String username, String estado) throws SQLException;
 }

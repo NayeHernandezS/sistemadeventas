@@ -31,7 +31,30 @@ public interface SuscripcionService {
 
     List<PagoSuscripcion> pagosPendientesDelTenant(String tenantOwner);
 
+    List<PagoSuscripcion> pagosExpirados();
+
     void confirmarPagoPlataforma(Long pagoId);
 
+    void expirarPagoPlataforma(Long pagoId);
+
+    void cancelarPagoPendienteDelTenant(String tenantOwner, Long pagoId);
+
+    /**
+     * Crea pago pendiente y preferencia Checkout Pro; devuelve URL init_point de Mercado Pago.
+     */
+    String iniciarPagoMercadoPago(String username, int meses, String planCodigo, String baseUrlPublica);
+
+    /**
+     * Confirma suscripcion tras pago aprobado en Mercado Pago (idempotente si ya estaba confirmado).
+     */
+    void confirmarPagoMercadoPago(Long pagoId, String mpPaymentId, java.math.BigDecimal montoRecibido,
+                                  String moneda);
+
     void extenderSuscripcionMeses(String username, int meses);
+
+    void suspenderCuenta(String username);
+
+    void reactivarCuenta(String username);
+
+    void cambiarPlanPlataforma(String username, String planCodigo);
 }

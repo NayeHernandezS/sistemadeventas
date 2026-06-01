@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.nhernandez.webapp.sistemaventas.models.PagoSuscripcion;
 import org.nhernandez.webapp.sistemaventas.models.Suscripcion;
+import org.nhernandez.webapp.sistemaventas.pagos.mercadopago.MercadoPagoApiClient;
 import org.nhernandez.webapp.sistemaventas.repositories.PagoSuscripcionRepository;
 import org.nhernandez.webapp.sistemaventas.repositories.SuscripcionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -25,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,6 +40,12 @@ class SuscripcionServiceImplTest {
 
     @Mock
     private PagoSuscripcionRepository pagoRepository;
+
+    @Mock
+    private MercadoPagoApiClient mercadoPagoApiClient;
+
+    @Mock
+    private PlanLimiteService planLimiteService;
 
     @InjectMocks
     private SuscripcionServiceImpl suscripcionService;
@@ -54,25 +63,35 @@ class SuscripcionServiceImplTest {
     }
 
     @Test
-    void tieneAccesoActivo_trueCuandoFechaFinEsFutura() {
+    void tieneAccesoActivo_trueCuandoFechaFinEsFutura() throws SQLException {
         Suscripcion vigente = new Suscripcion();
         vigente.setFechaFin(LocalDateTime.now().plusDays(5));
-        when(suscripcionRepository.porUsername("admin1")).thenReturn(vigente);
+        doReturn(vigente).when(suscripcionRepository).porUsername("admin1");
 
         assertTrue(suscripcionService.tieneAccesoActivo("admin1"));
     }
 
     @Test
-    void tieneAccesoActivo_falseCuandoSuscripcionVencida() {
+    void tieneAccesoActivo_falseCuandoSuscripcionVencida() throws SQLException {
         Suscripcion vencida = new Suscripcion();
         vencida.setFechaFin(LocalDateTime.now().minusDays(1));
-        when(suscripcionRepository.porUsername("admin1")).thenReturn(vencida);
+        doReturn(vencida).when(suscripcionRepository).porUsername("admin1");
 
         assertFalse(suscripcionService.tieneAccesoActivo("admin1"));
     }
 
     @Test
-    void solicitarPago_rechazaMesesInvalidos() {
+    void tieneAccesoActivo_falseCuandoSuspendida() throws SQLException {
+        Suscripcion suspendida = new Suscripcion();
+        suspendida.setFechaFin(LocalDateTime.now().plusDays(10));
+        suspendida.setEstado("SUSPENDIDA");
+        doReturn(suspendida).when(suscripcionRepository).porUsername("admin1");
+
+        assertFalse(suscripcionService.tieneAccesoActivo("admin1"));
+    }
+
+    @Test
+    void solicitarPago_rechazaMesesInvalidos() throws SQLException {
         ServiceJdbcException ex = assertThrows(ServiceJdbcException.class,
                 () -> suscripcionService.solicitarPago("admin1", 0, "PRO"));
 
@@ -100,6 +119,16 @@ class SuscripcionServiceImplTest {
         suscripcionService.solicitarPago("admin1", 2, "PRO");
 
         verify(pagoRepository).guardar(any(PagoSuscripcion.class));
+        verify(planLimiteService).validarPlanContratable("admin1", "PRO");
+    }
+
+    @Test
+    void solicitarPago_rechazaDowngradeIncompatible() {
+        org.mockito.Mockito.doThrow(new ServiceJdbcException("plan incompatible", null))
+                .when(planLimiteService).validarPlanContratable("admin1", "EMPRENDEDOR");
+
+        assertThrows(ServiceJdbcException.class,
+                () -> suscripcionService.solicitarPago("admin1", 1, "EMPRENDEDOR"));
     }
 
     @Test
@@ -124,6 +153,59 @@ class SuscripcionServiceImplTest {
         verify(pagoRepository).confirmar(7L);
         verify(suscripcionRepository).extenderVigencia(eq("admin1"), any(LocalDateTime.class), eq(false));
         verify(suscripcionRepository).actualizarPlan("admin1", "NEGOCIO", false);
+    }
+
+    @Test
+    void iniciarPagoMercadoPago_devuelveInitPoint() throws SQLException {
+        when(pagoRepository.listarPorUsername("admin1")).thenReturn(List.of());
+        doAnswer(invocation -> {
+            PagoSuscripcion p = invocation.getArgument(0);
+            p.setId(10L);
+            return null;
+        }).when(pagoRepository).guardar(any(PagoSuscripcion.class));
+        when(mercadoPagoApiClient.crearPreferencia(any())).thenReturn(
+                new MercadoPagoApiClient.PreferenciaCreada("pref-1", "https://mp.test/checkout"));
+
+        String url = suscripcionService.iniciarPagoMercadoPago(
+                "admin1", 1, "EMPRENDEDOR", "https://app.test");
+
+        assertEquals("https://mp.test/checkout", url);
+        verify(pagoRepository).guardar(any(PagoSuscripcion.class));
+        verify(pagoRepository).actualizarReferenciaMercadoPago(org.mockito.ArgumentMatchers.eq(10L),
+                org.mockito.ArgumentMatchers.eq("pref-1"));
+    }
+
+    @Test
+    void confirmarPagoMercadoPago_idempotenteSiYaConfirmado() throws SQLException {
+        PagoSuscripcion pago = new PagoSuscripcion();
+        pago.setEstado("CONFIRMADO");
+        when(pagoRepository.porId(5L)).thenReturn(pago);
+
+        suscripcionService.confirmarPagoMercadoPago(5L, "999", new BigDecimal("149.00"), "MXN");
+
+        verify(pagoRepository, never()).confirmarMercadoPago(anyLong(), any());
+    }
+
+    @Test
+    void cancelarPagoPendienteDelTenant_expiraSoloDelTenant() throws SQLException {
+        PagoSuscripcion pago = new PagoSuscripcion();
+        pago.setId(5L);
+        pago.setUsername("tienda1");
+        pago.setEstado("PENDIENTE");
+        when(pagoRepository.porId(5L)).thenReturn(pago);
+        when(pagoRepository.expirarPorId(5L)).thenReturn(1);
+
+        suscripcionService.cancelarPagoPendienteDelTenant("tienda1", 5L);
+
+        verify(pagoRepository).expirarPorId(5L);
+    }
+
+    @Test
+    void expirarPagoPlataforma_rechazaSiNoEsPendiente() throws SQLException {
+        when(pagoRepository.expirarPorId(99L)).thenReturn(0);
+
+        assertThrows(ServiceJdbcException.class,
+                () -> suscripcionService.expirarPagoPlataforma(99L));
     }
 
     @Test

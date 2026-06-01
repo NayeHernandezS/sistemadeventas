@@ -76,7 +76,12 @@ CREATE TABLE IF NOT EXISTS facturas (
     email VARCHAR(150) NULL,
     direccion VARCHAR(255) NULL,
     uso_cfdi VARCHAR(10) NULL,
+    codigo_postal_receptor VARCHAR(10) NULL,
     fecha_emision DATETIME NOT NULL,
+    cfdi_uuid VARCHAR(36) NULL,
+    cfdi_estado VARCHAR(20) NOT NULL DEFAULT 'INFORMATIVO',
+    cfdi_mensaje VARCHAR(500) NULL,
+    cfdi_proveedor_id VARCHAR(80) NULL,
     UNIQUE INDEX uk_facturas_ticket (ticket_id)
 );
 
@@ -91,7 +96,9 @@ CREATE TABLE IF NOT EXISTS suscripciones (
     fecha_fin DATETIME NOT NULL,
     en_periodo_prueba TINYINT(1) NOT NULL DEFAULT 1,
     estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVA',
-    plan_codigo VARCHAR(30) NOT NULL DEFAULT 'EMPRENDEDOR'
+    plan_codigo VARCHAR(30) NOT NULL DEFAULT 'EMPRENDEDOR',
+    renovacion_automatica TINYINT(1) NOT NULL DEFAULT 0,
+    mp_preapproval_id VARCHAR(80) NULL
 );
 
 CREATE TABLE IF NOT EXISTS pagos_suscripcion (
@@ -103,6 +110,9 @@ CREATE TABLE IF NOT EXISTS pagos_suscripcion (
     fecha_confirmacion DATETIME NULL,
     estado VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
     notas VARCHAR(255) NULL,
+    mp_preference_id VARCHAR(80) NULL,
+    mp_payment_id VARCHAR(80) NULL,
+    canal VARCHAR(20) NOT NULL DEFAULT 'MANUAL',
     plan_codigo VARCHAR(30) NOT NULL DEFAULT 'EMPRENDEDOR',
     INDEX idx_pagos_username (username),
     INDEX idx_pagos_estado (estado)
@@ -166,10 +176,13 @@ CREATE TABLE IF NOT EXISTS datos_fiscales_negocio (
     razon_social VARCHAR(200) NULL,
     email VARCHAR(150) NULL,
     direccion VARCHAR(255) NULL,
-    uso_cfdi VARCHAR(10) NULL
+    uso_cfdi VARCHAR(10) NULL,
+    codigo_postal VARCHAR(10) NULL,
+    regimen_fiscal VARCHAR(10) NULL
 );
 
 CREATE TABLE IF NOT EXISTS preferencias_tenant (
     tenant_username VARCHAR(100) PRIMARY KEY,
-    stock_minimo INT NULL
+    stock_minimo INT NULL,
+    logo_filename VARCHAR(255) NULL
 );

@@ -5,6 +5,7 @@ import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
 import org.nhernandez.webapp.sistemaventas.services.InventarioAlertaService;
 import org.nhernandez.webapp.sistemaventas.services.PlanLimiteService;
 import org.nhernandez.webapp.sistemaventas.services.ProductoService;
+import org.nhernandez.webapp.sistemaventas.services.SuscripcionAvisoService;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
 import org.springframework.stereotype.Controller;
@@ -17,13 +18,16 @@ public class IndexController {
     private final PlanLimiteService planLimiteService;
     private final ProductoService productoService;
     private final InventarioAlertaService inventarioAlertaService;
+    private final SuscripcionAvisoService suscripcionAvisoService;
 
     public IndexController(PlanLimiteService planLimiteService,
                            @ProductoServicePrincipal ProductoService productoService,
-                           InventarioAlertaService inventarioAlertaService) {
+                           InventarioAlertaService inventarioAlertaService,
+                           SuscripcionAvisoService suscripcionAvisoService) {
         this.planLimiteService = planLimiteService;
         this.productoService = productoService;
         this.inventarioAlertaService = inventarioAlertaService;
+        this.suscripcionAvisoService = suscripcionAvisoService;
     }
 
     @GetMapping("/")
@@ -39,6 +43,7 @@ public class IndexController {
             model.addAttribute("vendedoresMax", plan.getMaxVendedores());
             model.addAttribute("productosUsados", planLimiteService.contarProductos(tenant));
             model.addAttribute("productosMax", plan.getMaxProductos());
+            suscripcionAvisoService.evaluar(tenant).ifPresent(a -> model.addAttribute("avisoSuscripcion", a));
 
             var productos = productoService.listarPorOwner(tenant);
             int conAlerta = inventarioAlertaService.contarConAlerta(productos, tenant);

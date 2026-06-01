@@ -20,9 +20,31 @@ Herramientas recomendadas: IntelliJ IDEA, MySQL Workbench.
 
 ## Base de datos
 
-### Instalacion desde cero (recomendado)
+### Instalacion desde cero
 
-Si partes sin tablas previas, ejecuta el esquema completo y los datos de demo:
+**Tablas vacias (recomendado para produccion o tu propio alta de usuarios):**
+
+```bash
+cd src/main/resources/db
+chmod +x reset-db-vacio.sh
+./reset-db-vacio.sh
+```
+
+Equivalente manual (lee `.env` si usas el script; a mano sustituye usuario/contraseña):
+
+```bash
+cd src/main/resources/db
+mysql -u root -p -e "DROP DATABASE IF EXISTS java_curso;"
+mysql -u root -p < schema.sql
+```
+
+O en un solo paso desde la carpeta `db/`:
+
+```bash
+mysql -u root -p < bootstrap_vacio.sql
+```
+
+**Con datos de demostracion** (usuarios y productos de prueba):
 
 ```bash
 cd src/main/resources/db
@@ -89,6 +111,32 @@ Orden de migraciones (`migracion_full.sql`):
 10. Recuperación de contraseña (`tokens_recuperacion`)
 11. Datos fiscales por defecto del negocio (`datos_fiscales_negocio`)
 12. Preferencias del tenant (`preferencias_tenant`)
+13. Mercado Pago (`migracion_mercadopago.sql`)
+14. Renovacion automatica MP (`migracion_renovacion_automatica.sql`)
+15. Logo por tenant (`migracion_tenant_logo.sql`)
+
+---
+
+## Despliegue en produccion (HTTPS + SMTP)
+
+Guia detallada: **[deploy/DEPLOY.md](deploy/DEPLOY.md)**
+
+```bash
+cp .env.example .env
+# Edita .env: DB_PASSWORD, APP_BASE_URL=https://..., SMTP_*, MERCADOPAGO_*
+./deploy/scripts/certificado-local.sh ventas.local   # prueba local
+docker compose up -d --build
+```
+
+Variables clave en `.env`:
+
+| Variable | Uso |
+|----------|-----|
+| `APP_BASE_URL` | URL HTTPS publica (Mercado Pago, correos, recuperacion de contraseña) |
+| `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | Correo transaccional |
+| `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET` | Pagos en linea |
+
+En Docker la app arranca con perfil **`prod`** (cookies seguras, cabeceras detras de Nginx, validacion al inicio).
 
 ---
 
@@ -126,8 +174,18 @@ En `src/main/resources/application.properties`:
 | `inventario.stock.minimo` | Umbral de alerta de stock bajo (unidades) | `5` |
 | `recuperacion.token.horas` | Validez del enlace de recuperación | `2` |
 | `recuperacion.mail.from` | Remitente del correo de recuperación | `noreply@misistema.com` |
-| `app.base-url` | URL pública de la app (enlaces en correos) | vacío (se deduce del request) |
-| `spring.mail.host` | Servidor SMTP (opcional) | vacío = modo demo en pantalla |
+| `app.base-url` | URL pública HTTPS de la app (correos, webhooks Mercado Pago) | vacío (se deduce del request en local) |
+| `mercadopago.access-token` | Access Token de Mercado Pago (MX) | vacío = pago manual |
+| `mercadopago.webhook-secret` | Secret de firma de webhooks MP | vacío = no validar (solo dev) |
+| `mercadopago.enabled` | Activar Checkout Pro (`true`/`false`) | auto si hay token |
+| `suscripcion.aviso.dias` | Días antes del vencimiento para aviso in-app | `7` |
+| `suscripcion.pago.pendiente.dias.manual` | Días antes de expirar pago manual PENDIENTE | `30` |
+| `suscripcion.pago.pendiente.dias.mercadopago` | Días antes de expirar pago MP PENDIENTE (SPEI/OXXO) | `15` |
+| `mercadopago.currency-id` | Moneda del cobro | `MXN` |
+| `app.base-url` / `APP_BASE_URL` | URL publica HTTPS | vacío en local |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | Correo SMTP | vacío = modo demo |
+| `MAIL_FROM` | Remitente de correos | `noreply@misistema.com` |
+| `spring.mail.host` | (alias de `SMTP_HOST`) | — |
 
 Tambien puedes sobreescribirlas en `.env` usando el mismo nombre de propiedad.
 
@@ -206,7 +264,7 @@ Cierra sesion y vuelve a entrar. El SUPER_ADMIN es redirigido a **/plataforma**.
 |-----|--------|
 | **VENDEDOR** | Ventas, carrito, tickets, reportes, inventario (solo lectura) |
 | **ADMIN** | Todo lo anterior + productos, categorias, vendedores, suscripcion, soporte |
-| **SUPER_ADMIN** | Panel `/plataforma`: clientes, pagos globales, soporte de todos los tenants |
+| **SUPER_ADMIN** | Panel `/plataforma`: clientes, pagos globales (confirmar/expirar/historial), soporte de todos los tenants |
 
 ---
 
@@ -216,7 +274,7 @@ Cierra sesion y vuelve a entrar. El SUPER_ADMIN es redirigido a **/plataforma**.
 - **Inventario** — CRUD de productos con existencias; alertas de stock bajo y agotado; el stock se descuenta al vender y se reintegra en devoluciones
 - **Categorias** — CRUD por tenant (solo ADMIN)
 - **Devoluciones** — parciales o totales por ticket
-- **Suscripciones** — planes Emprendedor ($149), Negocio ($249), Pro ($399); pagos manuales (demo)
+- **Suscripciones** — planes Emprendedor ($149), Negocio ($249), Pro ($399); **Mercado Pago** (Checkout Pro, MXN) o pago manual (demo); **renovación automática mensual** (MP Preapproval); expiración de pagos pendientes
 - **Reportes** — ventas por vendedor y periodo; totales netos restando devoluciones; exportacion CSV
 - **Perfil** — datos de cuenta, email, tipo de negocio, uso del plan, datos fiscales por defecto (ADMIN), preferencias de stock (ADMIN), actividad del vendedor, resumen de suscripcion (ADMIN) y cambio de contraseña (`/perfil`)
 - **Recuperación de acceso** — olvidé mi contraseña por email (`/recuperar`); modo demo sin SMTP
@@ -225,7 +283,7 @@ Cierra sesion y vuelve a entrar. El SUPER_ADMIN es redirigido a **/plataforma**.
 
 ## Notas importantes
 
-- **Pagos de suscripcion**: el ADMIN solicita el pago en `/suscripcion`; solo un **SUPER_ADMIN** puede confirmarlo en `/plataforma/pagos`. El ADMIN consulta el estado en `/admin/pagos` (solo lectura).
+- **Pagos de suscripcion**: con `MERCADOPAGO_ACCESS_TOKEN` el ADMIN paga en línea en `/suscripcion` (tarjeta, SPEI, OXXO según MP) y el plan se activa por webhook. Sin token, el flujo manual sigue igual. Los pagos **PENDIENTE** expiran solos (15 días MP / 30 días manual). **Renovación automática**: activa cobro mensual con MP Preapproval en `/suscripcion`.
 - **Acceso sin plan activo**: ventas, inventario, reportes y demas modulos quedan bloqueados hasta renovar; disponibles `/perfil`, `/suscripcion`, `/soporte`, `/admin/pagos` (ADMIN) y el inicio con aviso (`/?sinPlan=1` para vendedores).
 - **Mi perfil** (`/perfil`): datos de cuenta, email, tipo de negocio (ADMIN), uso del plan, datos fiscales por defecto (ADMIN), preferencias de stock bajo por tenant (ADMIN), actividad mensual y tickets recientes (VENDEDOR), resumen de suscripcion (ADMIN) y cambio de contraseña. Los datos fiscales se precargan en el carrito al facturar.
 - **Alertas de stock**: el umbral global se configura en `inventario.stock.minimo`; cada ADMIN puede personalizarlo en `/perfil` → Preferencias del negocio.
@@ -251,6 +309,23 @@ src/main/resources/db/         Migraciones SQL
 
 ---
 
+## Mercado Pago (Mexico)
+
+1. Crea una aplicación en [Mercado Pago Developers](https://www.mercadopago.com.mx/developers) y copia el **Access Token** de prueba (`TEST-...`) o producción.
+2. En `.env`:
+   ```properties
+   MERCADOPAGO_ACCESS_TOKEN=TEST-...
+   APP_BASE_URL=https://tu-dominio.com
+   ```
+3. Ejecuta `migracion_mercadopago.sql` (o `migracion_full.sql`) en MySQL.
+4. En produccion la URL de notificacion debe ser **HTTPS** y accesible desde internet: `{APP_BASE_URL}/api/mercadopago/notificaciones`.
+5. Copia el **secret de firma** del panel (Webhooks → Configurar) en `MERCADOPAGO_WEBHOOK_SECRET` — en produccion es obligatorio.
+6. Usuarios de prueba: [cuentas de test MP](https://www.mercadopago.com.mx/developers/es/docs/checkout-pro/additional-content/test-users).
+
+En local sin tunel (ngrok, etc.) el webhook no llegara; tras pagar en sandbox, la pagina `/suscripcion/pago-exitoso` intenta confirmar el pago como respaldo.
+
+---
+
 ## Solucion de problemas
 
 | Problema | Solucion |
@@ -261,4 +336,6 @@ src/main/resources/db/         Migraciones SQL
 | Plan vencido pero accede al sistema | Sin suscripcion activa solo `/perfil`, `/suscripcion`, `/soporte`, `/admin/pagos` (ADMIN) e inicio con aviso; el resto redirige a renovacion o `/?sinPlan=1` |
 | Error al guardar datos fiscales en perfil | Ejecuta `migracion_datos_fiscales_negocio.sql` en bases existentes |
 | Error al guardar preferencias en perfil | Ejecuta `migracion_preferencias_tenant.sql` en bases existentes |
+| Mercado Pago no redirige / no activa plan | Revisa `APP_BASE_URL` HTTPS, token en `.env` y que corriste `migracion_mercadopago.sql` |
+| Error al activar renovacion automatica | Ejecuta `migracion_renovacion_automatica.sql` en bases existentes |
 | Pagina en blanco / error JSP | Confirma JDK 21 y que Tomcat embebido incluya Jasper (ya en `pom.xml`) |

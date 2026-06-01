@@ -1,5 +1,6 @@
 package org.nhernandez.webapp.sistemaventas.services;
 
+import org.nhernandez.webapp.sistemaventas.models.PlanContratibilidad;
 import org.nhernandez.webapp.sistemaventas.models.PlanSuscripcion;
 import org.nhernandez.webapp.sistemaventas.models.Suscripcion;
 import org.nhernandez.webapp.sistemaventas.repositories.ProductoRepository;
@@ -7,6 +8,10 @@ import org.nhernandez.webapp.sistemaventas.repositories.UsuarioReposository;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class PlanLimiteServiceImpl implements PlanLimiteService {
@@ -69,5 +74,55 @@ public class PlanLimiteServiceImpl implements PlanLimiteService {
                     "Tu plan " + plan.getNombre() + " permite hasta " + plan.getMaxProductos()
                             + " productos. Mejora tu plan en Suscripcion.", null);
         }
+    }
+
+    @Override
+    public void validarPlanContratable(String tenantOwner, String planCodigo) {
+        PlanContratibilidad evaluacion = evaluarPlanContratable(tenantOwner, planCodigo);
+        if (!evaluacion.isContratable()) {
+            throw new ServiceJdbcException(String.join(" ", evaluacion.getMotivos()), null);
+        }
+    }
+
+    @Override
+    public PlanContratibilidad evaluarPlanContratable(String tenantOwner, String planCodigo) {
+        PlanSuscripcion plan = PlanSuscripcion.porCodigo(planCodigo)
+                .orElseThrow(() -> new ServiceJdbcException("Plan no valido", null));
+        return evaluarContraPlan(tenantOwner, plan);
+    }
+
+    @Override
+    public Map<String, PlanContratibilidad> evaluarPlanesContratables(String tenantOwner) {
+        Map<String, PlanContratibilidad> resultado = new LinkedHashMap<>();
+        for (PlanSuscripcion plan : PlanSuscripcion.todos()) {
+            resultado.put(plan.getCodigo(), evaluarContraPlan(tenantOwner, plan));
+        }
+        return resultado;
+    }
+
+    private PlanContratibilidad evaluarContraPlan(String tenantOwner, PlanSuscripcion plan) {
+        int vendedores = contarVendedores(tenantOwner);
+        int productos = contarProductos(tenantOwner);
+        List<String> motivos = new ArrayList<>();
+        if (vendedores > plan.getMaxVendedores()) {
+            int exceso = vendedores - plan.getMaxVendedores();
+            motivos.add("Tienes " + vendedores + " vendedores pero " + plan.getNombre()
+                    + " permite solo " + plan.getMaxVendedores()
+                    + ". Elimina al menos " + exceso + " vendedor(es) en Usuarios.");
+        }
+        if (productos > plan.getMaxProductos()) {
+            int exceso = productos - plan.getMaxProductos();
+            motivos.add("Tienes " + productos + " productos pero " + plan.getNombre()
+                    + " permite solo " + plan.getMaxProductos()
+                    + ". Elimina al menos " + exceso + " producto(s) en Inventario.");
+        }
+        return new PlanContratibilidad(
+                plan.getCodigo(),
+                motivos.isEmpty(),
+                motivos,
+                vendedores,
+                productos,
+                plan.getMaxVendedores(),
+                plan.getMaxProductos());
     }
 }

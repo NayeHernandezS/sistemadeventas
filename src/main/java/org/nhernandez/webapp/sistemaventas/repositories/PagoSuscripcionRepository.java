@@ -10,6 +10,8 @@ public interface PagoSuscripcionRepository {
 
     void guardar(PagoSuscripcion pago) throws SQLException;
 
+    void actualizarReferenciaMercadoPago(Long id, String preferenceId) throws SQLException;
+
     PagoSuscripcion porId(Long id) throws SQLException;
 
     List<PagoSuscripcion> listarPendientes() throws SQLException;
@@ -18,5 +20,22 @@ public interface PagoSuscripcionRepository {
 
     List<PagoSuscripcion> listarPorUsername(String username) throws SQLException;
 
+    List<PagoSuscripcion> listarPorEstado(String estado) throws SQLException;
+
     void confirmar(Long id) throws SQLException;
+
+    void confirmarMercadoPago(Long id, String mpPaymentId) throws SQLException;
+
+    /**
+     * Marca un pago PENDIENTE como EXPIRADO (expiracion manual por plataforma).
+     * @return filas actualizadas (0 si no era pendiente)
+     */
+    int expirarPorId(Long id) throws SQLException;
+
+    /**
+     * Marca como EXPIRADO los pagos PENDIENTE cuya fecha_solicitud es anterior al limite segun canal.
+     * @return cantidad de filas actualizadas
+     */
+    int expirarPendientesAnterioresA(java.time.LocalDateTime limiteManual,
+                                     java.time.LocalDateTime limiteMercadoPago) throws SQLException;
 }

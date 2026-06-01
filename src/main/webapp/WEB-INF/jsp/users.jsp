@@ -12,6 +12,7 @@
     <title>Mis vendedores</title>
 </head>
 <body>
+<%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container py-4">
  <div class="mb-3">
      <a class="btn btn-secondary" href="${pageContext.request.contextPath}/">Volver</a>

@@ -9,4 +9,6 @@ public interface FacturaRepository {
     void guardar(Factura factura) throws SQLException;
 
     Factura porTicketId(Long ticketId) throws SQLException;
+
+    void actualizarCfdi(Factura factura) throws SQLException;
 }

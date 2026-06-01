@@ -1,9 +1,9 @@
 package org.nhernandez.webapp.sistemaventas.repositories;
 
-import org.nhernandez.webapp.sistemaventas.configs.MysqlConn;
-import org.nhernandez.webapp.sistemaventas.models.DatosFiscalesNegocio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.nhernandez.webapp.sistemaventas.configs.MysqlConn;
+import org.nhernandez.webapp.sistemaventas.models.DatosFiscalesNegocio;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,7 +21,8 @@ public class DatosFiscalesNegocioRepositoryJdbcImpl implements DatosFiscalesNego
     @Override
     public DatosFiscalesNegocio porTenant(String tenantUsername) throws SQLException {
         String sql = """
-                SELECT tenant_username, rfc, razon_social, email, direccion, uso_cfdi
+                SELECT tenant_username, rfc, razon_social, email, direccion, uso_cfdi,
+                       codigo_postal, regimen_fiscal
                 FROM datos_fiscales_negocio
                 WHERE tenant_username = ?
                 """;
@@ -40,14 +41,16 @@ public class DatosFiscalesNegocioRepositoryJdbcImpl implements DatosFiscalesNego
     public void guardar(DatosFiscalesNegocio datos) throws SQLException {
         String sql = """
                 INSERT INTO datos_fiscales_negocio
-                    (tenant_username, rfc, razon_social, email, direccion, uso_cfdi)
-                VALUES (?, ?, ?, ?, ?, ?)
+                    (tenant_username, rfc, razon_social, email, direccion, uso_cfdi, codigo_postal, regimen_fiscal)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE
                     rfc = VALUES(rfc),
                     razon_social = VALUES(razon_social),
                     email = VALUES(email),
                     direccion = VALUES(direccion),
-                    uso_cfdi = VALUES(uso_cfdi)
+                    uso_cfdi = VALUES(uso_cfdi),
+                    codigo_postal = VALUES(codigo_postal),
+                    regimen_fiscal = VALUES(regimen_fiscal)
                 """;
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, datos.getTenantUsername());
@@ -56,6 +59,8 @@ public class DatosFiscalesNegocioRepositoryJdbcImpl implements DatosFiscalesNego
             setNullable(stmt, 4, datos.getEmail());
             setNullable(stmt, 5, datos.getDireccion());
             setNullable(stmt, 6, datos.getUsoCfdi());
+            setNullable(stmt, 7, datos.getCodigoPostal());
+            setNullable(stmt, 8, datos.getRegimenFiscal());
             stmt.executeUpdate();
         }
     }
@@ -68,6 +73,8 @@ public class DatosFiscalesNegocioRepositoryJdbcImpl implements DatosFiscalesNego
         datos.setEmail(rs.getString("email"));
         datos.setDireccion(rs.getString("direccion"));
         datos.setUsoCfdi(rs.getString("uso_cfdi"));
+        datos.setCodigoPostal(rs.getString("codigo_postal"));
+        datos.setRegimenFiscal(rs.getString("regimen_fiscal"));
         return datos;
     }
 

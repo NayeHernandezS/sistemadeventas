@@ -1,0 +1,9 @@
+target/
+.idea/
+*.iml
+.git/
+.env
+uploads/
+deploy/certs/*.pem
+deploy/certs/*.key
+**/.DS_Store

@@ -11,4 +11,10 @@ public interface PreferenciasTenantService {
     void guardarStockMinimo(String tenantUsername, Integer stockMinimo);
 
     int resolverStockMinimo(String tenantUsername, int valorGlobalPorDefecto);
+
+    boolean tieneLogo(String tenantUsername);
+
+    void guardarLogoFilename(String tenantUsername, String logoFilename);
+
+    void eliminarLogo(String tenantUsername);
 }

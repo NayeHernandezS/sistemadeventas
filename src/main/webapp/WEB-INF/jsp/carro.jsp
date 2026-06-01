@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </head>
 <body>
+<%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container">
 <h1>Carro de Compras</h1>
 <c:if test="${not empty sessionScope.mensajeError}">
@@ -68,6 +69,13 @@
                 <label class="form-check-label" for="requiereFactura">El cliente requiere factura</label>
             </div>
             <p class="small text-muted">Si marca esta opción, complete RFC y razón social. El resto es opcional.</p>
+            <c:if test="${cfdiTimbradoDisponible}">
+                <div class="alert alert-info py-2 small mb-3">
+                    Timbrado CFDI activo: el admin debe tener RFC, régimen fiscal y código postal en
+                    <a href="${pageContext.request.contextPath}/perfil">Mi perfil</a>.
+                    Indique también el código postal del receptor.
+                </div>
+            </c:if>
             <c:if test="${not empty facturaDefaults}">
                 <p class="small text-info">Datos precargados desde Mi perfil; puede editarlos para este ticket.</p>
             </c:if>
@@ -91,6 +99,12 @@
                     <label class="form-label" for="usoCfdi">Uso CFDI (opcional)</label>
                     <input class="form-control" type="text" name="usoCfdi" id="usoCfdi" maxlength="10"
                            placeholder="ej. G03" value="${facturaDefaults.usoCfdi}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="codigoPostalReceptor">C.P. receptor<c:if test="${cfdiTimbradoDisponible}"> *</c:if></label>
+                    <input class="form-control" type="text" name="codigoPostalReceptor" id="codigoPostalReceptor"
+                           maxlength="5" placeholder="5 digitos"
+                           value="${facturaDefaults.codigoPostal}">
                 </div>
                 <div class="col-12">
                     <label class="form-label" for="direccionFactura">Dirección (opcional)</label>

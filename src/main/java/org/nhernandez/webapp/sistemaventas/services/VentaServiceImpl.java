@@ -18,13 +18,16 @@ public class VentaServiceImpl implements VentaService {
     private final ProductoRepository productoRepository;
     private final TicketRepository ticketRepository;
     private final FacturaRepository facturaRepository;
+    private final CfdiTimbradoService cfdiTimbradoService;
 
     public VentaServiceImpl(ProductoRepository productoRepository,
                               TicketRepository ticketRepository,
-                              FacturaRepository facturaRepository) {
+                              FacturaRepository facturaRepository,
+                              CfdiTimbradoService cfdiTimbradoService) {
         this.productoRepository = productoRepository;
         this.ticketRepository = ticketRepository;
         this.facturaRepository = facturaRepository;
+        this.cfdiTimbradoService = cfdiTimbradoService;
     }
 
     @Override
@@ -66,7 +69,11 @@ public class VentaServiceImpl implements VentaService {
             ticketRepository.guardar(ticket);
             if (facturaOpcional != null && ticket.getId() != null) {
                 facturaOpcional.setTicketId(ticket.getId());
+                if (facturaOpcional.getCfdiEstado() == null || facturaOpcional.getCfdiEstado().isBlank()) {
+                    facturaOpcional.setCfdiEstado(cfdiTimbradoService.disponible() ? "PENDIENTE" : "INFORMATIVO");
+                }
                 facturaRepository.guardar(facturaOpcional);
+                cfdiTimbradoService.intentarTimbrar(ticket.getTenantOwner(), ticket, facturaOpcional);
             }
             return ticket;
         } catch (SQLException e) {

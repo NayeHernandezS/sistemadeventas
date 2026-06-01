@@ -31,7 +31,8 @@
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
                     <h2 class="h5"><i class="bi bi-credit-card text-warning"></i> Pagos pendientes</h2>
-                    <p class="display-6 mb-3">${pagosPendientes}</p>
+                    <p class="display-6 mb-1">${pagosPendientes}</p>
+                    <p class="small text-muted mb-3">${pagosExpirados} expirado(s) en historial</p>
                     <a href="${pageContext.request.contextPath}/plataforma/pagos" class="btn btn-outline-primary btn-sm">
                         Revisar pagos
                     </a>

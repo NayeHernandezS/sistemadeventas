@@ -427,3 +427,163 @@ UPDATE pagos_suscripcion
 SET plan_codigo = 'EMPRENDEDOR'
 WHERE id > 0
   AND UPPER(TRIM(plan_codigo)) NOT IN ('EMPRENDEDOR', 'NEGOCIO', 'PRO');
+
+-- =========================================================
+-- 10) RECUPERACION DE CONTRASENA
+-- =========================================================
+CREATE TABLE IF NOT EXISTS tokens_recuperacion (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
+    token VARCHAR(64) NOT NULL,
+    fecha_creacion DATETIME NOT NULL,
+    fecha_expiracion DATETIME NOT NULL,
+    usado TINYINT(1) NOT NULL DEFAULT 0,
+    UNIQUE INDEX uk_tokens_recuperacion_token (token),
+    INDEX idx_tokens_recuperacion_username (username)
+);
+
+-- =========================================================
+-- 11) DATOS FISCALES DEL NEGOCIO
+-- =========================================================
+CREATE TABLE IF NOT EXISTS datos_fiscales_negocio (
+    tenant_username VARCHAR(100) PRIMARY KEY,
+    rfc VARCHAR(13) NULL,
+    razon_social VARCHAR(200) NULL,
+    email VARCHAR(150) NULL,
+    direccion VARCHAR(255) NULL,
+    uso_cfdi VARCHAR(10) NULL
+);
+
+-- =========================================================
+-- 12) PREFERENCIAS TENANT (stock minimo)
+-- =========================================================
+CREATE TABLE IF NOT EXISTS preferencias_tenant (
+    tenant_username VARCHAR(100) PRIMARY KEY,
+    stock_minimo INT NULL
+);
+
+-- =========================================================
+-- 13) MERCADO PAGO (referencias en pagos_suscripcion)
+-- =========================================================
+SET @col_mp_pref = (
+    SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'pagos_suscripcion'
+      AND COLUMN_NAME = 'mp_preference_id'
+);
+SET @sql_mp_pref = IF(@col_mp_pref = 0,
+    'ALTER TABLE pagos_suscripcion ADD COLUMN mp_preference_id VARCHAR(80) NULL AFTER notas',
+    'SELECT 1');
+PREPARE stmt FROM @sql_mp_pref;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @col_mp_pay = (
+    SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'pagos_suscripcion'
+      AND COLUMN_NAME = 'mp_payment_id'
+);
+SET @sql_mp_pay = IF(@col_mp_pay = 0,
+    'ALTER TABLE pagos_suscripcion ADD COLUMN mp_payment_id VARCHAR(80) NULL AFTER mp_preference_id',
+    'SELECT 1');
+PREPARE stmt FROM @sql_mp_pay;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @col_canal = (
+    SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'pagos_suscripcion'
+      AND COLUMN_NAME = 'canal'
+);
+SET @sql_canal = IF(@col_canal = 0,
+    'ALTER TABLE pagos_suscripcion ADD COLUMN canal VARCHAR(20) NOT NULL DEFAULT ''MANUAL'' AFTER mp_payment_id',
+    'SELECT 1');
+PREPARE stmt FROM @sql_canal;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- =========================================================
+-- 14) RENOVACION AUTOMATICA (suscripciones)
+-- =========================================================
+SET @col_renov = (
+    SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'suscripciones'
+      AND COLUMN_NAME = 'renovacion_automatica'
+);
+SET @sql_renov = IF(@col_renov = 0,
+    'ALTER TABLE suscripciones ADD COLUMN renovacion_automatica TINYINT(1) NOT NULL DEFAULT 0 AFTER plan_codigo',
+    'SELECT 1');
+PREPARE stmt FROM @sql_renov;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @col_preapp = (
+    SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'suscripciones'
+      AND COLUMN_NAME = 'mp_preapproval_id'
+);
+SET @sql_preapp = IF(@col_preapp = 0,
+    'ALTER TABLE suscripciones ADD COLUMN mp_preapproval_id VARCHAR(80) NULL AFTER renovacion_automatica',
+    'SELECT 1');
+PREPARE stmt FROM @sql_preapp;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- =========================================================
+-- 15) LOGO DEL TENANT (preferencias_tenant)
+-- =========================================================
+SET @col_logo = (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'preferencias_tenant'
+      AND COLUMN_NAME = 'logo_filename'
+);
+SET @sql_logo = IF(@col_logo = 0,
+    'ALTER TABLE preferencias_tenant ADD COLUMN logo_filename VARCHAR(255) NULL AFTER stock_minimo',
+    'SELECT 1');
+PREPARE stmt FROM @sql_logo;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- =========================================================
+-- 16) CFDI TIMBRADO (Facturama)
+-- =========================================================
+SET @col = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'datos_fiscales_negocio' AND COLUMN_NAME = 'codigo_postal');
+SET @sql = IF(@col = 0, 'ALTER TABLE datos_fiscales_negocio ADD COLUMN codigo_postal VARCHAR(10) NULL', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @col = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'datos_fiscales_negocio' AND COLUMN_NAME = 'regimen_fiscal');
+SET @sql = IF(@col = 0, 'ALTER TABLE datos_fiscales_negocio ADD COLUMN regimen_fiscal VARCHAR(10) NULL', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @col = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'facturas' AND COLUMN_NAME = 'codigo_postal_receptor');
+SET @sql = IF(@col = 0, 'ALTER TABLE facturas ADD COLUMN codigo_postal_receptor VARCHAR(10) NULL', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @col = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'facturas' AND COLUMN_NAME = 'cfdi_uuid');
+SET @sql = IF(@col = 0, 'ALTER TABLE facturas ADD COLUMN cfdi_uuid VARCHAR(36) NULL', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @col = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'facturas' AND COLUMN_NAME = 'cfdi_estado');
+SET @sql = IF(@col = 0, 'ALTER TABLE facturas ADD COLUMN cfdi_estado VARCHAR(20) NOT NULL DEFAULT ''INFORMATIVO''', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @col = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'facturas' AND COLUMN_NAME = 'cfdi_mensaje');
+SET @sql = IF(@col = 0, 'ALTER TABLE facturas ADD COLUMN cfdi_mensaje VARCHAR(500) NULL', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @col = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'facturas' AND COLUMN_NAME = 'cfdi_proveedor_id');
+SET @sql = IF(@col = 0, 'ALTER TABLE facturas ADD COLUMN cfdi_proveedor_id VARCHAR(80) NULL', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;

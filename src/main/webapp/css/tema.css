@@ -225,3 +225,8 @@ h1, h2, h3, .h1, .h2, .h3 {
 .pagina-error .card {
     border-top: 3px solid rgba(var(--color-dorado-rgb), 0.85);
 }
+
+/* Perfil: porcentaje en --pct (0-100); el valor lo define el JSP */
+.progress-bar--pct-dinamico {
+    width: calc(var(--pct, 0) * 1%);
+}

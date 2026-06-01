@@ -37,3 +37,14 @@ SOURCE migracion_datos_fiscales_negocio.sql;
 
 -- 12) Preferencias del tenant (perfil / alertas inventario)
 SOURCE migracion_preferencias_tenant.sql;
+
+-- 13) Mercado Pago (referencias en pagos_suscripcion)
+SOURCE migracion_mercadopago.sql;
+
+SOURCE migracion_renovacion_automatica.sql;
+
+-- 14) Logo de marca por tenant
+SOURCE migracion_tenant_logo.sql;
+
+-- 15) CFDI timbrado (Facturama)
+SOURCE migracion_cfdi.sql;

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
 </head>
 <body>
+<%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container my-4">
     <h1 class="h3 mb-3"><i class="bi bi-arrow-return-left"></i> Devoluciones</h1>
     <p class="text-muted">Registra devoluciones de ventas. El inventario se reintegra automaticamente.</p>

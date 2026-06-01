@@ -5,6 +5,7 @@ import org.nhernandez.webapp.sistemaventas.models.DatosFiscalesNegocio;
 import org.nhernandez.webapp.sistemaventas.models.PlanSuscripcion;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
 import org.nhernandez.webapp.sistemaventas.services.ActividadVendedorService;
+import org.nhernandez.webapp.sistemaventas.services.CfdiTimbradoService;
 import org.nhernandez.webapp.sistemaventas.services.DatosFiscalesNegocioService;
 import org.nhernandez.webapp.sistemaventas.services.InventarioAlertaService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
@@ -12,6 +13,7 @@ import org.nhernandez.webapp.sistemaventas.services.PlanLimiteService;
 import org.nhernandez.webapp.sistemaventas.services.PreferenciasTenantService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
 import org.nhernandez.webapp.sistemaventas.services.SuscripcionService;
+import org.nhernandez.webapp.sistemaventas.services.TenantLogoService;
 import org.nhernandez.webapp.sistemaventas.services.UsuarioService;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
@@ -21,6 +23,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -41,6 +45,8 @@ public class PerfilController {
     private final ActividadVendedorService actividadVendedorService;
     private final PreferenciasTenantService preferenciasTenantService;
     private final InventarioAlertaService inventarioAlertaService;
+    private final TenantLogoService tenantLogoService;
+    private final CfdiTimbradoService cfdiTimbradoService;
 
     public PerfilController(UsuarioService usuarioService,
                             LoginService loginService,
@@ -49,7 +55,9 @@ public class PerfilController {
                             DatosFiscalesNegocioService datosFiscalesNegocioService,
                             ActividadVendedorService actividadVendedorService,
                             PreferenciasTenantService preferenciasTenantService,
-                            InventarioAlertaService inventarioAlertaService) {
+                            InventarioAlertaService inventarioAlertaService,
+                            TenantLogoService tenantLogoService,
+                            CfdiTimbradoService cfdiTimbradoService) {
         this.usuarioService = usuarioService;
         this.loginService = loginService;
         this.suscripcionService = suscripcionService;
@@ -58,6 +66,8 @@ public class PerfilController {
         this.actividadVendedorService = actividadVendedorService;
         this.preferenciasTenantService = preferenciasTenantService;
         this.inventarioAlertaService = inventarioAlertaService;
+        this.tenantLogoService = tenantLogoService;
+        this.cfdiTimbradoService = cfdiTimbradoService;
     }
 
     @GetMapping
@@ -65,6 +75,52 @@ public class PerfilController {
         Optional<String> usernameOpt = loginService.getUsername(req);
         if (usernameOpt.isEmpty()) {
             return "redirect:/login";
+        }
+        cargarPerfil(req, model, usernameOpt.get());
+        return "perfil";
+    }
+
+    @PostMapping("/logo")
+    public String subirLogo(HttpServletRequest req, Model model,
+                              @RequestParam("logo") MultipartFile logo) {
+        Optional<String> usernameOpt = loginService.getUsername(req);
+        if (usernameOpt.isEmpty()) {
+            return "redirect:/login";
+        }
+        if (!RolUtil.esAdmin(req)) {
+            model.addAttribute("mensajeError", "Solo el administrador puede cambiar el logo del negocio.");
+            cargarPerfil(req, model, usernameOpt.get());
+            return "perfil";
+        }
+        String tenant = TenantUtil.getTenantOwner(req);
+        try {
+            tenantLogoService.guardarLogo(tenant, logo);
+            model.addAttribute("mensajeExito",
+                    "Logo actualizado. Todos los vendedores de tu cuenta veran la misma marca.");
+        } catch (ServiceJdbcException e) {
+            model.addAttribute("mensajeError", e.getMessage());
+        }
+        cargarPerfil(req, model, usernameOpt.get());
+        return "perfil";
+    }
+
+    @PostMapping("/logo/eliminar")
+    public String eliminarLogo(HttpServletRequest req, Model model) {
+        Optional<String> usernameOpt = loginService.getUsername(req);
+        if (usernameOpt.isEmpty()) {
+            return "redirect:/login";
+        }
+        if (!RolUtil.esAdmin(req)) {
+            model.addAttribute("mensajeError", "Solo el administrador puede quitar el logo del negocio.");
+            cargarPerfil(req, model, usernameOpt.get());
+            return "perfil";
+        }
+        String tenant = TenantUtil.getTenantOwner(req);
+        try {
+            tenantLogoService.eliminarLogo(tenant);
+            model.addAttribute("mensajeExito", "Logo eliminado.");
+        } catch (ServiceJdbcException e) {
+            model.addAttribute("mensajeError", e.getMessage());
         }
         cargarPerfil(req, model, usernameOpt.get());
         return "perfil";
@@ -178,6 +234,8 @@ public class PerfilController {
         datos.setEmail(req.getParameter("emailFiscalDefault"));
         datos.setDireccion(req.getParameter("direccionDefault"));
         datos.setUsoCfdi(req.getParameter("usoCfdiDefault"));
+        datos.setCodigoPostal(req.getParameter("codigoPostalEmisor"));
+        datos.setRegimenFiscal(req.getParameter("regimenFiscalEmisor"));
         try {
             datosFiscalesNegocioService.guardar(tenant, datos);
             model.addAttribute("mensajeExito", "Datos fiscales por defecto guardados.");
@@ -243,10 +301,15 @@ public class PerfilController {
         String tenant = TenantUtil.getTenantOwner(req);
         if (tenant != null && !tenant.isBlank()) {
             model.addAttribute("tenantOwner", tenant);
+            model.addAttribute("tenantTieneLogo", tenantLogoService.tieneLogo(tenant));
+            if (tenantLogoService.tieneLogo(tenant)) {
+                model.addAttribute("tenantLogoUrl", tenantLogoService.urlLogo(req.getContextPath()));
+            }
             cargarUsoPlan(tenant, model);
             if (RolUtil.esAdmin(req)) {
                 cargarResumenSuscripcion(tenant, model);
                 datosFiscalesNegocioService.consultar(tenant).ifPresent(d -> model.addAttribute("datosFiscales", d));
+                model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoService.disponible());
                 cargarPreferencias(tenant, model);
             } else {
                 usuarioService.porUsername(tenant).ifPresent(admin ->

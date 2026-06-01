@@ -6,9 +6,11 @@
     <meta charset="UTF-8">
     <title>Mi perfil</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
 </head>
 <body class="bg-light">
+<%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container my-5" style="max-width: 720px;">
     <h1 class="h3 mb-4">Mi perfil</h1>
 
@@ -58,8 +60,8 @@
                         <span>${vendedoresUsados} / ${planActivo.maxVendedores}</span>
                     </div>
                     <div class="progress" style="height: 8px;">
-                        <div class="progress-bar" role="progressbar"
-                             style="width: ${porcentajeVendedores}%"
+                        <div class="progress-bar progress-bar--pct-dinamico" role="progressbar"
+                             style="--pct: <c:out value='${porcentajeVendedores}' default='0'/>"
                              aria-valuenow="${porcentajeVendedores}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
@@ -69,8 +71,8 @@
                         <span>${productosUsados} / ${planActivo.maxProductos}</span>
                     </div>
                     <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-info" role="progressbar"
-                             style="width: ${porcentajeProductos}%"
+                        <div class="progress-bar bg-info progress-bar--pct-dinamico" role="progressbar"
+                             style="--pct: <c:out value='${porcentajeProductos}' default='0'/>"
                              aria-valuenow="${porcentajeProductos}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
@@ -145,6 +147,64 @@
                         <p class="text-muted mb-0">Aun no has registrado ventas este mes.</p>
                     </c:otherwise>
                 </c:choose>
+            </div>
+        </div>
+    </c:if>
+
+    <c:if test="${esAdmin}">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Logo de tu marca</div>
+            <div class="card-body">
+                <p class="small text-muted mb-3">
+                    Sube el logo de tu empresa. Todos los vendedores de tu cuenta veran la misma imagen
+                    en el panel principal.
+                </p>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="logo-slot" style="width: 96px; height: 96px;">
+                        <c:set var="logoCssClass" value="logo-hero" scope="request"/>
+                        <%@ include file="fragmentos/logo-tenant.jspf" %>
+                    </div>
+                    <div>
+                        <c:if test="${tenantTieneLogo}">
+                            <span class="badge bg-success">Logo activo</span>
+                        </c:if>
+                        <c:if test="${not tenantTieneLogo}">
+                            <span class="badge bg-secondary">Sin logo personalizado</span>
+                        </c:if>
+                    </div>
+                </div>
+                <form method="post" action="${pageContext.request.contextPath}/perfil/logo"
+                      enctype="multipart/form-data" class="mb-3">
+                    <%@ include file="csrf.jspf" %>
+                    <div class="mb-3">
+                        <label for="logo" class="form-label">Imagen (PNG, JPG o WebP, max. 2 MB)</label>
+                        <input type="file" class="form-control" id="logo" name="logo" accept="image/png,image/jpeg,image/webp" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Subir logo</button>
+                </form>
+                <c:if test="${tenantTieneLogo}">
+                    <form method="post" action="${pageContext.request.contextPath}/perfil/logo/eliminar"
+                          onsubmit="return confirm('Quitar el logo del negocio?');">
+                        <%@ include file="csrf.jspf" %>
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Quitar logo</button>
+                    </form>
+                </c:if>
+            </div>
+        </div>
+    </c:if>
+
+    <c:if test="${not esAdmin and tenantTieneLogo}">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Logo del negocio</div>
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="logo-slot" style="width: 72px; height: 72px;">
+                    <c:set var="logoCssClass" value="logo-hero" scope="request"/>
+                    <%@ include file="fragmentos/logo-tenant.jspf" %>
+                </div>
+                <p class="small text-muted mb-0">
+                    Este es el logo de la cuenta <strong>${tenantOwner}</strong>.
+                    Solo el administrador puede cambiarlo.
+                </p>
             </div>
         </div>
     </c:if>
@@ -293,6 +353,16 @@
                             <label for="usoCfdiDefault" class="form-label">Uso CFDI (opcional)</label>
                             <input type="text" class="form-control" id="usoCfdiDefault" name="usoCfdiDefault"
                                    maxlength="10" placeholder="ej. G03" value="${datosFiscales.usoCfdi}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="codigoPostalEmisor" class="form-label">C.P. emisor<c:if test="${cfdiTimbradoDisponible}"> *</c:if></label>
+                            <input type="text" class="form-control" id="codigoPostalEmisor" name="codigoPostalEmisor"
+                                   maxlength="5" placeholder="5 digitos" value="${datosFiscales.codigoPostal}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="regimenFiscalEmisor" class="form-label">Regimen fiscal<c:if test="${cfdiTimbradoDisponible}"> *</c:if></label>
+                            <input type="text" class="form-control" id="regimenFiscalEmisor" name="regimenFiscalEmisor"
+                                   maxlength="3" placeholder="601" value="${datosFiscales.regimenFiscal}">
                         </div>
                         <div class="col-12">
                             <label for="direccionDefault" class="form-label">Direccion (opcional)</label>

@@ -1,0 +1,21 @@
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-app shadow-sm py-3 mb-4 no-print">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="${pageContext.request.contextPath}/" title="Inicio">
+            <%@ include file="logo-tenant.jspf" %>
+            <span class="fw-bold fs-5 text-primary d-none d-sm-inline">Mi<span class="text-warning">Sistema</span></span>
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-2 flex-wrap justify-content-end">
+            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/">
+                <i class="bi bi-house"></i><span class="d-none d-md-inline ms-1">Inicio</span>
+            </a>
+            <span class="text-muted small d-none d-lg-inline">Hola, ${sessionScope.username}</span>
+            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/perfil">
+                Mi perfil
+            </a>
+            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/logout">
+                Salir <i class="bi bi-power"></i>
+            </a>
+        </div>
+    </div>
+</nav>

@@ -11,6 +11,7 @@
     <title>Categoria</title>
 </head>
 <body>
+<%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container py-4">
     <h1 class="mb-3">
         <c:choose>

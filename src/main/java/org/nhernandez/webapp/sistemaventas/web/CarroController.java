@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
 import org.nhernandez.webapp.sistemaventas.models.*;
+import org.nhernandez.webapp.sistemaventas.services.CfdiTimbradoService;
 import org.nhernandez.webapp.sistemaventas.services.DatosFiscalesNegocioService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ProductoService;
@@ -36,17 +37,20 @@ public class CarroController {
     private final LoginService loginService;
     private final VentaService ventaService;
     private final DatosFiscalesNegocioService datosFiscalesNegocioService;
+    private final CfdiTimbradoService cfdiTimbradoService;
 
     public CarroController(@ProductoServicePrincipal ProductoService productoService,
                              Carro carro,
                              LoginService loginService,
                              VentaService ventaService,
-                             DatosFiscalesNegocioService datosFiscalesNegocioService) {
+                             DatosFiscalesNegocioService datosFiscalesNegocioService,
+                             CfdiTimbradoService cfdiTimbradoService) {
         this.productoService = productoService;
         this.carro = carro;
         this.loginService = loginService;
         this.ventaService = ventaService;
         this.datosFiscalesNegocioService = datosFiscalesNegocioService;
+        this.cfdiTimbradoService = cfdiTimbradoService;
     }
 
     @GetMapping("/ver")
@@ -56,6 +60,7 @@ public class CarroController {
             datosFiscalesNegocioService.consultar(tenant)
                     .ifPresent(d -> model.addAttribute("facturaDefaults", d));
         }
+        model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoService.disponible());
         return "carro";
     }
 
@@ -112,9 +117,10 @@ public class CarroController {
         String emailFactura = limpiar(req.getParameter("emailFactura"));
         String direccion = limpiar(req.getParameter("direccionFactura"));
         String usoCfdi = limpiar(req.getParameter("usoCfdi"));
+        String codigoPostalReceptor = limpiar(req.getParameter("codigoPostalReceptor"));
 
         if (requiereFactura) {
-            String error = validarDatosFactura(rfc, razonSocial);
+            String error = validarDatosFactura(rfc, razonSocial, codigoPostalReceptor);
             if (error != null) {
                 req.getSession().setAttribute("mensajeError", error);
                 resp.sendRedirect(req.getContextPath() + "/carro/ver");
@@ -133,6 +139,7 @@ public class CarroController {
             factura.setEmail(emailFactura.isEmpty() ? null : emailFactura);
             factura.setDireccion(direccion.isEmpty() ? null : direccion);
             factura.setUsoCfdi(usoCfdi.isEmpty() ? null : usoCfdi);
+            factura.setCodigoPostalReceptor(codigoPostalReceptor.isEmpty() ? null : codigoPostalReceptor);
             factura.setFechaEmision(LocalDateTime.now());
         }
 
@@ -146,8 +153,16 @@ public class CarroController {
 
         carro.vaciar();
         String msg = "Venta finalizada. Ticket " + ticket.getFolio() + " generado.";
-        if (requiereFactura) {
-            msg += " Factura emitida; puede consultarla desde Tickets.";
+        if (requiereFactura && factura != null) {
+            if (factura.estaTimbrada()) {
+                msg += " CFDI timbrado (UUID " + factura.getCfdiUuid() + ").";
+            } else if ("ERROR".equalsIgnoreCase(factura.getCfdiEstado())) {
+                msg += " Factura registrada; el timbrado CFDI fallo: " + factura.getCfdiMensaje();
+            } else if (cfdiTimbradoService.disponible()) {
+                msg += " Factura registrada; revisa el estado del CFDI en Tickets.";
+            } else {
+                msg += " Comprobante informativo emitido; consultalo en Tickets.";
+            }
         }
         req.getSession().setAttribute("mensajeTicket", msg);
         resp.sendRedirect(req.getContextPath() + "/tickets");
@@ -183,13 +198,18 @@ public class CarroController {
         return s == null ? "" : s.trim();
     }
 
-    private String validarDatosFactura(String rfc, String razonSocial) {
+    private String validarDatosFactura(String rfc, String razonSocial, String codigoPostalReceptor) {
         if (razonSocial.isBlank()) {
             return "Para facturar indique la razón social o nombre del cliente.";
         }
         String errorRfc = FacturaDatosUtil.validarRfcObligatorio(rfc);
         if (errorRfc != null) {
             return errorRfc.replace("Indica el RFC.", "Para facturar indique el RFC del cliente.");
+        }
+        if (cfdiTimbradoService.disponible()) {
+            if (codigoPostalReceptor.isBlank() || !codigoPostalReceptor.matches("\\d{5}")) {
+                return "Para timbrar CFDI indique el codigo postal del receptor (5 digitos).";
+            }
         }
         return null;
     }

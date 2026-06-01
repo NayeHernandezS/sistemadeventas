@@ -1,0 +1,11 @@
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<c:set var="logoPlaceholder" value="${pageContext.request.contextPath}/img/logo-placeholder.svg"/>
+<c:choose>
+    <c:when test="${tenantTieneLogo}">
+        <img src="${tenantLogoUrl}" alt="Logo del negocio" class="${empty logoCssClass ? 'navbar-logo' : logoCssClass}"
+             onerror="this.onerror=null;this.src='${logoPlaceholder}';">
+    </c:when>
+    <c:otherwise>
+        <img src="${logoPlaceholder}" alt="Logo del negocio" class="${empty logoCssClass ? 'navbar-logo' : logoCssClass}">
+    </c:otherwise>
+</c:choose>

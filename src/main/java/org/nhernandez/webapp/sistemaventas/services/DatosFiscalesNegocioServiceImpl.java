@@ -51,6 +51,8 @@ public class DatosFiscalesNegocioServiceImpl implements DatosFiscalesNegocioServ
         n.setEmail(vacioANull(datos.getEmail()));
         n.setDireccion(vacioANull(datos.getDireccion()));
         n.setUsoCfdi(vacioANull(datos.getUsoCfdi()));
+        n.setCodigoPostal(vacioANull(datos.getCodigoPostal()));
+        n.setRegimenFiscal(vacioANull(datos.getRegimenFiscal()));
         return n;
     }
 
@@ -69,6 +71,12 @@ public class DatosFiscalesNegocioServiceImpl implements DatosFiscalesNegocioServ
         }
         if (datos.getEmail() != null && !datos.getEmail().contains("@")) {
             throw new ServiceJdbcException("Indica un email valido para facturacion.", null);
+        }
+        if (datos.getCodigoPostal() != null && !datos.getCodigoPostal().matches("\\d{5}")) {
+            throw new ServiceJdbcException("El codigo postal del emisor debe tener 5 digitos.", null);
+        }
+        if (datos.getRegimenFiscal() != null && !datos.getRegimenFiscal().matches("\\d{3}")) {
+            throw new ServiceJdbcException("El regimen fiscal del emisor debe ser un codigo SAT de 3 digitos (ej. 601).", null);
         }
     }
 

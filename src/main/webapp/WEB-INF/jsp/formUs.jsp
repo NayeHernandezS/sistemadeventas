@@ -12,6 +12,7 @@
     <title>Listado de productos</title>
 </head>
 <body>
+<%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container">
 <form action="${pageContext.request.contextPath}/usuarios/form" method="post">
     <%@ include file="csrf.jspf" %>

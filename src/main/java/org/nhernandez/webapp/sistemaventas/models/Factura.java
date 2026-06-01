@@ -13,6 +13,11 @@ public class Factura {
     private String direccion;
     private String usoCfdi;
     private LocalDateTime fechaEmision;
+    private String codigoPostalReceptor;
+    private String cfdiUuid;
+    private String cfdiEstado = "INFORMATIVO";
+    private String cfdiMensaje;
+    private String cfdiProveedorId;
 
     public Long getId() {
         return id;
@@ -84,5 +89,49 @@ public class Factura {
 
     public void setFechaEmision(LocalDateTime fechaEmision) {
         this.fechaEmision = fechaEmision;
+    }
+
+    public String getCodigoPostalReceptor() {
+        return codigoPostalReceptor;
+    }
+
+    public void setCodigoPostalReceptor(String codigoPostalReceptor) {
+        this.codigoPostalReceptor = codigoPostalReceptor;
+    }
+
+    public String getCfdiUuid() {
+        return cfdiUuid;
+    }
+
+    public void setCfdiUuid(String cfdiUuid) {
+        this.cfdiUuid = cfdiUuid;
+    }
+
+    public String getCfdiEstado() {
+        return cfdiEstado;
+    }
+
+    public void setCfdiEstado(String cfdiEstado) {
+        this.cfdiEstado = cfdiEstado;
+    }
+
+    public String getCfdiMensaje() {
+        return cfdiMensaje;
+    }
+
+    public void setCfdiMensaje(String cfdiMensaje) {
+        this.cfdiMensaje = cfdiMensaje;
+    }
+
+    public String getCfdiProveedorId() {
+        return cfdiProveedorId;
+    }
+
+    public void setCfdiProveedorId(String cfdiProveedorId) {
+        this.cfdiProveedorId = cfdiProveedorId;
+    }
+
+    public boolean estaTimbrada() {
+        return "TIMBRADO".equalsIgnoreCase(cfdiEstado) && cfdiUuid != null && !cfdiUuid.isBlank();
     }
 }
