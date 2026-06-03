@@ -8,7 +8,7 @@ public final class SoporteConfigUtil {
     }
 
     public static String email() {
-        return prop("soporte.email", "soporte@misistema.com");
+        return prop("soporte.email", "soporte@fusiondigital.com");
     }
 
     public static String whatsapp() {

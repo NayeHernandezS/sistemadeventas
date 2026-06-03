@@ -61,7 +61,11 @@ public class RenovacionAutomaticaService {
                 .orElseThrow(() -> new ServiceJdbcException("Plan no valido", null));
         planLimiteService.validarPlanContratable(username, plan.getCodigo());
 
-        String base = MercadoPagoUrls.resolverBase(appBaseUrl, baseUrlPublica);
+        String backUrl = MercadoPagoUrls.resolverUrlRetorno(
+                appBaseUrl, baseUrlPublica, "/suscripcion/auto-renovar-exito");
+        if (backUrl == null) {
+            throw new ServiceJdbcException(MercadoPagoUrls.MENSAJE_BACK_URL_PREAPPROVAL, null);
+        }
         String ref = construirReferencia(username, plan.getCodigo());
 
         try {
@@ -70,7 +74,7 @@ public class RenovacionAutomaticaService {
                             plan.getNombre() + " - renovacion mensual",
                             plan.getPrecioMensual(),
                             ref,
-                            base + "/suscripcion/auto-renovar-exito",
+                            backUrl,
                             MercadoPagoUrls.urlNotificacionOpcional(appBaseUrl, baseUrlPublica),
                             payerEmail
                     ));

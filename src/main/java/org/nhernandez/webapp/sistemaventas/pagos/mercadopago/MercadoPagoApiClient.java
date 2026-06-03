@@ -165,7 +165,10 @@ public class MercadoPagoApiClient {
                 "transaction_amount", request.monto().doubleValue(),
                 "currency_id", properties.getCurrencyId()
         ));
-        body.put("back_url", request.backUrl());
+        if (request.backUrl() == null || !MercadoPagoUrls.admiteBackUrl(request.backUrl())) {
+            throw new MercadoPagoException(MercadoPagoUrls.MENSAJE_BACK_URL_PREAPPROVAL);
+        }
+        body.put("back_url", request.backUrl().trim());
         if (request.payerEmail() != null && !request.payerEmail().isBlank()) {
             body.put("payer_email", request.payerEmail().trim());
         }
@@ -193,7 +196,11 @@ public class MercadoPagoApiClient {
             }
             return new PreapprovalCreada(preapprovalId, initPoint);
         } catch (RestClientResponseException e) {
-            throw new MercadoPagoException("Error al crear suscripcion MP: " + e.getResponseBodyAsString(), e);
+            String cuerpo = e.getResponseBodyAsString();
+            if (cuerpo != null && cuerpo.contains("back_url")) {
+                throw new MercadoPagoException(MercadoPagoUrls.MENSAJE_BACK_URL_PREAPPROVAL, e);
+            }
+            throw new MercadoPagoException("Error al crear suscripcion MP: " + cuerpo, e);
         }
     }
 

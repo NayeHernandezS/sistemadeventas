@@ -4,7 +4,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Sistema de Ventas</title>
+    <title>FUSION DIGITAL</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
@@ -206,7 +206,7 @@
 
 <footer>
     <div class="container py-4 text-center">
-        <p class="small mb-0 text-secondary">&copy; 2026 Sistema de Ventas. Cada cuenta gestiona su propio negocio.</p>
+        <p class="small mb-0 text-secondary">&copy; 2026 FUSION DIGITAL. Cada cuenta gestiona su propio negocio.</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

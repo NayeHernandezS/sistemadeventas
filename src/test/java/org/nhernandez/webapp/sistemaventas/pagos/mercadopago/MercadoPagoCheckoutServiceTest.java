@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MercadoPagoCheckoutServiceTest {
@@ -57,5 +58,34 @@ class MercadoPagoCheckoutServiceTest {
     @Test
     void admiteAutoReturn_aceptaHttpsPublico() {
         assertTrue(MercadoPagoUrls.admiteAutoReturn("https://ventas.midominio.com/suscripcion/pago-exitoso"));
+    }
+
+    @Test
+    void admiteBackUrl_rechazaLocalhost() {
+        assertFalse(MercadoPagoUrls.admiteBackUrl(
+                "http://localhost:8080/suscripcion/auto-renovar-exito"));
+    }
+
+    @Test
+    void admiteBackUrl_rechazaDominioEjemplo() {
+        assertFalse(MercadoPagoUrls.admiteBackUrl(
+                "https://ventas.tudominio.com/suscripcion/auto-renovar-exito"));
+    }
+
+    @Test
+    void resolverUrlRetorno_priorizaAppBaseHttps() {
+        String url = MercadoPagoUrls.resolverUrlRetorno(
+                "https://ventas.midominio.com",
+                "http://localhost:8080",
+                "/suscripcion/auto-renovar-exito");
+        assertEquals("https://ventas.midominio.com/suscripcion/auto-renovar-exito", url);
+    }
+
+    @Test
+    void resolverUrlRetorno_sinHttpsValido_devuelveNull() {
+        assertNull(MercadoPagoUrls.resolverUrlRetorno(
+                "https://ventas.tudominio.com",
+                "http://localhost:8080",
+                "/suscripcion/auto-renovar-exito"));
     }
 }

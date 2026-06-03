@@ -19,8 +19,11 @@ public class RecuperacionCorreoService {
     @Value("${spring.mail.host:}")
     private String mailHost;
 
-    @Value("${recuperacion.mail.from:noreply@misistema.com}")
+    @Value("${recuperacion.mail.from:noreply@fusiondigital.com}")
     private String mailFrom;
+
+    @Value("${app.nombre:FUSION DIGITAL}")
+    private String appNombre;
 
     public RecuperacionCorreoService(Optional<JavaMailSender> mailSender) {
         this.mailSender = mailSender;
@@ -37,7 +40,7 @@ public class RecuperacionCorreoService {
         SimpleMailMessage mensaje = new SimpleMailMessage();
         mensaje.setFrom(mailFrom);
         mensaje.setTo(destino);
-        mensaje.setSubject("Restablecer contraseña - Sistema de Ventas");
+        mensaje.setSubject("Restablecer contraseña - " + appNombre);
         mensaje.setText("""
                 Recibimos una solicitud para restablecer tu contraseña.
 

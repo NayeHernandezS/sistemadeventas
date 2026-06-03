@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/estilologin.css">
 </head>
-<body>
+<body class="pagina-auth pagina-auth--centrada">
 <div class="login-container">
     <div class="login-card shadow-lg">
         <h1 class="h4 text-center mb-3">Nueva contraseña</h1>

@@ -13,6 +13,9 @@ public interface SuscripcionService {
 
     void iniciarMesGratis(String username, String planCodigo);
 
+    /** Activa el periodo de prueba inicial tras crear la cuenta (solo si aun no hay suscripcion). */
+    void activarPeriodoPruebaInicial(String username, String planCodigo);
+
     Optional<Suscripcion> consultar(String username);
 
     boolean tieneAccesoActivo(String username);

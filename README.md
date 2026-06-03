@@ -188,12 +188,12 @@ En `src/main/resources/application.properties`:
 |-----------|-------------|---------|
 | `suscripcion.meses.gratis` | Meses de prueba al registrarse | `1` |
 | `plataforma.superadmins` | Usernames con acceso a `/plataforma` (separados por coma) | `admin` |
-| `soporte.email` | Email visible en `/soporte` | `soporte@misistema.com` |
+| `soporte.email` | Email visible en `/soporte` | `soporte@fusiondigital.com` |
 | `soporte.whatsapp` | Numero WhatsApp (opcional) | vacio |
 | `soporte.horario` | Horario de atencion | L-V 9-18 |
 | `inventario.stock.minimo` | Umbral de alerta de stock bajo (unidades) | `5` |
 | `recuperacion.token.horas` | Validez del enlace de recuperación | `2` |
-| `recuperacion.mail.from` | Remitente del correo de recuperación | `noreply@misistema.com` |
+| `recuperacion.mail.from` | Remitente del correo de recuperación | `noreply@fusiondigital.com` |
 | `app.base-url` | URL pública HTTPS de la app (correos, webhooks Mercado Pago) | vacío (se deduce del request en local) |
 | `mercadopago.access-token` | Access Token de Mercado Pago (MX) | vacío = pago manual |
 | `mercadopago.webhook-secret` | Secret de firma de webhooks MP | vacío = no validar (solo dev) |
@@ -204,7 +204,7 @@ En `src/main/resources/application.properties`:
 | `mercadopago.currency-id` | Moneda del cobro | `MXN` |
 | `app.base-url` / `APP_BASE_URL` | URL publica HTTPS | vacío en local |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | Correo SMTP | vacío = modo demo |
-| `MAIL_FROM` | Remitente de correos | `noreply@misistema.com` |
+| `MAIL_FROM` | Remitente de correos | `noreply@fusiondigital.com` |
 | `spring.mail.host` | (alias de `SMTP_HOST`) | — |
 
 Tambien puedes sobreescribirlas en `.env` usando el mismo nombre de propiedad.

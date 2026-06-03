@@ -9,17 +9,20 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-    <title>Listado de productos</title>
+    <title>Crear o editar vendedor</title>
 </head>
 <body>
 <%@ include file="fragmentos/nav-tenant.jspf" %>
-<div class="container">
+<div class="container py-4">
+    <h1 class="h3 mb-4">${usuario.id != null && usuario.id > 0 ? 'Editar vendedor' : 'Crear vendedor'}</h1>
 <form action="${pageContext.request.contextPath}/usuarios/form" method="post">
     <%@ include file="csrf.jspf" %>
     <div class="row mb-2">
-        <label for="username" class="col-form-label col-sm-2">Username</label>
+        <label for="username" class="col-form-label col-sm-2">Usuario</label>
         <div class="col-sm-4">
-            <input type="text" name="username" id="username" value="${usuario.username}" class="form-control">
+            <input type="text" name="username" id="username" value="${usuario.username}"
+                   class="form-control" placeholder="Ingresar usuario" required
+                   autocomplete="username" ${usuario.id != null && usuario.id > 0 ? 'readonly' : ''}>
         </div>
         <c:if test="${errores != null && errores.containsKey('username')}">
             <div style="color:red;">${errores.username}</div>

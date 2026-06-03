@@ -57,20 +57,41 @@ public class SuscripcionServiceImpl implements SuscripcionService {
             if (suscripcionRepository.porUsername(username) != null) {
                 return;
             }
-            PlanSuscripcion plan = PlanSuscripcion.porCodigoODefault(planCodigo);
-            LocalDateTime inicio = LocalDateTime.now();
-            int meses = mesesGratis > 0 ? mesesGratis : MESES_GRATIS_DEFAULT;
-            Suscripcion suscripcion = new Suscripcion();
-            suscripcion.setUsername(username);
-            suscripcion.setFechaInicio(inicio);
-            suscripcion.setFechaFin(inicio.plusMonths(meses));
-            suscripcion.setEnPeriodoPrueba(true);
-            suscripcion.setEstado("ACTIVA");
-            suscripcion.setPlanCodigo(plan.getCodigo());
-            suscripcionRepository.guardar(suscripcion);
+            crearSuscripcionPrueba(username, planCodigo);
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void activarPeriodoPruebaInicial(String username, String planCodigo) {
+        if (username == null || username.isBlank()) {
+            throw new ServiceJdbcException("Cuenta no valida", null);
+        }
+        if (PlanSuscripcion.porCodigo(planCodigo).isEmpty()) {
+            throw new ServiceJdbcException("Selecciona un plan valido", null);
+        }
+        if (consultar(username).isPresent()) {
+            throw new ServiceJdbcException("Tu cuenta ya tiene un plan registrado", null);
+        }
+        iniciarMesGratis(username, planCodigo.trim().toUpperCase());
+        if (!tieneAccesoActivo(username)) {
+            throw new ServiceJdbcException("No se pudo activar el periodo de prueba", null);
+        }
+    }
+
+    private void crearSuscripcionPrueba(String username, String planCodigo) throws SQLException {
+        PlanSuscripcion plan = PlanSuscripcion.porCodigoODefault(planCodigo);
+        LocalDateTime inicio = LocalDateTime.now();
+        int meses = mesesGratis > 0 ? mesesGratis : MESES_GRATIS_DEFAULT;
+        Suscripcion suscripcion = new Suscripcion();
+        suscripcion.setUsername(username);
+        suscripcion.setFechaInicio(inicio);
+        suscripcion.setFechaFin(inicio.plusMonths(meses));
+        suscripcion.setEnPeriodoPrueba(true);
+        suscripcion.setEstado("ACTIVA");
+        suscripcion.setPlanCodigo(plan.getCodigo());
+        suscripcionRepository.guardar(suscripcion);
     }
 
     @Override

@@ -5,13 +5,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar sesion - Sistema de Ventas</title>
+    <title>Iniciar sesion - FUSION DIGITAL</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/estilologin.css">
 </head>
-<body>
+<body class="pagina-auth pagina-auth--centrada">
 
 <div class="login-container">
     <div class="login-card shadow-lg">
@@ -20,10 +20,10 @@
                 <img src="${pageContext.request.contextPath}/img/logo.png"
                      alt="Logo del negocio"
                      class="logo-img"
-                     onerror="this.onerror=null;this.src='${pageContext.request.contextPath}/img/logo-placeholder.svg';">
+                     onerror="this.onerror=null;this.src='${pageContext.request.contextPath}/img/logo.png';">
             </div>
             <div class="titulo-sistema mt-3">
-                <h1 class="h4">SISTEMA DE VENTAS</h1>
+                <h1 class="h4">FUSION DIGITAL</h1>
                 <h2 class="h5 fw-bold color-accent">Inicia sesion en tu cuenta</h2>
             </div>
         </div>

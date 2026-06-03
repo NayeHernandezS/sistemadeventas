@@ -62,6 +62,11 @@ public class MercadoPagoProduccionService {
         if (tokenValido && base != null && !estado.isAutoReturnHttps()) {
             advertencias.add("Mercado Pago no podra redirigir al sitio tras el pago hasta que APP_BASE_URL sea HTTPS valido.");
         }
+        String urlAutoRenovar = base != null ? base + "/suscripcion/auto-renovar-exito" : null;
+        if (tokenValido && (urlAutoRenovar == null || !MercadoPagoUrls.admiteBackUrl(urlAutoRenovar))) {
+            advertencias.add(
+                    "Renovacion automatica no funcionara hasta configurar APP_BASE_URL con HTTPS publico (no localhost).");
+        }
         estado.setAdvertencias(advertencias);
         return estado;
     }

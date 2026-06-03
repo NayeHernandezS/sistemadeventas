@@ -26,9 +26,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private SuscripcionService suscripcionService;
-
-    @Autowired
     private PlanLimiteService planLimiteService;
 
     @Autowired
@@ -96,12 +93,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public void registrarCuentaAdmin(Usuario usuario, String planCodigo) {
-        registrarCuentaAdmin(usuario, planCodigo, LocalDateTime.now(), DocumentosLegales.VERSION_VIGENTE);
-    }
-
-    @Override
-    public void registrarCuentaAdmin(Usuario usuario, String planCodigo,
+    public void registrarCuentaAdmin(Usuario usuario,
                                      LocalDateTime aceptacionLegalEn, String aceptacionLegalVersion) {
         try {
             if (usuarioReposository.existeUsername(usuario.getUsername())) {
@@ -119,7 +111,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                     usuario.getUsername(),
                     CategoriaPlantillaUtil.paraTipoNegocio(usuario.getTipoNegocio())
             );
-            suscripcionService.iniciarMesGratis(usuario.getUsername(), planCodigo);
             preferenciasTenantService.iniciarOnboarding(usuario.getUsername());
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e.getCause());

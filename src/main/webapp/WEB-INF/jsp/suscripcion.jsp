@@ -38,10 +38,20 @@
                         </div>
                     </c:if>
 
-                    <c:if test="${requierePago}">
-                        <div class="alert alert-warning">
-                            Tu periodo de prueba o suscripcion ha vencido. Contrata un plan para seguir usando el sistema.
-                        </div>
+                    <c:if test="${requierePago || param.eligePlan eq '1'}">
+                        <c:choose>
+                            <c:when test="${empty suscripcion}">
+                                <div class="alert alert-primary">
+                                    <strong>Bienvenido.</strong> Elige un plan para activar tu
+                                    <strong>mes gratis</strong> y empezar a usar el sistema.
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="alert alert-warning">
+                                    Tu periodo de prueba o suscripcion ha vencido. Contrata un plan para seguir usando el sistema.
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
                     </c:if>
 
                     <c:if test="${not empty mensajeExito}">
@@ -81,6 +91,41 @@
                         </div>
                     </c:if>
 
+                    <c:choose>
+                    <c:when test="${empty suscripcion}">
+                        <h2 class="h5">Elige tu plan</h2>
+                        <p class="text-muted mb-4">
+                            Activa <strong>1 mes gratis</strong> con el plan que prefieras. Despues podras renovar desde esta misma pagina.
+                        </p>
+                        <form method="post" action="${pageContext.request.contextPath}/suscripcion/activar-prueba">
+                            <%@ include file="csrf.jspf" %>
+                            <div class="row g-3 mb-3">
+                                <c:forEach items="${planes}" var="plan">
+                                    <div class="col-md-4">
+                                        <label class="card plan-card h-100 p-3">
+                                            <input type="radio" name="planCodigo" value="${plan.codigo}" class="mb-2"
+                                                   ${planCodigoSeleccion == plan.codigo ? 'checked' : ''} required>
+                                            <h3 class="h6 mb-1">${plan.nombre}</h3>
+                                            <p class="mb-1"><strong>$<fmt:formatNumber value="${plan.precioMensual}" minFractionDigits="0"/> / mes</strong></p>
+                                            <p class="small text-muted mb-2">${plan.descripcion}</p>
+                                            <ul class="small mb-0">
+                                                <li>${plan.maxVendedores} vendedores</li>
+                                                <li>${plan.maxProductos} productos</li>
+                                                <li>Soporte incluido</li>
+                                            </ul>
+                                        </label>
+                                    </div>
+                                </c:forEach>
+                            </div>
+                            <c:if test="${not empty errores.planCodigo}">
+                                <div class="text-danger small mb-2">${errores.planCodigo}</div>
+                            </c:if>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Activar 1 mes gratis
+                            </button>
+                        </form>
+                    </c:when>
+                    <c:otherwise>
                     <h2 class="h5">Contratar o cambiar de plan</h2>
                     <p class="text-muted">Todos los planes incluyen soporte directo con la creadora del sistema.</p>
 
@@ -244,6 +289,9 @@
                             </form>
                         </c:if>
                     </c:if>
+
+                    </c:otherwise>
+                    </c:choose>
 
                     <c:if test="${not empty pagos}">
                         <hr>

@@ -76,7 +76,10 @@ public class SuscripcionFiltro implements Filter {
 
         if (rutaPermitidaSinPlan(path, req)) {
             if ("/".equals(path) && RolUtil.esAdmin(req)) {
-                resp.sendRedirect(req.getContextPath() + "/suscripcion?requierePago=1");
+                String query = suscripcionService.consultar(tenantOwner).isEmpty()
+                        ? "eligePlan=1"
+                        : "requierePago=1";
+                resp.sendRedirect(req.getContextPath() + "/suscripcion?" + query);
                 return;
             }
             chain.doFilter(request, response);
@@ -84,7 +87,10 @@ public class SuscripcionFiltro implements Filter {
         }
 
         if (RolUtil.esAdmin(req)) {
-            resp.sendRedirect(req.getContextPath() + "/suscripcion?requierePago=1");
+            String query = suscripcionService.consultar(tenantOwner).isEmpty()
+                    ? "eligePlan=1"
+                    : "requierePago=1";
+            resp.sendRedirect(req.getContextPath() + "/suscripcion?" + query);
             return;
         }
         resp.sendRedirect(req.getContextPath() + "/?sinPlan=1");

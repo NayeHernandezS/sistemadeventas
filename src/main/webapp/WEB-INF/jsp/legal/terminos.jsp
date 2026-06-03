@@ -19,7 +19,7 @@
                     <p class="text-muted">Version ${versionLegal}</p>
 
                     <h2 class="h6 mt-4">1. Objeto</h2>
-                    <p>Regula el uso del software Sistema de Ventas (SaaS) para gestion de ventas, inventario y funciones relacionadas.</p>
+                    <p>Regula el uso del software FUSION DIGITAL (SaaS) para gestion de ventas, inventario y funciones relacionadas.</p>
 
                     <h2 class="h6 mt-3">2. Cuenta</h2>
                     <p>Debes proporcionar datos veraces. Eres responsable de tus credenciales y del uso de tu cuenta.</p>

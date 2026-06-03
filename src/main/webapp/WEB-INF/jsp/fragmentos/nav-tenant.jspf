@@ -3,7 +3,9 @@
     <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2" href="${pageContext.request.contextPath}/" title="Inicio">
             <%@ include file="logo-tenant.jspf" %>
-            <span class="fw-bold fs-5 text-primary d-none d-sm-inline">Mi<span class="text-warning">Sistema</span></span>
+            <span class="fw-bold fs-5 d-none d-sm-inline">
+                <span class="text-primary">FUSION</span> <span class="text-warning">DIGITAL</span>
+            </span>
         </a>
         <div class="ms-auto d-flex align-items-center gap-2 flex-wrap justify-content-end">
             <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/">

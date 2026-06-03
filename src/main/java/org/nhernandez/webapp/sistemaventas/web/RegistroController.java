@@ -1,11 +1,9 @@
 package org.nhernandez.webapp.sistemaventas.web;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.nhernandez.webapp.sistemaventas.models.PlanSuscripcion;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
 import org.nhernandez.webapp.sistemaventas.services.RegistroLegalService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
-import org.nhernandez.webapp.sistemaventas.services.SuscripcionService;
 import org.nhernandez.webapp.sistemaventas.services.UsuarioService;
 import org.nhernandez.webapp.sistemaventas.util.TipoNegocioUtil;
 import org.springframework.stereotype.Controller;
@@ -22,20 +20,17 @@ import java.util.Map;
 public class RegistroController {
 
     private final UsuarioService usuarioService;
-    private final SuscripcionService suscripcionService;
     private final RegistroLegalService registroLegalService;
 
     public RegistroController(UsuarioService usuarioService,
-                              SuscripcionService suscripcionService,
                               RegistroLegalService registroLegalService) {
         this.usuarioService = usuarioService;
-        this.suscripcionService = suscripcionService;
         this.registroLegalService = registroLegalService;
     }
 
     @GetMapping
     public String mostrarFormulario(Model model) {
-        cargarCatalogos(model, null, null);
+        cargarCatalogos(model, null);
         model.addAttribute("versionLegal", registroLegalService.versionVigente());
         return "registro";
     }
@@ -47,7 +42,6 @@ public class RegistroController {
         String confirmar = req.getParameter("confirmarPassword");
         String email = req.getParameter("email");
         String tipoNegocio = req.getParameter("tipoNegocio");
-        String planCodigo = req.getParameter("planCodigo");
         String aceptaTerminos = req.getParameter("aceptaTerminos");
         String aceptaPrivacidad = req.getParameter("aceptaPrivacidad");
 
@@ -76,17 +70,13 @@ public class RegistroController {
         if (!TipoNegocioUtil.esValido(tipoNegocio)) {
             errores.put("tipoNegocio", "Selecciona el tipo de negocio");
         }
-        if (PlanSuscripcion.porCodigo(planCodigo).isEmpty()) {
-            errores.put("planCodigo", "Selecciona un plan");
-        }
-
         if (!errores.isEmpty()) {
             model.addAttribute("errores", errores);
             model.addAttribute("username", username);
             model.addAttribute("email", email);
             model.addAttribute("aceptaTerminos", aceptaTerminos);
             model.addAttribute("aceptaPrivacidad", aceptaPrivacidad);
-            cargarCatalogos(model, tipoNegocio, planCodigo);
+            cargarCatalogos(model, tipoNegocio);
             model.addAttribute("versionLegal", registroLegalService.versionVigente());
             return "registro";
         }
@@ -100,11 +90,10 @@ public class RegistroController {
         try {
             usuarioService.registrarCuentaAdmin(
                     usuario,
-                    planCodigo.trim().toUpperCase(),
                     registroLegalService.momentoAceptacion(),
                     registroLegalService.versionVigente());
             model.addAttribute("mensaje",
-                    "Cuenta creada con 1 mes gratis. Inicia sesion: te guiaremos para cargar tu primer producto.");
+                    "Cuenta creada. Inicia sesion y elige tu plan (1 mes gratis) en el panel de administrador.");
             return "login";
         } catch (ServiceJdbcException e) {
             errores.put("username", e.getMessage());
@@ -113,17 +102,15 @@ public class RegistroController {
             model.addAttribute("email", email);
             model.addAttribute("aceptaTerminos", aceptaTerminos);
             model.addAttribute("aceptaPrivacidad", aceptaPrivacidad);
-            cargarCatalogos(model, tipoNegocio, planCodigo);
+            cargarCatalogos(model, tipoNegocio);
             model.addAttribute("versionLegal", registroLegalService.versionVigente());
             return "registro";
         }
     }
 
-    private void cargarCatalogos(Model model, String tipoNegocio, String planCodigo) {
+    private void cargarCatalogos(Model model, String tipoNegocio) {
         model.addAttribute("tiposNegocio", TipoNegocioUtil.opciones());
-        model.addAttribute("planes", suscripcionService.planesDisponibles());
         model.addAttribute("tipoNegocio", tipoNegocio);
-        model.addAttribute("planCodigo", planCodigo != null ? planCodigo : "EMPRENDEDOR");
         if (!model.containsAttribute("versionLegal")) {
             model.addAttribute("versionLegal", registroLegalService.versionVigente());
         }

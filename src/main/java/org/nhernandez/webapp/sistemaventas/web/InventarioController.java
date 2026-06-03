@@ -47,9 +47,7 @@ public class InventarioController {
     @GetMapping("/movimientos")
     public String movimientos(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
         if (!RolUtil.esAdmin(req)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN,
-                    "Solo el administrador puede consultar movimientos de inventario.");
-            return null;
+            return denegadoInventario(req, "Solo el administrador puede consultar movimientos de inventario.");
         }
         String tenant = TenantUtil.getTenantOwner(req);
         List<MovimientoInventario> movimientos = inventarioMovimientoService.listarRecientes(tenant, 50);
@@ -61,20 +59,16 @@ public class InventarioController {
     @GetMapping("/ajuste")
     public String ajusteGet(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
         if (!RolUtil.esAdmin(req)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN,
-                    "Solo el administrador puede ajustar inventario.");
-            return null;
+            return denegadoInventario(req, "Solo el administrador puede ajustar inventario.");
         }
         String tenant = TenantUtil.getTenantOwner(req);
         long productoId = parseLong(req.getParameter("id"), 0L);
         if (productoId <= 0) {
-            resp.sendRedirect(req.getContextPath() + "/crudprod");
-            return null;
+            return inventarioConMensaje(req, "Selecciona un producto valido para ajustar.");
         }
         Optional<Producto> producto = productoService.porIdPorOwner(productoId, tenant);
         if (producto.isEmpty()) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Producto no pertenece a tu cuenta.");
-            return null;
+            return inventarioConMensaje(req, "Producto no encontrado en tu inventario.");
         }
         model.addAttribute("producto", producto.get());
         model.addAttribute("tiposMovimiento", Arrays.asList(TipoMovimientoInventario.values()));
@@ -84,9 +78,7 @@ public class InventarioController {
     @PostMapping("/ajuste")
     public String ajustePost(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
         if (!RolUtil.esAdmin(req)) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN,
-                    "Solo el administrador puede ajustar inventario.");
-            return null;
+            return denegadoInventario(req, "Solo el administrador puede ajustar inventario.");
         }
 
         String tenant = TenantUtil.getTenantOwner(req);
@@ -106,8 +98,7 @@ public class InventarioController {
                 ? productoService.porIdPorOwner(productoId, tenant)
                 : Optional.empty();
         if (productoOpt.isEmpty()) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Producto no pertenece a tu cuenta.");
-            return null;
+            return inventarioConMensaje(req, "Producto no encontrado en tu inventario.");
         }
 
         if (errores.isEmpty() && tipo != null) {
@@ -155,5 +146,15 @@ public class InventarioController {
         } catch (NumberFormatException e) {
             return defaultValue;
         }
+    }
+
+    private static String denegadoInventario(HttpServletRequest req, String mensaje) {
+        req.getSession().setAttribute("mensajeError", mensaje);
+        return "redirect:/crudprod";
+    }
+
+    private static String inventarioConMensaje(HttpServletRequest req, String mensaje) {
+        req.getSession().setAttribute("mensajeError", mensaje);
+        return "redirect:/crudprod";
     }
 }

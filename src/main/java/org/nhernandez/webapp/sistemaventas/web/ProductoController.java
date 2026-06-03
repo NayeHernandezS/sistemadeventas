@@ -55,10 +55,15 @@ public class ProductoController {
         boolean esAdmin = RolUtil.esAdmin(req);
         List<Producto> productos = service.listarPorOwner(tenant);
         model.addAttribute("productos", productos);
-        model.addAttribute("username", auth.getUsername(req));
+        model.addAttribute("logueado", auth.getUsername(req).isPresent());
         model.addAttribute("esAdmin", esAdmin);
         model.addAttribute("soloLectura", !esAdmin);
         agregarAlertasStock(model, productos, tenant);
+        Object mensajeError = req.getSession().getAttribute("mensajeError");
+        if (mensajeError != null) {
+            model.addAttribute("mensajeError", mensajeError);
+            req.getSession().removeAttribute("mensajeError");
+        }
         return "inventario";
     }
 

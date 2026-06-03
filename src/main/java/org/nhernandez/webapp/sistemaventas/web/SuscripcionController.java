@@ -66,6 +66,40 @@ public class SuscripcionController {
         return "suscripcion";
     }
 
+    @PostMapping("/suscripcion/activar-prueba")
+    public String activarPeriodoPrueba(HttpServletRequest req, Model model, HttpServletResponse resp)
+            throws IOException {
+        if (!RolUtil.esAdmin(req)) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN,
+                    "Solo el administrador de la cuenta puede activar el periodo de prueba.");
+            return null;
+        }
+        String tenant = TenantUtil.getTenantOwner(req);
+        String planCodigo = req.getParameter("planCodigo");
+        Map<String, String> errores = new HashMap<>();
+        if (PlanSuscripcion.porCodigo(planCodigo).isEmpty()) {
+            errores.put("planCodigo", "Selecciona un plan valido");
+        }
+        if (!errores.isEmpty()) {
+            model.addAttribute("errores", errores);
+            if (planCodigo != null && !planCodigo.isBlank()) {
+                model.addAttribute("planCodigoSeleccion", planCodigo.trim().toUpperCase());
+            }
+            cargarDatosSuscripcion(req, model);
+            return "suscripcion";
+        }
+        try {
+            suscripcionService.activarPeriodoPruebaInicial(tenant, planCodigo.trim().toUpperCase());
+            return "redirect:/onboarding";
+        } catch (ServiceJdbcException e) {
+            errores.put("general", e.getMessage());
+            model.addAttribute("errores", errores);
+            model.addAttribute("planCodigoSeleccion", planCodigo.trim().toUpperCase());
+            cargarDatosSuscripcion(req, model);
+            return "suscripcion";
+        }
+    }
+
     @PostMapping("/suscripcion")
     public String suscripcionPost(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
         if (!RolUtil.esAdmin(req)) {
@@ -340,6 +374,13 @@ public class SuscripcionController {
     }
 
     private static String baseUrlPublica(HttpServletRequest req) {
+        String forwardedProto = primerValorHeader(req, "X-Forwarded-Proto");
+        String forwardedHost = primerValorHeader(req, "X-Forwarded-Host");
+        if (forwardedProto != null && forwardedHost != null) {
+            String ctx = req.getContextPath();
+            String pathCtx = (ctx != null && !ctx.isEmpty()) ? ctx : "";
+            return forwardedProto.trim().toLowerCase() + "://" + forwardedHost.trim() + pathCtx;
+        }
         StringBuffer url = req.getRequestURL();
         String uri = req.getRequestURI();
         String base = url.substring(0, url.length() - uri.length());
@@ -348,5 +389,14 @@ public class SuscripcionController {
             base += ctx;
         }
         return base;
+    }
+
+    private static String primerValorHeader(HttpServletRequest req, String nombre) {
+        String valor = req.getHeader(nombre);
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        int coma = valor.indexOf(',');
+        return (coma > 0 ? valor.substring(0, coma) : valor).trim();
     }
 }

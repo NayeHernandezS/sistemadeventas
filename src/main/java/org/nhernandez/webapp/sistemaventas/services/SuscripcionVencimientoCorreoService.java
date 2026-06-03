@@ -32,7 +32,7 @@ public class SuscripcionVencimientoCorreoService {
     private final RecuperacionCorreoService correoService;
     private final SuscripcionCorreoEnviadoRepository correoEnviadoRepository;
 
-    @Value("${app.nombre:Sistema de Ventas}")
+    @Value("${app.nombre:FUSION DIGITAL}")
     private String appNombre;
 
     @Value("${app.base-url:}")

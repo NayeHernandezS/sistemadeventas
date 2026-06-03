@@ -55,10 +55,6 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/productos/form/**"),
                                 new AntPathRequestMatcher("/productos/eliminar"),
                                 new AntPathRequestMatcher("/productos/eliminar/**"),
-                                new AntPathRequestMatcher("/inventario/ajuste"),
-                                new AntPathRequestMatcher("/inventario/ajuste/**"),
-                                new AntPathRequestMatcher("/inventario/movimientos"),
-                                new AntPathRequestMatcher("/inventario/movimientos/**"),
                                 new AntPathRequestMatcher("/factura/reintentar-cfdi"),
                                 new AntPathRequestMatcher("/factura/reintentar-cfdi/**")
                         ).hasRole("ADMIN")

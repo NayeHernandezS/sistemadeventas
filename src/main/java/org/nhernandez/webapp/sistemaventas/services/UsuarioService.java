@@ -18,10 +18,7 @@ public interface UsuarioService {
 
     void eliminarDeTenant(Long id, String tenantOwner);
 
-    void registrarCuentaAdmin(Usuario usuario, String planCodigo);
-
-    void registrarCuentaAdmin(Usuario usuario, String planCodigo,
-                              LocalDateTime aceptacionLegalEn, String aceptacionLegalVersion);
+    void registrarCuentaAdmin(Usuario usuario, LocalDateTime aceptacionLegalEn, String aceptacionLegalVersion);
 
     void cambiarPassword(String username, String passwordActual, String passwordNueva);
 

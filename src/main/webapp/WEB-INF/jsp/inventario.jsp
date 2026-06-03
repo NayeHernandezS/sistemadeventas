@@ -24,6 +24,16 @@
         <div class="alert alert-success">${sessionScope.mensajeExito}</div>
         <c:remove var="mensajeExito" scope="session"/>
     </c:if>
+    <c:if test="${not empty mensajeError}">
+        <div class="alert alert-danger">${mensajeError}</div>
+    </c:if>
+
+    <c:if test="${esAdmin}">
+        <div class="alert alert-info py-2 small mb-3">
+            <strong>Ajustar</strong> registra entradas de mercancia, salidas (merma o uso) o corrige el conteo fisico.
+            Para cambiar nombre, precio o categoria usa <strong>Editar</strong>.
+        </div>
+    </c:if>
 
     <c:if test="${soloLectura}">
         <div class="alert alert-info">
@@ -51,7 +61,7 @@
         </div>
     </c:if>
 
-    <c:if test="${username.present}">
+    <c:if test="${logueado}">
         <div class="mb-3">
             <a class="btn btn-secondary" href="${pageContext.request.contextPath}/">Volver</a>
             <c:if test="${esAdmin}">
@@ -77,7 +87,7 @@
             <th>Existencias</th>
             <th>Precio</th>
             <c:if test="${esAdmin}">
-                <th>Ajustar</th>
+                <th title="Entrada, salida o conteo de existencias">Ajustar stock</th>
                 <th>Editar</th>
                 <th>Eliminar</th>
             </c:if>
@@ -91,7 +101,7 @@
                 </c:if>
                 <td>${p.nombre}</td>
                 <c:if test="${esAdmin}">
-                    <td>${p.categoria.nombre}</td>
+                    <td><c:out value="${empty p.categoria.nombre ? '—' : p.categoria.nombre}"/></td>
                 </c:if>
                 <td>
                     ${p.existencias}
@@ -105,8 +115,10 @@
                 <td>$${p.precio}</td>
                 <c:if test="${esAdmin}">
                     <td>
-                        <a class="btn btn-sm btn-outline-primary"
-                           href="${pageContext.request.contextPath}/inventario/ajuste?id=${p.id}">Ajustar</a>
+                        <c:if test="${p.id != null && p.id > 0}">
+                            <a class="btn btn-sm btn-outline-primary"
+                               href="${pageContext.request.contextPath}/inventario/ajuste?id=${p.id}">Ajustar</a>
+                        </c:if>
                     </td>
                     <td>
                         <a class="btn btn-sm btn-success"

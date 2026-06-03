@@ -19,7 +19,7 @@
                     <p class="text-muted">Version ${versionLegal}</p>
 
                     <h2 class="h6 mt-4">1. Responsable</h2>
-                    <p>El operador de la plataforma Sistema de Ventas, contacto via modulo Soporte.</p>
+                    <p>El operador de la plataforma FUSION DIGITAL, contacto via modulo Soporte.</p>
 
                     <h2 class="h6 mt-3">2. Datos recabados</h2>
                     <ul>

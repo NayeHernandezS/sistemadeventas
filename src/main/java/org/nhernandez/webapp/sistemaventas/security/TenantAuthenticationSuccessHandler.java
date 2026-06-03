@@ -57,7 +57,9 @@ public class TenantAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         if (!suscripcionService.tieneAccesoActivo(tenant)) {
             String destino = RolUtil.esAdmin(usuario)
-                    ? "/suscripcion?requierePago=1"
+                    ? (suscripcionService.consultar(tenant).isEmpty()
+                    ? "/suscripcion?eligePlan=1"
+                    : "/suscripcion?requierePago=1")
                     : "/?sinPlan=1";
             getRedirectStrategy().sendRedirect(request, response, request.getContextPath() + destino);
             return;

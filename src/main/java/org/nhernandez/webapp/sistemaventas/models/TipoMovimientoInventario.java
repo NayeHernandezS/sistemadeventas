@@ -19,6 +19,11 @@ public enum TipoMovimientoInventario {
         return etiqueta;
     }
 
+    /** Expuesto para EL/JSP ({@code ${tipo.name}}). */
+    public String getName() {
+        return name();
+    }
+
     public static Optional<TipoMovimientoInventario> porCodigo(String codigo) {
         if (codigo == null || codigo.isBlank()) {
             return Optional.empty();
