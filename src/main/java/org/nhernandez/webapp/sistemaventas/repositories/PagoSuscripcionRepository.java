@@ -14,6 +14,9 @@ public interface PagoSuscripcionRepository {
 
     PagoSuscripcion porId(Long id) throws SQLException;
 
+    /** Pago ya confirmado con el mismo id de cobro MP (idempotencia webhook). */
+    PagoSuscripcion porMpPaymentId(String mpPaymentId) throws SQLException;
+
     List<PagoSuscripcion> listarPendientes() throws SQLException;
 
     List<PagoSuscripcion> listarPendientesPorUsername(String username) throws SQLException;

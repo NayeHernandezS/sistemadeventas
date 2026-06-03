@@ -17,4 +17,10 @@ public interface PreferenciasTenantService {
     void guardarLogoFilename(String tenantUsername, String logoFilename);
 
     void eliminarLogo(String tenantUsername);
+
+    boolean onboardingCompletado(String tenantUsername);
+
+    void iniciarOnboarding(String tenantUsername);
+
+    void marcarOnboardingCompletado(String tenantUsername);
 }

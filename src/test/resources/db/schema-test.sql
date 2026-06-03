@@ -7,13 +7,28 @@ CREATE TABLE IF NOT EXISTS usuarios (
     email VARCHAR(150) NOT NULL,
     rol VARCHAR(30) NOT NULL DEFAULT 'VENDEDOR',
     admin_owner VARCHAR(100) NULL,
-    tipo_negocio VARCHAR(50) NULL
+    tipo_negocio VARCHAR(50) NULL,
+    aceptacion_legal_en DATETIME NULL,
+    aceptacion_legal_version VARCHAR(20) NULL
 );
 
 CREATE TABLE IF NOT EXISTS categorias (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     owner_username VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS clientes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_owner VARCHAR(100) NOT NULL,
+    nombre VARCHAR(200) NOT NULL,
+    rfc VARCHAR(13) NULL,
+    razon_social VARCHAR(200) NULL,
+    email VARCHAR(150) NULL,
+    codigo_postal VARCHAR(10) NULL,
+    uso_cfdi VARCHAR(10) NULL,
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS productos (
@@ -25,6 +40,19 @@ CREATE TABLE IF NOT EXISTS productos (
     categoria_id BIGINT NOT NULL,
     fecha_registro DATE NOT NULL,
     owner_username VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS movimientos_inventario (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_owner VARCHAR(100) NOT NULL,
+    producto_id BIGINT NOT NULL,
+    tipo VARCHAR(20) NOT NULL,
+    cantidad INT NOT NULL,
+    existencias_antes INT NOT NULL,
+    existencias_despues INT NOT NULL,
+    motivo VARCHAR(255) NULL,
+    username VARCHAR(100) NOT NULL,
+    fecha TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS suscripciones (
@@ -57,6 +85,7 @@ CREATE TABLE IF NOT EXISTS pagos_suscripcion (
 CREATE TABLE IF NOT EXISTS preferencias_tenant (
     tenant_username VARCHAR(100) PRIMARY KEY,
     stock_minimo INT NULL,
+    onboarding_completado TINYINT NOT NULL DEFAULT 0,
     logo_filename VARCHAR(255) NULL
 );
 
@@ -74,6 +103,7 @@ CREATE TABLE IF NOT EXISTS datos_fiscales_negocio (
 CREATE TABLE IF NOT EXISTS facturas (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     ticket_id BIGINT NOT NULL,
+    cliente_id BIGINT NULL,
     folio_factura VARCHAR(40) NOT NULL,
     rfc VARCHAR(13) NOT NULL,
     razon_social VARCHAR(200) NOT NULL,

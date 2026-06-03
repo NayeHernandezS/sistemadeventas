@@ -13,6 +13,13 @@ public interface CfdiTimbradoService {
      */
     void intentarTimbrar(String tenantOwner, TicketVenta ticket, Factura factura);
 
+    /**
+     * Reintenta timbrar una factura que no quedo TIMBRADA. Actualiza datos en BD.
+     *
+     * @return mensaje para mostrar al usuario (exito o error de timbrado)
+     */
+    String reintentarTimbrar(String tenantOwner, TicketVenta ticket, Factura factura);
+
     byte[] descargarPdfTimbrado(Factura factura);
 
     byte[] descargarXmlTimbrado(Factura factura);

@@ -5,6 +5,7 @@ import org.nhernandez.webapp.sistemaventas.repositories.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.nhernandez.webapp.sistemaventas.repositories.UsuarioReposository;
+import org.nhernandez.webapp.sistemaventas.legal.DocumentosLegales;
 import org.nhernandez.webapp.sistemaventas.util.CategoriaPlantillaUtil;
 import org.nhernandez.webapp.sistemaventas.util.PasswordEncodingHelper;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
@@ -12,6 +13,7 @@ import org.nhernandez.webapp.sistemaventas.util.TipoNegocioUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +22,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioReposository usuarioReposository;
     private final CategoriaRepository categoriaRepository;
+    private final PreferenciasTenantService preferenciasTenantService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -31,9 +34,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     public UsuarioServiceImpl(UsuarioReposository usuarioReposository,
                               CategoriaRepository categoriaRepository,
+                              PreferenciasTenantService preferenciasTenantService,
                               PasswordEncoder passwordEncoder) {
         this.usuarioReposository = usuarioReposository;
         this.categoriaRepository = categoriaRepository;
+        this.preferenciasTenantService = preferenciasTenantService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -92,18 +97,30 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public void registrarCuentaAdmin(Usuario usuario, String planCodigo) {
+        registrarCuentaAdmin(usuario, planCodigo, LocalDateTime.now(), DocumentosLegales.VERSION_VIGENTE);
+    }
+
+    @Override
+    public void registrarCuentaAdmin(Usuario usuario, String planCodigo,
+                                     LocalDateTime aceptacionLegalEn, String aceptacionLegalVersion) {
         try {
             if (usuarioReposository.existeUsername(usuario.getUsername())) {
                 throw new ServiceJdbcException("El nombre de usuario ya esta registrado", null);
             }
+            if (aceptacionLegalEn == null || aceptacionLegalVersion == null || aceptacionLegalVersion.isBlank()) {
+                throw new ServiceJdbcException("Se requiere aceptacion de terminos y privacidad", null);
+            }
             usuario.setRol(RolUtil.ROL_ADMIN);
             usuario.setAdminOwner(null);
+            usuario.setAceptacionLegalEn(aceptacionLegalEn);
+            usuario.setAceptacionLegalVersion(aceptacionLegalVersion.trim());
             guardar(usuario);
             categoriaRepository.crearSugeridasSiNoExisten(
                     usuario.getUsername(),
                     CategoriaPlantillaUtil.paraTipoNegocio(usuario.getTipoNegocio())
             );
             suscripcionService.iniciarMesGratis(usuario.getUsername(), planCodigo);
+            preferenciasTenantService.iniciarOnboarding(usuario.getUsername());
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e.getCause());
         }

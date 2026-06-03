@@ -98,6 +98,28 @@ public class SuscripcionRepositoryJdbcImpl implements SuscripcionRepository {
     }
 
     @Override
+    public List<Suscripcion> listarConFechaFinEnDiaPasado(int diasAtras) throws SQLException {
+        int atras = Math.max(diasAtras, 1);
+        LocalDate dia = LocalDate.now().minusDays(atras);
+        LocalDateTime inicio = dia.atStartOfDay();
+        LocalDateTime fin = dia.atTime(LocalTime.MAX);
+        String sql = "SELECT id, username, fecha_inicio, fecha_fin, en_periodo_prueba, estado, plan_codigo, "
+                + "renovacion_automatica, mp_preapproval_id "
+                + "FROM suscripciones WHERE fecha_fin >= ? AND fecha_fin <= ? AND estado = 'ACTIVA'";
+        List<Suscripcion> lista = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setTimestamp(1, Timestamp.valueOf(inicio));
+            stmt.setTimestamp(2, Timestamp.valueOf(fin));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapSuscripcion(rs));
+                }
+            }
+        }
+        return lista;
+    }
+
+    @Override
     public void activarRenovacionAutomatica(String username, String planCodigo, String mpPreapprovalId)
             throws SQLException {
         String sql = "UPDATE suscripciones SET renovacion_automatica = 1, mp_preapproval_id = ?, "

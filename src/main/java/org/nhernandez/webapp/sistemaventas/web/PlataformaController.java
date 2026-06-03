@@ -2,7 +2,9 @@ package org.nhernandez.webapp.sistemaventas.web;
 
 import org.nhernandez.webapp.sistemaventas.models.ClienteCuenta;
 import org.nhernandez.webapp.sistemaventas.models.PlanSuscripcion;
+import org.nhernandez.webapp.sistemaventas.services.MercadoPagoProduccionService;
 import org.nhernandez.webapp.sistemaventas.services.PagoSuscripcionExpiracionService;
+import org.nhernandez.webapp.sistemaventas.services.SuscripcionVencimientoCorreoService;
 import org.nhernandez.webapp.sistemaventas.services.PlataformaService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
 import org.nhernandez.webapp.sistemaventas.services.SoporteService;
@@ -24,13 +26,19 @@ public class PlataformaController {
     private final PlataformaService plataformaService;
     private final SoporteService soporteService;
     private final PagoSuscripcionExpiracionService expiracionService;
+    private final MercadoPagoProduccionService mercadoPagoProduccionService;
+    private final SuscripcionVencimientoCorreoService suscripcionVencimientoCorreoService;
 
     public PlataformaController(PlataformaService plataformaService,
                                 SoporteService soporteService,
-                                PagoSuscripcionExpiracionService expiracionService) {
+                                PagoSuscripcionExpiracionService expiracionService,
+                                MercadoPagoProduccionService mercadoPagoProduccionService,
+                                SuscripcionVencimientoCorreoService suscripcionVencimientoCorreoService) {
         this.plataformaService = plataformaService;
         this.soporteService = soporteService;
         this.expiracionService = expiracionService;
+        this.mercadoPagoProduccionService = mercadoPagoProduccionService;
+        this.suscripcionVencimientoCorreoService = suscripcionVencimientoCorreoService;
     }
 
     @GetMapping
@@ -39,6 +47,8 @@ public class PlataformaController {
         model.addAttribute("pagosPendientes", plataformaService.pagosPendientesGlobales().size());
         model.addAttribute("pagosExpirados", plataformaService.pagosExpiradosGlobales().size());
         model.addAttribute("soporteAbiertas", soporteService.listarAbiertasPlataforma().size());
+        model.addAttribute("mercadoPagoEstado", mercadoPagoProduccionService.evaluar());
+        model.addAttribute("correoSuscripcionHabilitado", suscripcionVencimientoCorreoService.correoHabilitado());
         return "plataforma/inicio";
     }
 
@@ -219,6 +229,26 @@ public class PlataformaController {
     @PostMapping("/pagos/expirar-vencidos")
     public String expirarPagosVencidos(Model model) {
         return pagosAccion("expirarVencidos", null, model);
+    }
+
+    @PostMapping("/correos/enviar-avisos")
+    public String enviarAvisosSuscripcion(Model model) {
+        if (!suscripcionVencimientoCorreoService.correoHabilitado()) {
+            model.addAttribute("mensajeError",
+                    "SMTP no configurado. Completa SMTP_HOST y credenciales en .env.");
+        } else {
+            int enviados = suscripcionVencimientoCorreoService.procesarAvisosManual();
+            model.addAttribute("mensajeExito",
+                    "Proceso de avisos ejecutado. Correos nuevos enviados: " + enviados
+                            + " (los ya enviados para este vencimiento se omiten).");
+        }
+        model.addAttribute("totalClientes", plataformaService.listarClientes().size());
+        model.addAttribute("pagosPendientes", plataformaService.pagosPendientesGlobales().size());
+        model.addAttribute("pagosExpirados", plataformaService.pagosExpiradosGlobales().size());
+        model.addAttribute("soporteAbiertas", soporteService.listarAbiertasPlataforma().size());
+        model.addAttribute("mercadoPagoEstado", mercadoPagoProduccionService.evaluar());
+        model.addAttribute("correoSuscripcionHabilitado", suscripcionVencimientoCorreoService.correoHabilitado());
+        return "plataforma/inicio";
     }
 
     private void cargarVistaPagos(Model model) {

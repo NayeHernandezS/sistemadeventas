@@ -4,6 +4,7 @@ public class PreferenciasTenant {
 
     private String tenantUsername;
     private Integer stockMinimo;
+    private boolean onboardingCompletado;
     private String logoFilename;
 
     public String getTenantUsername() {
@@ -20,6 +21,14 @@ public class PreferenciasTenant {
 
     public void setStockMinimo(Integer stockMinimo) {
         this.stockMinimo = stockMinimo;
+    }
+
+    public boolean isOnboardingCompletado() {
+        return onboardingCompletado;
+    }
+
+    public void setOnboardingCompletado(boolean onboardingCompletado) {
+        this.onboardingCompletado = onboardingCompletado;
     }
 
     public String getLogoFilename() {

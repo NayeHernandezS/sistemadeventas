@@ -1,5 +1,6 @@
 package org.nhernandez.webapp.sistemaventas.repositories;
 
+import org.nhernandez.webapp.sistemaventas.models.ProductoVentaRanking;
 import org.nhernandez.webapp.sistemaventas.models.ResumenVentasVendedor;
 import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 
@@ -26,4 +27,9 @@ public interface TicketRepository {
     TicketVenta porIdDeTenant(Long id, String tenantOwner) throws SQLException;
 
     void actualizarEstado(Long ticketId, String tenantOwner, String estado) throws SQLException;
+
+    List<ProductoVentaRanking> topProductosVendidosPorTenant(String tenantOwner,
+                                                           LocalDateTime inicio,
+                                                           LocalDateTime finExclusivo,
+                                                           int limite) throws SQLException;
 }

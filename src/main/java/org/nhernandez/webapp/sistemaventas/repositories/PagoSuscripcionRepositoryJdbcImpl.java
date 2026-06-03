@@ -70,6 +70,23 @@ public class PagoSuscripcionRepositoryJdbcImpl implements PagoSuscripcionReposit
     }
 
     @Override
+    public PagoSuscripcion porMpPaymentId(String mpPaymentId) throws SQLException {
+        if (mpPaymentId == null || mpPaymentId.isBlank()) {
+            return null;
+        }
+        String sql = "SELECT * FROM pagos_suscripcion WHERE mp_payment_id = ? LIMIT 1";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, mpPaymentId.trim());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapPago(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public List<PagoSuscripcion> listarPendientes() throws SQLException {
         String sql = "SELECT * FROM pagos_suscripcion WHERE estado = 'PENDIENTE' ORDER BY fecha_solicitud ASC";
         return listar(sql);

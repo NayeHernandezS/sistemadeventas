@@ -13,4 +13,8 @@ public interface PreferenciasTenantRepository {
     void actualizarLogoFilename(String tenantUsername, String logoFilename) throws SQLException;
 
     void eliminarLogoFilename(String tenantUsername) throws SQLException;
+
+    void iniciarOnboarding(String tenantUsername) throws SQLException;
+
+    void marcarOnboardingCompletado(String tenantUsername) throws SQLException;
 }

@@ -76,9 +76,23 @@ CREATE DATABASE IF NOT EXISTS java_curso
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-### Migraciones incrementales
+### Migraciones con Flyway (recomendado)
 
-Los scripts en `src/main/resources/db/` extienden el esquema base hacia el SaaS multi-tenant.
+Al arrancar la app, **Flyway** aplica `src/main/resources/db/migration/` (V1–V23). Guia completa: **[docs/FLYWAY.md](docs/FLYWAY.md)**.
+
+```bash
+# Solo migrar, sin levantar Tomcat
+chmod +x deploy/scripts/flyway-migrate.sh
+./deploy/scripts/flyway-migrate.sh
+```
+
+Nuevos cambios de esquema: crea `V24__descripcion.sql` (no edites versiones ya desplegadas). Desactivar: `FLYWAY_ENABLED=false` en `.env`.
+
+En tests de integracion Flyway esta desactivado; se usa `schema-test.sql`.
+
+### Migraciones incrementales (manual / legacy)
+
+Los scripts en `src/main/resources/db/` extienden el esquema base hacia el SaaS multi-tenant. Equivalentes a V2–V23 en Flyway.
 
 **Opcion A — MySQL CLI** (desde la carpeta `db/`):
 
@@ -114,6 +128,12 @@ Orden de migraciones (`migracion_full.sql`):
 13. Mercado Pago (`migracion_mercadopago.sql`)
 14. Renovacion automatica MP (`migracion_renovacion_automatica.sql`)
 15. Logo por tenant (`migracion_tenant_logo.sql`)
+16. Catalogo de clientes (`migracion_clientes.sql`)
+17. Factura vinculada a cliente (`migracion_factura_cliente.sql`)
+18. Movimientos de inventario (`migracion_movimientos_inventario.sql`)
+19. Registro de correos de aviso de suscripcion (`migracion_suscripcion_correos_enviados.sql`)
+20. Onboarding post-registro (`migracion_onboarding_tenant.sql`)
+21. Aceptacion legal en registro (`migracion_aceptacion_legal.sql`)
 
 ---
 
@@ -134,7 +154,7 @@ Variables clave en `.env`:
 |----------|-----|
 | `APP_BASE_URL` | URL HTTPS publica (Mercado Pago, correos, recuperacion de contraseña) |
 | `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | Correo transaccional |
-| `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET` | Pagos en linea |
+| `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET` | Pagos en linea (checklist: [deploy/CHECKLIST_MERCADOPAGO.md](deploy/CHECKLIST_MERCADOPAGO.md)) |
 
 En Docker la app arranca con perfil **`prod`** (cookies seguras, cabeceras detras de Nginx, validacion al inicio).
 
@@ -230,13 +250,22 @@ Pruebas unitarias en `src/test/java` (JUnit 5 + Mockito): suscripciones, limites
 
 ### 1. Registrar una cuenta de negocio
 
-Visita **http://localhost:8080/registro**, elige tipo de negocio y plan. Se crea un usuario **ADMIN** con un mes de prueba gratis.
+Visita **http://localhost:8080/registro**, elige tipo de negocio y plan y acepta **Terminos** y **Privacidad** (version vigente en pantalla). Se crea un usuario **ADMIN** con un mes de prueba gratis. Al iniciar sesion, un asistente de 3 pasos guia categorias, primer producto y ventas (`/onboarding`). Documentos: `docs/TERMINOS_SERVICIO.md`, `docs/AVISO_PRIVACIDAD.md`.
 
 ### 2. Iniciar sesion
 
 **http://localhost:8080/login**
 
 Desde el panel podras acceder a ventas, inventario, categorias, vendedores y reportes.
+
+**Guia para el dueño del negocio (operacion diaria):** [docs/GUIA_OPERATIVA_NEGOCIO.md](docs/GUIA_OPERATIVA_NEGOCIO.md) — entregable en PDF o impreso al dar de alta un cliente.
+
+**Checklist piloto y alta de negocio:** [deploy/CHECKLIST_PILOTO.md](deploy/CHECKLIST_PILOTO.md) — despliegue, migraciones Fase 1, verificacion y backup.
+
+```bash
+chmod +x deploy/scripts/aplicar-migraciones-fase1.sh deploy/scripts/alta-negocio.sh
+./deploy/scripts/alta-negocio.sh
+```
 
 ### 3. Configurar SUPER_ADMIN (panel plataforma)
 
@@ -263,19 +292,20 @@ Cierra sesion y vuelve a entrar. El SUPER_ADMIN es redirigido a **/plataforma**.
 | Rol | Acceso |
 |-----|--------|
 | **VENDEDOR** | Ventas, carrito, tickets, reportes, inventario (solo lectura) |
-| **ADMIN** | Todo lo anterior + productos, categorias, vendedores, suscripcion, soporte |
+| **ADMIN** | Todo lo anterior + productos, categorias, clientes, ajustes de inventario, vendedores, suscripcion, soporte, reintento CFDI |
 | **SUPER_ADMIN** | Panel `/plataforma`: clientes, pagos globales (confirmar/expirar/historial), soporte de todos los tenants |
 
 ---
 
 ## Modulos principales
 
-- **Ventas** — catalogo, carrito, tickets, facturacion basica (RFC, PDF descargable; sin CFDI real)
-- **Inventario** — CRUD de productos con existencias; alertas de stock bajo y agotado; el stock se descuenta al vender y se reintegra en devoluciones
+- **Ventas** — catalogo, carrito, tickets, facturacion (PDF informativo; CFDI Facturama con reintento desde la vista de factura)
+- **Inventario** — CRUD de productos con existencias; entradas, salidas y ajustes con historial; alertas de stock bajo y agotado; el stock se descuenta al vender y se reintegra en devoluciones
 - **Categorias** — CRUD por tenant (solo ADMIN)
+- **Clientes** — catalogo por tenant (ADMIN alta/edita; vendedores consultan); seleccion en carrito precarga RFC y datos fiscales al facturar
 - **Devoluciones** — parciales o totales por ticket
 - **Suscripciones** — planes Emprendedor ($149), Negocio ($249), Pro ($399); **Mercado Pago** (Checkout Pro, MXN) o pago manual (demo); **renovación automática mensual** (MP Preapproval); expiración de pagos pendientes
-- **Reportes** — ventas por vendedor y periodo; totales netos restando devoluciones; exportacion CSV
+- **Reportes** — ventas por vendedor y periodo; totales netos restando devoluciones; exportacion CSV; resumen en inicio (ADMIN): hoy, semana, mes y top productos
 - **Perfil** — datos de cuenta, email, tipo de negocio, uso del plan, datos fiscales por defecto (ADMIN), preferencias de stock (ADMIN), actividad del vendedor, resumen de suscripcion (ADMIN) y cambio de contraseña (`/perfil`)
 - **Recuperación de acceso** — olvidé mi contraseña por email (`/recuperar`); modo demo sin SMTP
 
@@ -304,7 +334,8 @@ src/main/java/.../sistemaventas/
   models/       Entidades y DTOs
 
 src/main/webapp/WEB-INF/jsp/   Vistas JSP
-src/main/resources/db/         Migraciones SQL
+src/main/resources/db/         SQL legacy + schema.sql
+src/main/resources/db/migration/  Migraciones Flyway (V1..Vn)
 ```
 
 ---

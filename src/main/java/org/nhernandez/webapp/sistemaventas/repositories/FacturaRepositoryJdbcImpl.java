@@ -23,13 +23,18 @@ public class FacturaRepositoryJdbcImpl implements FacturaRepository {
     @Override
     public void guardar(Factura factura) throws SQLException {
         String sql = """
-                INSERT INTO facturas (ticket_id, folio_factura, rfc, razon_social, email, direccion, uso_cfdi,
+                INSERT INTO facturas (ticket_id, cliente_id, folio_factura, rfc, razon_social, email, direccion, uso_cfdi,
                     fecha_emision, codigo_postal_receptor, cfdi_estado, cfdi_mensaje)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
                 """;
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             int i = 1;
             stmt.setLong(i++, factura.getTicketId());
+            if (factura.getClienteId() != null && factura.getClienteId() > 0) {
+                stmt.setLong(i++, factura.getClienteId());
+            } else {
+                stmt.setNull(i++, Types.BIGINT);
+            }
             stmt.setString(i++, factura.getFolioFactura());
             stmt.setString(i++, factura.getRfc());
             stmt.setString(i++, factura.getRazonSocial());
@@ -70,9 +75,34 @@ public class FacturaRepositoryJdbcImpl implements FacturaRepository {
     }
 
     @Override
+    public void actualizarDatosReceptor(Factura factura, String tenantOwner) throws SQLException {
+        String sql = """
+                UPDATE facturas f
+                INNER JOIN tickets_venta t ON f.ticket_id = t.id
+                SET f.rfc = ?, f.razon_social = ?, f.email = ?, f.direccion = ?,
+                    f.uso_cfdi = ?, f.codigo_postal_receptor = ?
+                WHERE f.id = ? AND t.tenant_owner = ?
+                """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, factura.getRfc());
+            stmt.setString(2, factura.getRazonSocial());
+            setNullableString(stmt, 3, factura.getEmail());
+            setNullableString(stmt, 4, factura.getDireccion());
+            setNullableString(stmt, 5, factura.getUsoCfdi());
+            setNullableString(stmt, 6, factura.getCodigoPostalReceptor());
+            stmt.setLong(7, factura.getId());
+            stmt.setString(8, tenantOwner);
+            int filas = stmt.executeUpdate();
+            if (filas == 0) {
+                throw new SQLException("Factura no encontrada o sin permiso");
+            }
+        }
+    }
+
+    @Override
     public Factura porTicketId(Long ticketId) throws SQLException {
         String sql = """
-                SELECT id, ticket_id, folio_factura, rfc, razon_social, email, direccion, uso_cfdi, fecha_emision,
+                SELECT id, ticket_id, cliente_id, folio_factura, rfc, razon_social, email, direccion, uso_cfdi, fecha_emision,
                        codigo_postal_receptor, cfdi_uuid, cfdi_estado, cfdi_mensaje, cfdi_proveedor_id
                 FROM facturas WHERE ticket_id = ?
                 """;
@@ -91,6 +121,10 @@ public class FacturaRepositoryJdbcImpl implements FacturaRepository {
         Factura f = new Factura();
         f.setId(rs.getLong("id"));
         f.setTicketId(rs.getLong("ticket_id"));
+        long clienteId = rs.getLong("cliente_id");
+        if (!rs.wasNull()) {
+            f.setClienteId(clienteId);
+        }
         f.setFolioFactura(rs.getString("folio_factura"));
         f.setRfc(rs.getString("rfc"));
         f.setRazonSocial(rs.getString("razon_social"));

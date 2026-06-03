@@ -61,11 +61,35 @@
 </form>
 <form class="mt-3" action="${pageContext.request.contextPath}/carro/finalizar" method="post">
 <%@ include file="csrf.jspf" %>
+    <c:if test="${not empty clienteIdSeleccionado}">
+        <input type="hidden" name="clienteId" value="${clienteIdSeleccionado}">
+    </c:if>
     <div class="card mb-3">
         <div class="card-header">Facturación (opcional)</div>
         <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label" for="clienteCatalogo">Cliente del catalogo</label>
+                <select class="form-select" id="clienteCatalogo" name="clienteCatalogo"
+                        onchange="var v=this.value;var b='${pageContext.request.contextPath}/carro/ver';window.location.href=v?b+'?clienteId='+encodeURIComponent(v):b;">
+                    <option value="">— Sin cliente / usar datos de Mi perfil —</option>
+                    <c:forEach items="${clientes}" var="cl">
+                        <option value="${cl.id}"
+                                <c:if test="${clienteIdSeleccionado eq cl.id}">selected</c:if>>
+                            ${cl.nombre}<c:if test="${not empty cl.rfc}"> (${cl.rfc})</c:if>
+                        </option>
+                    </c:forEach>
+                </select>
+                <div class="form-text">
+                    Al elegir un cliente se precargan sus datos fiscales. Puedes editarlos antes de finalizar.
+                    <a href="${pageContext.request.contextPath}/clientes">Ver catalogo</a>
+                    <c:if test="${esAdmin}"> ·
+                        <a href="${pageContext.request.contextPath}/clientes/form">Nuevo cliente</a>
+                    </c:if>
+                </div>
+            </div>
             <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" name="requiereFactura" value="1" id="requiereFactura">
+                <input class="form-check-input" type="checkbox" name="requiereFactura" value="1" id="requiereFactura"
+                       <c:if test="${not empty clienteIdSeleccionado}">checked</c:if>>
                 <label class="form-check-label" for="requiereFactura">El cliente requiere factura</label>
             </div>
             <p class="small text-muted">Si marca esta opción, complete RFC y razón social. El resto es opcional.</p>
@@ -76,7 +100,10 @@
                     Indique también el código postal del receptor.
                 </div>
             </c:if>
-            <c:if test="${not empty facturaDefaults}">
+            <c:if test="${prefillOrigen eq 'cliente'}">
+                <p class="small text-info">Datos precargados del cliente seleccionado; puede editarlos para este ticket.</p>
+            </c:if>
+            <c:if test="${prefillOrigen eq 'perfil'}">
                 <p class="small text-info">Datos precargados desde Mi perfil; puede editarlos para este ticket.</p>
             </c:if>
             <div class="row g-2">

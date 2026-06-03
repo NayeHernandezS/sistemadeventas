@@ -52,8 +52,74 @@
         </div>
     </div>
 
+    <div class="card mt-4 border-0 shadow-sm">
+        <div class="card-body">
+            <h2 class="h6 mb-2"><i class="bi bi-credit-card-2-front"></i> Mercado Pago (SaaS)</h2>
+            <c:choose>
+                <c:when test="${mercadoPagoEstado.listoProduccion}">
+                    <span class="badge bg-success">Listo para cobrar en linea</span>
+                </c:when>
+                <c:when test="${mercadoPagoEstado.habilitado}">
+                    <span class="badge bg-warning text-dark">Configuracion incompleta</span>
+                </c:when>
+                <c:otherwise>
+                    <span class="badge bg-secondary">Solo pago manual</span>
+                </c:otherwise>
+            </c:choose>
+            <c:if test="${not empty mercadoPagoEstado.webhookUrl}">
+                <p class="small text-muted mb-1 mt-2">Webhook en panel MP:</p>
+                <code class="small user-select-all">${mercadoPagoEstado.webhookUrl}</code>
+            </c:if>
+            <c:if test="${not empty mercadoPagoEstado.advertencias}">
+                <ul class="small text-danger mb-0 mt-2">
+                    <c:forEach items="${mercadoPagoEstado.advertencias}" var="adv">
+                        <li>${adv}</li>
+                    </c:forEach>
+                </ul>
+            </c:if>
+            <p class="small mb-0 mt-2">
+                Guia: <code>deploy/CHECKLIST_MERCADOPAGO.md</code> ·
+                Script: <code>deploy/scripts/verificar-mercadopago.sh</code>
+            </p>
+        </div>
+    </div>
+
+    <div class="card mt-4 border-0 shadow-sm">
+        <div class="card-body">
+            <h2 class="h6 mb-2"><i class="bi bi-envelope"></i> Correos de suscripcion</h2>
+            <c:choose>
+                <c:when test="${correoSuscripcionHabilitado}">
+                    <span class="badge bg-success">SMTP activo</span>
+                    <p class="small text-muted mt-2 mb-2">
+                        Job diario 08:00 (Mexico): avisos a 7, 3, 1 y 0 dias del vencimiento + aviso de plan vencido (ayer).
+                        Requiere tabla <code>suscripcion_correos_enviados</code> (migracion 19).
+                    </p>
+                    <form method="post" action="${pageContext.request.contextPath}/plataforma/correos/enviar-avisos">
+                        <%@ include file="../csrf.jspf" %>
+                        <button type="submit" class="btn btn-outline-primary btn-sm"
+                                onclick="return confirm('Enviar avisos pendientes ahora?');">
+                            Enviar avisos ahora
+                        </button>
+                    </form>
+                </c:when>
+                <c:otherwise>
+                    <span class="badge bg-secondary">SMTP no configurado</span>
+                    <p class="small text-muted mb-0 mt-2">Los avisos solo aparecen en la app. Ver deploy/CHECKLIST_CORREOS.md</p>
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </div>
+
+    <c:if test="${not empty mensajeExito}">
+        <div class="alert alert-success mt-3">${mensajeExito}</div>
+    </c:if>
+    <c:if test="${not empty mensajeError}">
+        <div class="alert alert-danger mt-3">${mensajeError}</div>
+    </c:if>
+
     <div class="alert alert-info mt-4">
         Revisa <strong>Soporte</strong> cuando un cliente envie una solicitud desde su panel de administrador.
+        En <strong>Pagos</strong> puedes expirar solicitudes vencidas (job diario a las 03:30).
     </div>
 </div>
 </body>

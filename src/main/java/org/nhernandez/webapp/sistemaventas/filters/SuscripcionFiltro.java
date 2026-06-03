@@ -107,10 +107,10 @@ public class SuscripcionFiltro implements Filter {
     static boolean esRutaExenta(HttpServletRequest req) {
         String path = normalizarPath(req);
         String method = req.getMethod();
-        if (path.equals("/login") || path.equals("/login.html")) {
-            return "GET".equalsIgnoreCase(method);
+        if (path.equals("/login") || path.equals("/login.html") || path.equals("/login/process")) {
+            return true;
         }
-        if (path.equals("/registro")) {
+        if (path.equals("/registro") || path.startsWith("/registro/")) {
             return "GET".equalsIgnoreCase(method);
         }
         if (path.startsWith("/recuperar")) {
@@ -144,6 +144,9 @@ public class SuscripcionFiltro implements Filter {
             return true;
         }
         if (path.startsWith("/suscripcion")) {
+            return true;
+        }
+        if (path.startsWith("/onboarding")) {
             return true;
         }
         if (path.startsWith("/soporte")) {

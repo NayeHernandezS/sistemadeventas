@@ -7,6 +7,7 @@ import org.nhernandez.webapp.sistemaventas.models.PlanSuscripcion;
 import org.nhernandez.webapp.sistemaventas.models.PagoSuscripcion;
 import org.nhernandez.webapp.sistemaventas.pagos.mercadopago.MercadoPagoCheckoutService;
 import org.nhernandez.webapp.sistemaventas.repositories.UsuarioReposository;
+import org.nhernandez.webapp.sistemaventas.services.MercadoPagoProduccionService;
 import org.nhernandez.webapp.sistemaventas.services.PlanLimiteService;
 import org.nhernandez.webapp.sistemaventas.services.RenovacionAutomaticaService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
@@ -38,19 +39,22 @@ public class SuscripcionController {
     private final SuscripcionAvisoService suscripcionAvisoService;
     private final RenovacionAutomaticaService renovacionAutomaticaService;
     private final UsuarioReposository usuarioRepository;
+    private final MercadoPagoProduccionService mercadoPagoProduccionService;
 
     public SuscripcionController(SuscripcionService suscripcionService,
                                  PlanLimiteService planLimiteService,
                                  MercadoPagoCheckoutService mercadoPagoCheckoutService,
                                  SuscripcionAvisoService suscripcionAvisoService,
                                  RenovacionAutomaticaService renovacionAutomaticaService,
-                                 UsuarioReposository usuarioRepository) {
+                                 UsuarioReposository usuarioRepository,
+                                 MercadoPagoProduccionService mercadoPagoProduccionService) {
         this.suscripcionService = suscripcionService;
         this.planLimiteService = planLimiteService;
         this.mercadoPagoCheckoutService = mercadoPagoCheckoutService;
         this.suscripcionAvisoService = suscripcionAvisoService;
         this.renovacionAutomaticaService = renovacionAutomaticaService;
         this.usuarioRepository = usuarioRepository;
+        this.mercadoPagoProduccionService = mercadoPagoProduccionService;
     }
 
     @GetMapping("/suscripcion")
@@ -321,6 +325,7 @@ public class SuscripcionController {
         }
         model.addAttribute("requierePago", "1".equals(req.getParameter("requierePago")));
         model.addAttribute("mercadoPagoHabilitado", mercadoPagoCheckoutService.habilitado());
+        model.addAttribute("mercadoPagoEstado", mercadoPagoProduccionService.evaluar());
         model.addAttribute("renovacionAutomaticaDisponible", renovacionAutomaticaService.disponible());
         suscripcionAvisoService.evaluar(tenant).ifPresent(a -> model.addAttribute("avisoSuscripcion", a));
     }

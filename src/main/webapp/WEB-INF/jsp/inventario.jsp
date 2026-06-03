@@ -20,6 +20,11 @@
         </c:choose>
     </h1>
 
+    <c:if test="${not empty sessionScope.mensajeExito}">
+        <div class="alert alert-success">${sessionScope.mensajeExito}</div>
+        <c:remove var="mensajeExito" scope="session"/>
+    </c:if>
+
     <c:if test="${soloLectura}">
         <div class="alert alert-info">
             Vista de solo lectura: puedes ver nombre, existencias y precio. No puedes agregar, editar ni eliminar productos.
@@ -52,6 +57,9 @@
             <c:if test="${esAdmin}">
                 <a class="btn btn-primary ms-2" href="${pageContext.request.contextPath}/productos/form">Crear producto [+]</a>
                 <a class="btn btn-outline-primary ms-2" href="${pageContext.request.contextPath}/categorias">Categorias</a>
+                <a class="btn btn-outline-secondary ms-2" href="${pageContext.request.contextPath}/inventario/movimientos">
+                    Historial de movimientos
+                </a>
             </c:if>
         </div>
     </c:if>
@@ -69,6 +77,7 @@
             <th>Existencias</th>
             <th>Precio</th>
             <c:if test="${esAdmin}">
+                <th>Ajustar</th>
                 <th>Editar</th>
                 <th>Eliminar</th>
             </c:if>
@@ -95,6 +104,10 @@
                 </td>
                 <td>$${p.precio}</td>
                 <c:if test="${esAdmin}">
+                    <td>
+                        <a class="btn btn-sm btn-outline-primary"
+                           href="${pageContext.request.contextPath}/inventario/ajuste?id=${p.id}">Ajustar</a>
+                    </td>
                     <td>
                         <a class="btn btn-sm btn-success"
                            href="${pageContext.request.contextPath}/productos/form?id=${p.id}">Editar</a>

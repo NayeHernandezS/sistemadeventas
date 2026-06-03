@@ -16,5 +16,16 @@ WHERE p.id > 0
 -- PASO 3: Obligatorio y no nulo
 ALTER TABLE productos MODIFY owner_username VARCHAR(100) NOT NULL;
 
--- PASO 4: Indice (si ya existe, ignora el error o comenta esta linea)
-CREATE INDEX idx_productos_owner ON productos (owner_username);
+-- PASO 4: Indice (idempotente)
+SET @idx_owner := (
+    SELECT COUNT(*) FROM information_schema.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'productos'
+      AND INDEX_NAME = 'idx_productos_owner'
+);
+SET @sql_idx := IF(@idx_owner = 0,
+    'CREATE INDEX idx_productos_owner ON productos (owner_username)',
+    'SELECT 1');
+PREPARE stmt FROM @sql_idx;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

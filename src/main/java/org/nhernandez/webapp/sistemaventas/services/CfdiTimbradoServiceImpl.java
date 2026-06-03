@@ -42,6 +42,33 @@ public class CfdiTimbradoServiceImpl implements CfdiTimbradoService {
     }
 
     @Override
+    public String reintentarTimbrar(String tenantOwner, TicketVenta ticket, Factura factura) {
+        if (!disponible()) {
+            throw new ServiceJdbcException(
+                    "Timbrado CFDI no esta configurado. Revise credenciales Facturama en el servidor.", null);
+        }
+        if (ticket == null || ticket.getItems() == null || ticket.getItems().isEmpty()) {
+            throw new ServiceJdbcException("El ticket no tiene detalle para timbrar.", null);
+        }
+        if (factura == null || factura.getId() == null) {
+            throw new ServiceJdbcException("No hay factura asociada a este ticket.", null);
+        }
+        if (factura.estaTimbrada()) {
+            throw new ServiceJdbcException("Esta factura ya esta timbrada.", null);
+        }
+        factura.setCfdiEstado("PENDIENTE");
+        factura.setCfdiMensaje(null);
+        intentarTimbrar(tenantOwner, ticket, factura);
+        if (factura.estaTimbrada()) {
+            return "CFDI timbrado correctamente. UUID: " + factura.getCfdiUuid();
+        }
+        String mensaje = factura.getCfdiMensaje();
+        return mensaje != null && !mensaje.isBlank()
+                ? "No se pudo timbrar: " + mensaje
+                : "No se pudo timbrar el CFDI. Revise los datos e intente de nuevo.";
+    }
+
+    @Override
     public void intentarTimbrar(String tenantOwner, TicketVenta ticket, Factura factura) {
         if (!disponible() || factura == null || factura.getId() == null) {
             return;

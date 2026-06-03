@@ -29,6 +29,7 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/login"),
                                 new AntPathRequestMatcher("/login.html"),
                                 new AntPathRequestMatcher("/login.jsp"),
+                                new AntPathRequestMatcher("/login/process"),
                                 new AntPathRequestMatcher("/registro"),
                                 new AntPathRequestMatcher("/registro/**"),
                                 new AntPathRequestMatcher("/recuperar"),
@@ -46,16 +47,26 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/usuarios/**"),
                                 new AntPathRequestMatcher("/admin/**"),
                                 new AntPathRequestMatcher("/categorias/**"),
+                                new AntPathRequestMatcher("/clientes/form"),
+                                new AntPathRequestMatcher("/clientes/form/**"),
+                                new AntPathRequestMatcher("/clientes/eliminar"),
+                                new AntPathRequestMatcher("/clientes/eliminar/**"),
                                 new AntPathRequestMatcher("/productos/form"),
                                 new AntPathRequestMatcher("/productos/form/**"),
                                 new AntPathRequestMatcher("/productos/eliminar"),
-                                new AntPathRequestMatcher("/productos/eliminar/**")
+                                new AntPathRequestMatcher("/productos/eliminar/**"),
+                                new AntPathRequestMatcher("/inventario/ajuste"),
+                                new AntPathRequestMatcher("/inventario/ajuste/**"),
+                                new AntPathRequestMatcher("/inventario/movimientos"),
+                                new AntPathRequestMatcher("/inventario/movimientos/**"),
+                                new AntPathRequestMatcher("/factura/reintentar-cfdi"),
+                                new AntPathRequestMatcher("/factura/reintentar-cfdi/**")
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .loginProcessingUrl("/login")
+                        .loginProcessingUrl("/login/process")
                         .successHandler(successHandler)
                         .failureHandler(failureHandler)
                         .permitAll()

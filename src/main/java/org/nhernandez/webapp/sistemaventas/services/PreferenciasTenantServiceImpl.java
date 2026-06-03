@@ -91,4 +91,36 @@ public class PreferenciasTenantServiceImpl implements PreferenciasTenantService 
             throw new ServiceJdbcException(e.getMessage(), e);
         }
     }
+
+    @Override
+    public boolean onboardingCompletado(String tenantUsername) {
+        if (tenantUsername == null || tenantUsername.isBlank()) {
+            return true;
+        }
+        return consultar(tenantUsername).map(PreferenciasTenant::isOnboardingCompletado).orElse(false);
+    }
+
+    @Override
+    public void iniciarOnboarding(String tenantUsername) {
+        if (tenantUsername == null || tenantUsername.isBlank()) {
+            return;
+        }
+        try {
+            repository.iniciarOnboarding(tenantUsername.trim());
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void marcarOnboardingCompletado(String tenantUsername) {
+        if (tenantUsername == null || tenantUsername.isBlank()) {
+            throw new ServiceJdbcException("Cuenta de negocio no valida", null);
+        }
+        try {
+            repository.marcarOnboardingCompletado(tenantUsername.trim());
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
+        }
+    }
 }

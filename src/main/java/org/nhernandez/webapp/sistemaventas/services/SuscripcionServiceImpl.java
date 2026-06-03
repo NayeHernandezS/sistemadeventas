@@ -4,6 +4,8 @@ import org.nhernandez.webapp.sistemaventas.pagos.mercadopago.MercadoPagoApiClien
 import org.nhernandez.webapp.sistemaventas.pagos.mercadopago.MercadoPagoCheckoutService;
 import org.nhernandez.webapp.sistemaventas.pagos.mercadopago.MercadoPagoException;
 import org.nhernandez.webapp.sistemaventas.pagos.mercadopago.MercadoPagoUrls;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -24,6 +26,7 @@ import java.util.Optional;
 @Service
 public class SuscripcionServiceImpl implements SuscripcionService {
 
+    private static final Logger log = LoggerFactory.getLogger(SuscripcionServiceImpl.class);
     private static final int MESES_GRATIS_DEFAULT = 1;
 
     @Autowired
@@ -266,6 +269,16 @@ public class SuscripcionServiceImpl implements SuscripcionService {
             }
             if (!"PENDIENTE".equals(pago.getEstado())) {
                 return;
+            }
+            if (mpPaymentId != null && !mpPaymentId.isBlank()) {
+                PagoSuscripcion porMp = pagoRepository.porMpPaymentId(mpPaymentId.trim());
+                if (porMp != null && !pagoId.equals(porMp.getId())) {
+                    if ("CONFIRMADO".equals(porMp.getEstado())) {
+                        log.info("Webhook MP duplicado: payment_id={} ya confirmo pago {}", mpPaymentId, porMp.getId());
+                        return;
+                    }
+                    throw new ServiceJdbcException("El pago de Mercado Pago ya esta asociado a otra solicitud", null);
+                }
             }
             if (moneda != null && !moneda.isBlank()
                     && !monedaMercadoPago.equalsIgnoreCase(moneda.trim())) {

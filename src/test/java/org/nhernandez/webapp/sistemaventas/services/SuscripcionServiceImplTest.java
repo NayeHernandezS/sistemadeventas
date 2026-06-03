@@ -187,6 +187,25 @@ class SuscripcionServiceImplTest {
     }
 
     @Test
+    void confirmarPagoMercadoPago_idempotenteSiMpPaymentIdYaConfirmadoEnOtroPago() throws SQLException {
+        PagoSuscripcion pendiente = new PagoSuscripcion();
+        pendiente.setId(8L);
+        pendiente.setEstado("PENDIENTE");
+        pendiente.setMonto(new BigDecimal("149.00"));
+
+        PagoSuscripcion yaConfirmado = new PagoSuscripcion();
+        yaConfirmado.setId(3L);
+        yaConfirmado.setEstado("CONFIRMADO");
+
+        when(pagoRepository.porId(8L)).thenReturn(pendiente);
+        when(pagoRepository.porMpPaymentId("mp-100")).thenReturn(yaConfirmado);
+
+        suscripcionService.confirmarPagoMercadoPago(8L, "mp-100", new BigDecimal("149.00"), "MXN");
+
+        verify(pagoRepository, never()).confirmarMercadoPago(anyLong(), any());
+    }
+
+    @Test
     void cancelarPagoPendienteDelTenant_expiraSoloDelTenant() throws SQLException {
         PagoSuscripcion pago = new PagoSuscripcion();
         pago.setId(5L);

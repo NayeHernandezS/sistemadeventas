@@ -1,5 +1,7 @@
 package org.nhernandez.webapp.sistemaventas.models;
 
+import java.time.LocalDateTime;
+
 public class Usuario {
 
     private Long id;
@@ -9,6 +11,8 @@ public class Usuario {
     private String rol;
     private String adminOwner;
     private String tipoNegocio;
+    private LocalDateTime aceptacionLegalEn;
+    private String aceptacionLegalVersion;
 
     public Long getId() {
         return id;
@@ -64,5 +68,21 @@ public class Usuario {
 
     public void setTipoNegocio(String tipoNegocio) {
         this.tipoNegocio = tipoNegocio;
+    }
+
+    public LocalDateTime getAceptacionLegalEn() {
+        return aceptacionLegalEn;
+    }
+
+    public void setAceptacionLegalEn(LocalDateTime aceptacionLegalEn) {
+        this.aceptacionLegalEn = aceptacionLegalEn;
+    }
+
+    public String getAceptacionLegalVersion() {
+        return aceptacionLegalVersion;
+    }
+
+    public void setAceptacionLegalVersion(String aceptacionLegalVersion) {
+        this.aceptacionLegalVersion = aceptacionLegalVersion;
     }
 }

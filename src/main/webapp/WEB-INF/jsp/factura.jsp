@@ -40,6 +40,9 @@
                 </div>
                 <hr>
                 <h5>Datos del cliente (fiscal)</h5>
+                <c:if test="${not empty clienteCatalogo}">
+                    <p class="mb-1"><strong>Cliente del catalogo:</strong> ${clienteCatalogo.nombre}</p>
+                </c:if>
                 <p class="mb-1"><strong>RFC:</strong> ${factura.rfc}</p>
                 <p class="mb-1"><strong>Razón social / nombre:</strong> ${factura.razonSocial}</p>
                 <c:if test="${not empty factura.email}">
@@ -65,6 +68,9 @@
                         <p class="mb-1"><span class="badge bg-danger">Error de timbrado</span></p>
                         <p class="small text-danger">${factura.cfdiMensaje}</p>
                     </c:when>
+                    <c:when test="${factura.cfdiEstado eq 'PENDIENTE'}">
+                        <p class="mb-1"><span class="badge bg-warning text-dark">Pendiente de timbrado</span></p>
+                    </c:when>
                     <c:otherwise>
                         <p class="mb-1"><span class="badge bg-secondary">Comprobante informativo</span></p>
                         <c:if test="${cfdiTimbradoDisponible}">
@@ -72,6 +78,57 @@
                         </c:if>
                     </c:otherwise>
                 </c:choose>
+
+                <c:if test="${not empty mensajeCfdi}">
+                    <div class="alert alert-info mt-3 no-print">${mensajeCfdi}</div>
+                </c:if>
+
+                <c:if test="${esAdmin && cfdiTimbradoDisponible && not factura.estaTimbrada()}">
+                    <div class="card mt-3 no-print border-warning">
+                        <div class="card-header">Reintentar timbrado CFDI</div>
+                        <div class="card-body">
+                            <p class="small text-muted mb-3">
+                                Corrija los datos del receptor o complete el emisor en
+                                <a href="${pageContext.request.contextPath}/perfil">Mi perfil</a>, luego pulse reintentar.
+                            </p>
+                            <form action="${pageContext.request.contextPath}/factura/reintentar-cfdi" method="post">
+                                <%@ include file="csrf.jspf" %>
+                                <input type="hidden" name="folioTicket" value="${ticket.folio}">
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="rfcReintento">RFC</label>
+                                        <input class="form-control form-control-sm" type="text" name="rfc" id="rfcReintento"
+                                               maxlength="13" value="${factura.rfc}">
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label class="form-label" for="razonReintento">Razon social</label>
+                                        <input class="form-control form-control-sm" type="text" name="razonSocial" id="razonReintento"
+                                               value="${factura.razonSocial}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="cpReintento">C.P. receptor *</label>
+                                        <input class="form-control form-control-sm" type="text" name="codigoPostalReceptor"
+                                               id="cpReintento" maxlength="5" value="${factura.codigoPostalReceptor}" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="usoReintento">Uso CFDI</label>
+                                        <input class="form-control form-control-sm" type="text" name="usoCfdi" id="usoReintento"
+                                               maxlength="10" value="${factura.usoCfdi}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="emailReintento">Correo</label>
+                                        <input class="form-control form-control-sm" type="email" name="emailFactura"
+                                               id="emailReintento" value="${factura.email}">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-warning mt-3">
+                                    <i class="bi bi-arrow-repeat"></i> Reintentar timbrado
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </c:if>
+
                 <hr>
                 <h5>Detalle</h5>
                 <table class="table table-sm table-bordered">

@@ -1,7 +1,11 @@
 package org.nhernandez.webapp.sistemaventas.config;
 
+import org.nhernandez.webapp.sistemaventas.pagos.mercadopago.MercadoPagoCheckoutService;
+import org.nhernandez.webapp.sistemaventas.pagos.mercadopago.MercadoPagoUrls;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.flywaydb.core.Flyway;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -39,9 +43,11 @@ public class DeployStartupChecker implements ApplicationRunner {
     private String mpAccessToken;
 
     private final Environment environment;
+    private final ObjectProvider<Flyway> flywayProvider;
 
-    public DeployStartupChecker(Environment environment) {
+    public DeployStartupChecker(Environment environment, ObjectProvider<Flyway> flywayProvider) {
         this.environment = environment;
+        this.flywayProvider = flywayProvider;
     }
 
     @Override
@@ -70,13 +76,35 @@ public class DeployStartupChecker implements ApplicationRunner {
             log.info("SMTP configurado: {}", smtpHost);
         }
 
-        if (mpAccessToken != null && !mpAccessToken.isBlank()) {
+        if (MercadoPagoCheckoutService.tokenConfigurado(mpAccessToken)) {
             if (mpWebhookSecret == null || mpWebhookSecret.isBlank()) {
                 log.warn("MERCADOPAGO_WEBHOOK_SECRET vacio. En produccion configura la firma de webhooks en el panel MP.");
             } else {
                 log.info("Mercado Pago: token y webhook secret presentes.");
             }
+            if (appBaseUrl != null && MercadoPagoUrls.admiteWebhook(appBaseUrl.trim())) {
+                log.info("Webhook MP: {}/api/mercadopago/notificaciones",
+                        MercadoPagoUrls.sinBarraFinal(appBaseUrl.trim()));
+            } else {
+                log.warn("APP_BASE_URL no apta para webhooks MP (HTTPS publico requerido).");
+            }
+        } else if (mpAccessToken != null && !mpAccessToken.isBlank()) {
+            log.warn("MERCADOPAGO_ACCESS_TOKEN presente pero invalido (revisa credenciales en developers.mercadopago.com).");
         }
+
+        flywayProvider.ifAvailable(flyway -> {
+            var current = flyway.info().current();
+            int pending = flyway.info().pending().length;
+            if (current != null) {
+                log.info("Flyway: version actual {} ({} pendientes)", current.getVersion(), pending);
+            } else {
+                log.warn("Flyway: sin version aplicada ({} pendientes). Revisa db/migration y docs/FLYWAY.md", pending);
+            }
+            if (pending > 0) {
+                log.warn("Flyway tiene {} migracion(es) pendiente(s). Reinicia tras aplicar o ejecuta deploy/scripts/flyway-migrate.sh",
+                        pending);
+            }
+        });
 
         if (Arrays.asList(environment.getActiveProfiles()).contains("prod")) {
             log.info("Despliegue listo. Documentacion: deploy/DEPLOY.md");

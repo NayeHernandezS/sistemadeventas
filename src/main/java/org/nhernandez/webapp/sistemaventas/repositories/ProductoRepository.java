@@ -19,5 +19,7 @@ public interface ProductoRepository {
 
     void descontarExistencias(Long id, String ownerUsername, int cantidad) throws SQLException;
 
+    void actualizarExistencias(Long id, String ownerUsername, int existencias) throws SQLException;
+
     int contarPorOwner(String ownerUsername) throws SQLException;
 }

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.nhernandez.webapp.sistemaventas.configs.MysqlConn;
 
+import org.nhernandez.webapp.sistemaventas.models.ProductoVentaRanking;
 import org.nhernandez.webapp.sistemaventas.models.ResumenVentasVendedor;
 import org.nhernandez.webapp.sistemaventas.models.TicketItem;
 import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
@@ -173,6 +174,45 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
             stmt.setString(3, tenantOwner);
             stmt.executeUpdate();
         }
+    }
+
+    @Override
+    public List<ProductoVentaRanking> topProductosVendidosPorTenant(String tenantOwner,
+                                                                    LocalDateTime inicio,
+                                                                    LocalDateTime finExclusivo,
+                                                                    int limite) throws SQLException {
+        int max = Math.min(Math.max(limite, 1), 20);
+        String sql = """
+                SELECT ti.producto_id, ti.nombre_producto,
+                       SUM(ti.cantidad) AS unidades, SUM(ti.importe) AS importe_total
+                FROM ticket_items ti
+                INNER JOIN tickets_venta t ON ti.ticket_id = t.id
+                WHERE t.tenant_owner = ?
+                  AND t.estado = 'ACTIVO'
+                  AND t.fecha_venta >= ?
+                  AND t.fecha_venta < ?
+                GROUP BY ti.producto_id, ti.nombre_producto
+                ORDER BY unidades DESC, importe_total DESC
+                LIMIT ?
+                """;
+        List<ProductoVentaRanking> ranking = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, tenantOwner);
+            stmt.setTimestamp(2, Timestamp.valueOf(inicio));
+            stmt.setTimestamp(3, Timestamp.valueOf(finExclusivo));
+            stmt.setInt(4, max);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ProductoVentaRanking r = new ProductoVentaRanking();
+                    r.setProductoId(rs.getLong("producto_id"));
+                    r.setNombreProducto(rs.getString("nombre_producto"));
+                    r.setUnidadesVendidas(rs.getInt("unidades"));
+                    r.setImporteTotal(rs.getLong("importe_total"));
+                    ranking.add(r);
+                }
+            }
+        }
+        return ranking;
     }
 
     private void descontarInventario(TicketVenta ticket) throws SQLException {

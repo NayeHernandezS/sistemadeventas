@@ -587,3 +587,94 @@ SET @col = (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'facturas' AND COLUMN_NAME = 'cfdi_proveedor_id');
 SET @sql = IF(@col = 0, 'ALTER TABLE facturas ADD COLUMN cfdi_proveedor_id VARCHAR(80) NULL', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- 16) Catalogo de clientes por tenant
+CREATE TABLE IF NOT EXISTS clientes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_owner VARCHAR(100) NOT NULL,
+    nombre VARCHAR(200) NOT NULL,
+    rfc VARCHAR(13) NULL,
+    razon_social VARCHAR(200) NULL,
+    email VARCHAR(150) NULL,
+    codigo_postal VARCHAR(10) NULL,
+    uso_cfdi VARCHAR(10) NULL,
+    activo TINYINT NOT NULL DEFAULT 1,
+    fecha_registro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_clientes_tenant (tenant_owner),
+    UNIQUE INDEX uk_clientes_tenant_rfc (tenant_owner, rfc)
+);
+
+SET @col = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'facturas' AND COLUMN_NAME = 'cliente_id');
+SET @sql = IF(@col = 0, 'ALTER TABLE facturas ADD COLUMN cliente_id BIGINT NULL AFTER ticket_id', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @idx = (SELECT COUNT(*) FROM information_schema.STATISTICS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'facturas' AND INDEX_NAME = 'idx_facturas_cliente');
+SET @sql = IF(@idx = 0, 'CREATE INDEX idx_facturas_cliente ON facturas (cliente_id)', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+CREATE TABLE IF NOT EXISTS movimientos_inventario (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_owner VARCHAR(100) NOT NULL,
+    producto_id BIGINT NOT NULL,
+    tipo VARCHAR(20) NOT NULL,
+    cantidad INT NOT NULL,
+    existencias_antes INT NOT NULL,
+    existencias_despues INT NOT NULL,
+    motivo VARCHAR(255) NULL,
+    username VARCHAR(100) NOT NULL,
+    fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_mov_tenant_fecha (tenant_owner, fecha),
+    INDEX idx_mov_producto (producto_id)
+);
+
+CREATE TABLE IF NOT EXISTS suscripcion_correos_enviados (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
+    tipo VARCHAR(30) NOT NULL,
+    fecha_vencimiento_ref DATE NOT NULL,
+    fecha_envio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE INDEX uk_suscripcion_correo (username, tipo, fecha_vencimiento_ref),
+    INDEX idx_correo_fecha (fecha_envio)
+);
+
+SET @col_onb = (
+    SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'preferencias_tenant'
+      AND COLUMN_NAME = 'onboarding_completado'
+);
+SET @sql_onb = IF(@col_onb = 0,
+    'ALTER TABLE preferencias_tenant ADD COLUMN onboarding_completado TINYINT NOT NULL DEFAULT 0 AFTER stock_minimo',
+    'SELECT 1');
+PREPARE stmt FROM @sql_onb;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- 21) Aceptacion legal en registro
+SET @col_legal_en = (
+    SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'usuarios'
+      AND COLUMN_NAME = 'aceptacion_legal_en'
+);
+SET @sql_legal_en = IF(@col_legal_en = 0,
+    'ALTER TABLE usuarios ADD COLUMN aceptacion_legal_en DATETIME NULL AFTER tipo_negocio',
+    'SELECT 1');
+PREPARE stmt FROM @sql_legal_en;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @col_legal_ver = (
+    SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'usuarios'
+      AND COLUMN_NAME = 'aceptacion_legal_version'
+);
+SET @sql_legal_ver = IF(@col_legal_ver = 0,
+    'ALTER TABLE usuarios ADD COLUMN aceptacion_legal_version VARCHAR(20) NULL AFTER aceptacion_legal_en',
+    'SELECT 1');
+PREPARE stmt FROM @sql_legal_ver;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

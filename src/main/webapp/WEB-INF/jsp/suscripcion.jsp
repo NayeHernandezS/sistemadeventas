@@ -171,9 +171,12 @@
                     <p class="small text-muted mt-3">
                         <c:choose>
                             <c:when test="${mercadoPagoHabilitado}">
-                                Con Mercado Pago puedes pagar con tarjeta, transferencia SPEI u OXXO (segun disponibilidad).
-                                El plan se activa automaticamente al confirmar el pago.
-                                Los pagos pendientes expiran tras 15 dias (MP) o 30 dias (manual) sin confirmacion.
+                                <strong>Pago en linea:</strong> tarjeta, SPEI u OXXO (segun Mercado Pago).
+                                Al aprobarse el cobro, el plan se activa solo (webhook o al volver desde MP).
+                                Si el pago queda pendiente (SPEI/OXXO), expira en
+                                <strong>${mercadoPagoEstado.diasExpiracionPendiente}</strong> dias sin confirmacion.
+                                <br>
+                                <strong>Pago manual:</strong> la plataforma confirma el deposito; expira en ~30 dias.
                             </c:when>
                             <c:otherwise>
                                 La solicitud queda <strong>PENDIENTE</strong> hasta que la plataforma confirme el pago recibido
@@ -182,6 +185,15 @@
                         </c:choose>
                         Consulta el estado en <a href="${pageContext.request.contextPath}/admin/pagos">Estado de mis pagos</a>.
                     </p>
+
+                    <c:if test="${mercadoPagoHabilitado}">
+                    <div class="alert alert-light border small mt-2">
+                        <i class="bi bi-info-circle"></i>
+                        Tras pagar, si no ves el plan activo de inmediato, abre de nuevo esta pagina o
+                        <a href="${pageContext.request.contextPath}/admin/pagos">Estado de mis pagos</a>
+                        (sincroniza con Mercado Pago). No abras dos checkouts a la vez.
+                    </div>
+                    </c:if>
 
                     <c:if test="${renovacionAutomaticaDisponible}">
                         <hr>

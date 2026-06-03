@@ -6,6 +6,7 @@ public class Factura {
 
     private Long id;
     private Long ticketId;
+    private Long clienteId;
     private String folioFactura;
     private String rfc;
     private String razonSocial;
@@ -33,6 +34,14 @@ public class Factura {
 
     public void setTicketId(Long ticketId) {
         this.ticketId = ticketId;
+    }
+
+    public Long getClienteId() {
+        return clienteId;
+    }
+
+    public void setClienteId(Long clienteId) {
+        this.clienteId = clienteId;
     }
 
     public String getFolioFactura() {

@@ -3,6 +3,9 @@ package org.nhernandez.webapp.sistemaventas.web;
 import jakarta.servlet.http.HttpServletRequest;
 import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
 import org.nhernandez.webapp.sistemaventas.services.InventarioAlertaService;
+import org.nhernandez.webapp.sistemaventas.services.OnboardingService;
+import org.nhernandez.webapp.sistemaventas.services.LoginService;
+import org.nhernandez.webapp.sistemaventas.services.PanelNegocioService;
 import org.nhernandez.webapp.sistemaventas.services.PlanLimiteService;
 import org.nhernandez.webapp.sistemaventas.services.ProductoService;
 import org.nhernandez.webapp.sistemaventas.services.SuscripcionAvisoService;
@@ -19,15 +22,24 @@ public class IndexController {
     private final ProductoService productoService;
     private final InventarioAlertaService inventarioAlertaService;
     private final SuscripcionAvisoService suscripcionAvisoService;
+    private final PanelNegocioService panelNegocioService;
+    private final LoginService loginService;
+    private final OnboardingService onboardingService;
 
     public IndexController(PlanLimiteService planLimiteService,
                            @ProductoServicePrincipal ProductoService productoService,
                            InventarioAlertaService inventarioAlertaService,
-                           SuscripcionAvisoService suscripcionAvisoService) {
+                           SuscripcionAvisoService suscripcionAvisoService,
+                           PanelNegocioService panelNegocioService,
+                           LoginService loginService,
+                           OnboardingService onboardingService) {
         this.planLimiteService = planLimiteService;
         this.productoService = productoService;
         this.inventarioAlertaService = inventarioAlertaService;
         this.suscripcionAvisoService = suscripcionAvisoService;
+        this.panelNegocioService = panelNegocioService;
+        this.loginService = loginService;
+        this.onboardingService = onboardingService;
     }
 
     @GetMapping("/")
@@ -37,6 +49,12 @@ public class IndexController {
         }
         if (RolUtil.esAdmin(req)) {
             String tenant = TenantUtil.getTenantOwner(req);
+            if (onboardingService.requiereOnboarding(tenant)) {
+                return "redirect:/onboarding";
+            }
+            if ("ok".equals(req.getParameter("onboarding"))) {
+                model.addAttribute("mensajeExito", "Configuracion inicial completada. Ya puedes operar tu negocio.");
+            }
             var plan = planLimiteService.planActivo(tenant);
             model.addAttribute("planNombre", plan.getNombre());
             model.addAttribute("vendedoresUsados", planLimiteService.contarVendedores(tenant));
@@ -53,6 +71,9 @@ public class IndexController {
                 model.addAttribute("cantidadAgotados", inventarioAlertaService.contarAgotados(productos));
                 model.addAttribute("cantidadStockBajo", inventarioAlertaService.contarStockBajo(productos, tenant));
             }
+
+            loginService.getUsername(req).ifPresent(user ->
+                    model.addAttribute("panelNegocio", panelNegocioService.resumenParaAdmin(tenant, user)));
         }
         return "index";
     }

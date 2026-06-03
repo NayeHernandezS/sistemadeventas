@@ -87,34 +87,69 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
 
     @Override
     public void guardar(Usuario usuario) throws SQLException {
-        String sql;
         if (usuario.getId() != null && usuario.getId() > 0) {
-            sql = "update usuarios set username=?, password=?, email=?, rol=?, admin_owner=?, tipo_negocio=? where id=?";
-        } else {
-            sql = "insert into usuarios (username, password, email, rol, admin_owner, tipo_negocio) values (?,?,?,?,?,?)";
-        }
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, usuario.getUsername());
-            stmt.setString(2, usuario.getPassword());
-            stmt.setString(3, usuario.getEmail());
-            stmt.setString(4, usuario.getRol());
-            if (usuario.getAdminOwner() != null) {
-                stmt.setString(5, usuario.getAdminOwner());
-            } else {
-                stmt.setNull(5, Types.VARCHAR);
-            }
-            if (usuario.getTipoNegocio() != null && !usuario.getTipoNegocio().isBlank()) {
-                stmt.setString(6, usuario.getTipoNegocio());
-            } else {
-                stmt.setNull(6, Types.VARCHAR);
-            }
-
-            if (usuario.getId() != null && usuario.getId() > 0) {
+            String sql = "update usuarios set username=?, password=?, email=?, rol=?, admin_owner=?, tipo_negocio=? where id=?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                bindUsuarioComun(stmt, usuario);
                 stmt.setLong(7, usuario.getId());
+                stmt.executeUpdate();
             }
+            return;
+        }
+        try {
+            insertarConAceptacionLegal(usuario);
+        } catch (SQLException e) {
+            if (columnasLegalesAusentes(e)) {
+                insertarSinAceptacionLegal(usuario);
+                return;
+            }
+            throw e;
+        }
+    }
 
+    private void insertarConAceptacionLegal(Usuario usuario) throws SQLException {
+        String sql = "insert into usuarios (username, password, email, rol, admin_owner, tipo_negocio, "
+                + "aceptacion_legal_en, aceptacion_legal_version) values (?,?,?,?,?,?,?,?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            bindUsuarioComun(stmt, usuario);
+            if (usuario.getAceptacionLegalEn() != null) {
+                stmt.setTimestamp(7, Timestamp.valueOf(usuario.getAceptacionLegalEn()));
+            } else {
+                stmt.setNull(7, Types.TIMESTAMP);
+            }
+            stmt.setString(8, usuario.getAceptacionLegalVersion());
             stmt.executeUpdate();
         }
+    }
+
+    private void insertarSinAceptacionLegal(Usuario usuario) throws SQLException {
+        String sql = "insert into usuarios (username, password, email, rol, admin_owner, tipo_negocio) values (?,?,?,?,?,?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            bindUsuarioComun(stmt, usuario);
+            stmt.executeUpdate();
+        }
+    }
+
+    private void bindUsuarioComun(PreparedStatement stmt, Usuario usuario) throws SQLException {
+        stmt.setString(1, usuario.getUsername());
+        stmt.setString(2, usuario.getPassword());
+        stmt.setString(3, usuario.getEmail());
+        stmt.setString(4, usuario.getRol());
+        if (usuario.getAdminOwner() != null) {
+            stmt.setString(5, usuario.getAdminOwner());
+        } else {
+            stmt.setNull(5, Types.VARCHAR);
+        }
+        if (usuario.getTipoNegocio() != null && !usuario.getTipoNegocio().isBlank()) {
+            stmt.setString(6, usuario.getTipoNegocio());
+        } else {
+            stmt.setNull(6, Types.VARCHAR);
+        }
+    }
+
+    private static boolean columnasLegalesAusentes(SQLException e) {
+        String msg = e.getMessage();
+        return msg != null && (msg.contains("aceptacion_legal_en") || msg.contains("aceptacion_legal_version"));
     }
 
     @Override
@@ -203,6 +238,15 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
             }
         } catch (SQLException ignored) {
             // columna tipo_negocio opcional si no se ejecuto migracion
+        }
+        try {
+            Timestamp legalEn = rs.getTimestamp("aceptacion_legal_en");
+            if (legalEn != null) {
+                usuario.setAceptacionLegalEn(legalEn.toLocalDateTime());
+            }
+            usuario.setAceptacionLegalVersion(rs.getString("aceptacion_legal_version"));
+        } catch (SQLException ignored) {
+            // columnas legales opcionales
         }
         return usuario;
     }

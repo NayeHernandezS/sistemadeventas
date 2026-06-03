@@ -5,12 +5,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
 import org.nhernandez.webapp.sistemaventas.models.*;
 import org.nhernandez.webapp.sistemaventas.services.CfdiTimbradoService;
+import org.nhernandez.webapp.sistemaventas.services.ClienteService;
 import org.nhernandez.webapp.sistemaventas.services.DatosFiscalesNegocioService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ProductoService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
 import org.nhernandez.webapp.sistemaventas.services.VentaService;
 import org.nhernandez.webapp.sistemaventas.util.FacturaDatosUtil;
+import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,28 +40,32 @@ public class CarroController {
     private final VentaService ventaService;
     private final DatosFiscalesNegocioService datosFiscalesNegocioService;
     private final CfdiTimbradoService cfdiTimbradoService;
+    private final ClienteService clienteService;
 
     public CarroController(@ProductoServicePrincipal ProductoService productoService,
                              Carro carro,
                              LoginService loginService,
                              VentaService ventaService,
                              DatosFiscalesNegocioService datosFiscalesNegocioService,
-                             CfdiTimbradoService cfdiTimbradoService) {
+                             CfdiTimbradoService cfdiTimbradoService,
+                             ClienteService clienteService) {
         this.productoService = productoService;
         this.carro = carro;
         this.loginService = loginService;
         this.ventaService = ventaService;
         this.datosFiscalesNegocioService = datosFiscalesNegocioService;
         this.cfdiTimbradoService = cfdiTimbradoService;
+        this.clienteService = clienteService;
     }
 
     @GetMapping("/ver")
     public String verCarro(HttpServletRequest req, Model model) {
         String tenant = TenantUtil.getTenantOwner(req);
         if (tenant != null) {
-            datosFiscalesNegocioService.consultar(tenant)
-                    .ifPresent(d -> model.addAttribute("facturaDefaults", d));
+            model.addAttribute("clientes", clienteService.listarActivos(tenant));
+            cargarPrefillFactura(req, model, tenant);
         }
+        model.addAttribute("esAdmin", RolUtil.esAdmin(req));
         model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoService.disponible());
         return "carro";
     }
@@ -112,6 +118,7 @@ public class CarroController {
         }
 
         boolean requiereFactura = req.getParameter("requiereFactura") != null;
+        long clienteId = parseLongParam(req.getParameter("clienteId"), 0L);
         String rfc = limpiar(req.getParameter("rfcFactura"));
         String razonSocial = limpiar(req.getParameter("razonSocial"));
         String emailFactura = limpiar(req.getParameter("emailFactura"));
@@ -129,10 +136,19 @@ public class CarroController {
         }
 
         String tenant = TenantUtil.getTenantOwner(req);
+        if (clienteId > 0 && clienteService.porId(tenant, clienteId).isEmpty()) {
+            req.getSession().setAttribute("mensajeError", "El cliente seleccionado no es valido.");
+            resp.sendRedirect(req.getContextPath() + "/carro/ver");
+            return;
+        }
+
         TicketVenta ticket = construirTicket(carro, usernameOpt.get(), tenant);
         Factura factura = null;
         if (requiereFactura) {
             factura = new Factura();
+            if (clienteId > 0) {
+                factura.setClienteId(clienteId);
+            }
             factura.setFolioFactura(generarFolioFactura());
             factura.setRfc(rfc.toUpperCase());
             factura.setRazonSocial(razonSocial);
@@ -246,5 +262,42 @@ public class CarroController {
         String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").format(LocalDateTime.now());
         String sufijo = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
         return "TCK-" + timestamp + "-" + sufijo;
+    }
+
+    private void cargarPrefillFactura(HttpServletRequest req, Model model, String tenant) {
+        long clienteId = parseLongParam(req.getParameter("clienteId"), 0L);
+        if (clienteId > 0) {
+            clienteService.porId(tenant, clienteId).ifPresent(cliente -> {
+                model.addAttribute("facturaDefaults", prefillDesdeCliente(cliente));
+                model.addAttribute("clienteIdSeleccionado", clienteId);
+                model.addAttribute("prefillOrigen", "cliente");
+            });
+            return;
+        }
+        datosFiscalesNegocioService.consultar(tenant).ifPresent(d -> {
+            model.addAttribute("facturaDefaults", d);
+            model.addAttribute("prefillOrigen", "perfil");
+        });
+    }
+
+    private static DatosFiscalesNegocio prefillDesdeCliente(Cliente cliente) {
+        DatosFiscalesNegocio prefill = new DatosFiscalesNegocio();
+        prefill.setRfc(cliente.getRfc());
+        prefill.setRazonSocial(cliente.nombreFiscal());
+        prefill.setEmail(cliente.getEmail());
+        prefill.setUsoCfdi(cliente.getUsoCfdi());
+        prefill.setCodigoPostal(cliente.getCodigoPostal());
+        return prefill;
+    }
+
+    private static long parseLongParam(String value, long defaultValue) {
+        if (value == null || value.isBlank()) {
+            return defaultValue;
+        }
+        try {
+            return Long.parseLong(value.trim());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 }

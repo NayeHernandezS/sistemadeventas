@@ -1,4 +1,5 @@
 -- Migracion completa para base existente (orden recomendado)
+-- Canal preferido en despliegues: Flyway (src/main/resources/db/migration, ver docs/FLYWAY.md)
 -- Ejecutar desde la carpeta db/ para que SOURCE resuelva rutas relativas.
 USE java_curso;
 
@@ -48,3 +49,21 @@ SOURCE migracion_tenant_logo.sql;
 
 -- 15) CFDI timbrado (Facturama)
 SOURCE migracion_cfdi.sql;
+
+-- 16) Catalogo de clientes por tenant
+SOURCE migracion_clientes.sql;
+
+-- 17) Factura vinculada a cliente del catalogo
+SOURCE migracion_factura_cliente.sql;
+
+-- 18) Movimientos de inventario
+SOURCE migracion_movimientos_inventario.sql;
+
+-- 19) Idempotencia correos de aviso de suscripcion
+SOURCE migracion_suscripcion_correos_enviados.sql;
+
+-- 20) Onboarding post-registro
+SOURCE migracion_onboarding_tenant.sql;
+
+-- 21) Aceptacion legal en registro
+SOURCE migracion_aceptacion_legal.sql;

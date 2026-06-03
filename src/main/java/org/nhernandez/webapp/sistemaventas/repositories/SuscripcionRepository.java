@@ -21,6 +21,11 @@ public interface SuscripcionRepository {
      */
     java.util.List<Suscripcion> listarVigentesQueVencenEn(int diasDesdeHoy) throws SQLException;
 
+    /**
+     * Suscripciones cuya fecha_fin cayo en un dia pasado (1 = ayer).
+     */
+    java.util.List<Suscripcion> listarConFechaFinEnDiaPasado(int diasAtras) throws SQLException;
+
     void activarRenovacionAutomatica(String username, String planCodigo, String mpPreapprovalId) throws SQLException;
 
     void desactivarRenovacionAutomatica(String username) throws SQLException;

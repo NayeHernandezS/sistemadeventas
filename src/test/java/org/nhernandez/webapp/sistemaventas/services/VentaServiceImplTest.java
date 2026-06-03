@@ -17,7 +17,10 @@ import org.nhernandez.webapp.sistemaventas.repositories.TicketRepository;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.mockito.ArgumentCaptor;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -84,6 +87,27 @@ class VentaServiceImplTest {
         verify(ticketRepository).guardar(ticket);
         verify(facturaRepository).guardar(factura);
         verify(cfdiTimbradoService).intentarTimbrar("tienda1", ticket, factura);
+    }
+
+    @Test
+    void registrarVenta_facturaConClienteId() throws SQLException {
+        when(productoRepository.porIdPorOwner(1L, "tienda1")).thenReturn(producto);
+        doAnswer(inv -> {
+            TicketVenta t = inv.getArgument(0);
+            t.setId(88L);
+            return null;
+        }).when(ticketRepository).guardar(any(TicketVenta.class));
+
+        Factura factura = new Factura();
+        factura.setFolioFactura("FAC-CLI");
+        factura.setClienteId(7L);
+
+        ventaService.registrarVenta(ticketConItem(1L, 1), factura);
+
+        ArgumentCaptor<Factura> captor = ArgumentCaptor.forClass(Factura.class);
+        verify(facturaRepository).guardar(captor.capture());
+        assertEquals(7L, captor.getValue().getClienteId());
+        assertNotNull(captor.getValue().getTicketId());
     }
 
     @Test

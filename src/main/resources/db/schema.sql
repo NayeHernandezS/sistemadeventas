@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     rol VARCHAR(30) NOT NULL DEFAULT 'VENDEDOR',
     admin_owner VARCHAR(100) NULL,
     tipo_negocio VARCHAR(50) NULL,
+    aceptacion_legal_en DATETIME NULL,
+    aceptacion_legal_version VARCHAR(20) NULL,
     INDEX idx_usuarios_admin_owner (admin_owner)
 );
 
@@ -28,6 +30,21 @@ CREATE TABLE IF NOT EXISTS categorias (
     owner_username VARCHAR(100) NOT NULL,
     UNIQUE INDEX uk_categorias_owner_nombre (owner_username, nombre),
     INDEX idx_categorias_owner (owner_username)
+);
+
+CREATE TABLE IF NOT EXISTS clientes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_owner VARCHAR(100) NOT NULL,
+    nombre VARCHAR(200) NOT NULL,
+    rfc VARCHAR(13) NULL,
+    razon_social VARCHAR(200) NULL,
+    email VARCHAR(150) NULL,
+    codigo_postal VARCHAR(10) NULL,
+    uso_cfdi VARCHAR(10) NULL,
+    activo TINYINT NOT NULL DEFAULT 1,
+    fecha_registro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_clientes_tenant (tenant_owner),
+    UNIQUE INDEX uk_clientes_tenant_rfc (tenant_owner, rfc)
 );
 
 CREATE TABLE IF NOT EXISTS productos (
@@ -41,6 +58,31 @@ CREATE TABLE IF NOT EXISTS productos (
     owner_username VARCHAR(100) NOT NULL,
     INDEX idx_productos_owner (owner_username),
     INDEX idx_productos_categoria (categoria_id)
+);
+
+CREATE TABLE IF NOT EXISTS movimientos_inventario (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_owner VARCHAR(100) NOT NULL,
+    producto_id BIGINT NOT NULL,
+    tipo VARCHAR(20) NOT NULL,
+    cantidad INT NOT NULL,
+    existencias_antes INT NOT NULL,
+    existencias_despues INT NOT NULL,
+    motivo VARCHAR(255) NULL,
+    username VARCHAR(100) NOT NULL,
+    fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_mov_tenant_fecha (tenant_owner, fecha),
+    INDEX idx_mov_producto (producto_id)
+);
+
+CREATE TABLE IF NOT EXISTS suscripcion_correos_enviados (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
+    tipo VARCHAR(30) NOT NULL,
+    fecha_vencimiento_ref DATE NOT NULL,
+    fecha_envio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE INDEX uk_suscripcion_correo (username, tipo, fecha_vencimiento_ref),
+    INDEX idx_correo_fecha (fecha_envio)
 );
 
 CREATE TABLE IF NOT EXISTS tickets_venta (
@@ -70,6 +112,7 @@ CREATE TABLE IF NOT EXISTS ticket_items (
 CREATE TABLE IF NOT EXISTS facturas (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     ticket_id BIGINT NOT NULL,
+    cliente_id BIGINT NULL,
     folio_factura VARCHAR(40) NOT NULL,
     rfc VARCHAR(13) NOT NULL,
     razon_social VARCHAR(200) NOT NULL,
@@ -82,7 +125,8 @@ CREATE TABLE IF NOT EXISTS facturas (
     cfdi_estado VARCHAR(20) NOT NULL DEFAULT 'INFORMATIVO',
     cfdi_mensaje VARCHAR(500) NULL,
     cfdi_proveedor_id VARCHAR(80) NULL,
-    UNIQUE INDEX uk_facturas_ticket (ticket_id)
+    UNIQUE INDEX uk_facturas_ticket (ticket_id),
+    INDEX idx_facturas_cliente (cliente_id)
 );
 
 -- ---------------------------------------------------------------------------
@@ -184,5 +228,6 @@ CREATE TABLE IF NOT EXISTS datos_fiscales_negocio (
 CREATE TABLE IF NOT EXISTS preferencias_tenant (
     tenant_username VARCHAR(100) PRIMARY KEY,
     stock_minimo INT NULL,
+    onboarding_completado TINYINT NOT NULL DEFAULT 0,
     logo_filename VARCHAR(255) NULL
 );

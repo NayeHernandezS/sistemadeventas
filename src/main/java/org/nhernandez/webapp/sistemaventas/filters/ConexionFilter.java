@@ -100,6 +100,9 @@ public class ConexionFilter implements Filter {
         if (path.equals("/registro")) {
             return "GET".equalsIgnoreCase(method);
         }
+        if (path.startsWith("/registro/")) {
+            return "GET".equalsIgnoreCase(method);
+        }
         return path.equals("/logout")
                 || path.startsWith("/css/")
                 || path.startsWith("/img/")

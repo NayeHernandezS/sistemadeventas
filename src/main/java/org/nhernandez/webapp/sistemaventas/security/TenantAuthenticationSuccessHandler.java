@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
+import org.nhernandez.webapp.sistemaventas.services.OnboardingService;
 import org.nhernandez.webapp.sistemaventas.services.SuscripcionService;
 import org.nhernandez.webapp.sistemaventas.util.PlataformaUtil;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
@@ -19,9 +20,12 @@ import java.io.IOException;
 public class TenantAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final SuscripcionService suscripcionService;
+    private final OnboardingService onboardingService;
 
-    public TenantAuthenticationSuccessHandler(SuscripcionService suscripcionService) {
+    public TenantAuthenticationSuccessHandler(SuscripcionService suscripcionService,
+                                                OnboardingService onboardingService) {
         this.suscripcionService = suscripcionService;
+        this.onboardingService = onboardingService;
         setDefaultTargetUrl("/");
         setAlwaysUseDefaultTargetUrl(true);
     }
@@ -56,6 +60,11 @@ public class TenantAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                     ? "/suscripcion?requierePago=1"
                     : "/?sinPlan=1";
             getRedirectStrategy().sendRedirect(request, response, request.getContextPath() + destino);
+            return;
+        }
+
+        if (RolUtil.esAdmin(usuario) && onboardingService.requiereOnboarding(tenant)) {
+            getRedirectStrategy().sendRedirect(request, response, request.getContextPath() + "/onboarding");
             return;
         }
 

@@ -11,4 +11,6 @@ public interface FacturaRepository {
     Factura porTicketId(Long ticketId) throws SQLException;
 
     void actualizarCfdi(Factura factura) throws SQLException;
+
+    void actualizarDatosReceptor(Factura factura, String tenantOwner) throws SQLException;
 }

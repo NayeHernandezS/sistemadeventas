@@ -8,9 +8,11 @@ import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 import org.nhernandez.webapp.sistemaventas.repositories.FacturaRepository;
 import org.nhernandez.webapp.sistemaventas.repositories.TicketRepository;
 import org.nhernandez.webapp.sistemaventas.services.CfdiTimbradoService;
+import org.nhernandez.webapp.sistemaventas.services.ClienteService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ReporteService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
+import org.nhernandez.webapp.sistemaventas.util.FacturaDatosUtil;
 import org.nhernandez.webapp.sistemaventas.util.FacturaPdfExporter;
 import org.nhernandez.webapp.sistemaventas.util.ReporteCsvExporter;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
@@ -18,6 +20,7 @@ import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -39,6 +42,7 @@ public class TicketReporteController {
     private final ReporteCsvExporter reporteCsvExporter;
     private final FacturaPdfExporter facturaPdfExporter;
     private final CfdiTimbradoService cfdiTimbradoService;
+    private final ClienteService clienteService;
 
     public TicketReporteController(TicketRepository ticketRepository,
                                    FacturaRepository facturaRepository,
@@ -46,7 +50,8 @@ public class TicketReporteController {
                                    ReporteService reporteService,
                                    ReporteCsvExporter reporteCsvExporter,
                                    FacturaPdfExporter facturaPdfExporter,
-                                   CfdiTimbradoService cfdiTimbradoService) {
+                                   CfdiTimbradoService cfdiTimbradoService,
+                                   ClienteService clienteService) {
         this.ticketRepository = ticketRepository;
         this.facturaRepository = facturaRepository;
         this.loginService = loginService;
@@ -54,6 +59,7 @@ public class TicketReporteController {
         this.reporteCsvExporter = reporteCsvExporter;
         this.facturaPdfExporter = facturaPdfExporter;
         this.cfdiTimbradoService = cfdiTimbradoService;
+        this.clienteService = clienteService;
     }
 
     @GetMapping("/tickets")
@@ -82,7 +88,112 @@ public class TicketReporteController {
         model.addAttribute("ticket", ticket);
         model.addAttribute("factura", factura);
         model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoService.disponible());
+        model.addAttribute("esAdmin", RolUtil.esAdmin(req));
+        if (factura != null && factura.getClienteId() != null && factura.getClienteId() > 0) {
+            String tenant = TenantUtil.getTenantOwner(req);
+            clienteService.porId(tenant, factura.getClienteId())
+                    .ifPresent(c -> model.addAttribute("clienteCatalogo", c));
+        }
+        Object avisoCfdi = req.getSession().getAttribute("mensajeCfdi");
+        if (avisoCfdi != null) {
+            model.addAttribute("mensajeCfdi", avisoCfdi.toString());
+            req.getSession().removeAttribute("mensajeCfdi");
+        }
         return "factura";
+    }
+
+    @PostMapping("/factura/reintentar-cfdi")
+    public String reintentarCfdi(HttpServletRequest req, HttpServletResponse resp) throws IOException, SQLException {
+        if (!RolUtil.esAdmin(req)) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN,
+                    "Solo el administrador puede reintentar el timbrado CFDI.");
+            return null;
+        }
+        if (!cfdiTimbradoService.disponible()) {
+            req.getSession().setAttribute("mensajeCfdi",
+                    "Timbrado CFDI no configurado en el servidor.");
+            return redirectFactura(req, req.getParameter("folioTicket"));
+        }
+
+        Optional<TicketVenta> ticketOpt = cargarTicket(req, resp);
+        if (ticketOpt.isEmpty()) {
+            return null;
+        }
+        TicketVenta ticket = ticketOpt.get();
+        Factura factura = facturaRepository.porTicketId(ticket.getId());
+        if (factura == null) {
+            req.getSession().setAttribute("mensajeCfdi", "Este ticket no tiene factura registrada.");
+            return redirectFactura(req, ticket.getFolio());
+        }
+
+        String tenant = TenantUtil.getTenantOwner(req);
+        aplicarCorreccionesReceptor(req, factura, tenant);
+
+        try {
+            String mensaje = cfdiTimbradoService.reintentarTimbrar(tenant, ticket, factura);
+            req.getSession().setAttribute("mensajeCfdi", mensaje);
+        } catch (ServiceJdbcException e) {
+            req.getSession().setAttribute("mensajeCfdi", e.getMessage());
+        }
+        return redirectFactura(req, ticket.getFolio());
+    }
+
+    private void aplicarCorreccionesReceptor(HttpServletRequest req, Factura factura, String tenant)
+            throws SQLException {
+        String rfc = limpiarTexto(req.getParameter("rfc"));
+        String razonSocial = limpiarTexto(req.getParameter("razonSocial"));
+        String email = limpiarTexto(req.getParameter("emailFactura"));
+        String direccion = limpiarTexto(req.getParameter("direccionFactura"));
+        String usoCfdi = limpiarTexto(req.getParameter("usoCfdi"));
+        String cp = limpiarTexto(req.getParameter("codigoPostalReceptor"));
+
+        boolean cambio = false;
+        if (!rfc.isBlank()) {
+            String error = FacturaDatosUtil.validarRfcObligatorio(rfc);
+            if (error != null) {
+                throw new ServiceJdbcException(error, null);
+            }
+            factura.setRfc(FacturaDatosUtil.normalizarRfc(rfc));
+            cambio = true;
+        }
+        if (!razonSocial.isBlank()) {
+            factura.setRazonSocial(razonSocial);
+            cambio = true;
+        }
+        if (!email.isBlank()) {
+            factura.setEmail(email);
+            cambio = true;
+        }
+        if (!direccion.isBlank()) {
+            factura.setDireccion(direccion);
+            cambio = true;
+        }
+        if (!usoCfdi.isBlank()) {
+            factura.setUsoCfdi(usoCfdi.toUpperCase());
+            cambio = true;
+        }
+        if (!cp.isBlank()) {
+            if (!cp.matches("\\d{5}")) {
+                throw new ServiceJdbcException("Codigo postal invalido (5 digitos).", null);
+            }
+            factura.setCodigoPostalReceptor(cp);
+            cambio = true;
+        }
+        if (cambio) {
+            facturaRepository.actualizarDatosReceptor(factura, tenant);
+        }
+    }
+
+    private String redirectFactura(HttpServletRequest req, String folio) {
+        String base = req.getContextPath() + "/factura?folioTicket=";
+        if (folio == null || folio.isBlank()) {
+            return "redirect:/tickets";
+        }
+        return "redirect:" + base + folio.trim();
+    }
+
+    private String limpiarTexto(String valor) {
+        return valor == null ? "" : valor.trim();
     }
 
     @GetMapping("/factura/cfdi/pdf")
@@ -221,10 +332,6 @@ public class TicketReporteController {
                 parseFecha(req.getParameter("fechaFin"))
         );
         return Optional.of(reporte);
-    }
-
-    private String limpiarTexto(String texto) {
-        return texto == null ? "" : texto.trim();
     }
 
     private LocalDate parseFecha(String fechaTexto) {

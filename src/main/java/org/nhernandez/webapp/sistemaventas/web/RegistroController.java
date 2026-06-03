@@ -3,6 +3,7 @@ package org.nhernandez.webapp.sistemaventas.web;
 import jakarta.servlet.http.HttpServletRequest;
 import org.nhernandez.webapp.sistemaventas.models.PlanSuscripcion;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
+import org.nhernandez.webapp.sistemaventas.services.RegistroLegalService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
 import org.nhernandez.webapp.sistemaventas.services.SuscripcionService;
 import org.nhernandez.webapp.sistemaventas.services.UsuarioService;
@@ -22,15 +23,20 @@ public class RegistroController {
 
     private final UsuarioService usuarioService;
     private final SuscripcionService suscripcionService;
+    private final RegistroLegalService registroLegalService;
 
-    public RegistroController(UsuarioService usuarioService, SuscripcionService suscripcionService) {
+    public RegistroController(UsuarioService usuarioService,
+                              SuscripcionService suscripcionService,
+                              RegistroLegalService registroLegalService) {
         this.usuarioService = usuarioService;
         this.suscripcionService = suscripcionService;
+        this.registroLegalService = registroLegalService;
     }
 
     @GetMapping
     public String mostrarFormulario(Model model) {
         cargarCatalogos(model, null, null);
+        model.addAttribute("versionLegal", registroLegalService.versionVigente());
         return "registro";
     }
 
@@ -42,8 +48,11 @@ public class RegistroController {
         String email = req.getParameter("email");
         String tipoNegocio = req.getParameter("tipoNegocio");
         String planCodigo = req.getParameter("planCodigo");
+        String aceptaTerminos = req.getParameter("aceptaTerminos");
+        String aceptaPrivacidad = req.getParameter("aceptaPrivacidad");
 
         Map<String, String> errores = new HashMap<>();
+        errores.putAll(registroLegalService.validarAceptacion(aceptaTerminos, aceptaPrivacidad));
 
         if (username == null || username.isBlank()) {
             errores.put("username", "El usuario es requerido");
@@ -75,7 +84,10 @@ public class RegistroController {
             model.addAttribute("errores", errores);
             model.addAttribute("username", username);
             model.addAttribute("email", email);
+            model.addAttribute("aceptaTerminos", aceptaTerminos);
+            model.addAttribute("aceptaPrivacidad", aceptaPrivacidad);
             cargarCatalogos(model, tipoNegocio, planCodigo);
+            model.addAttribute("versionLegal", registroLegalService.versionVigente());
             return "registro";
         }
 
@@ -86,15 +98,23 @@ public class RegistroController {
         usuario.setTipoNegocio(tipoNegocio.trim().toLowerCase());
 
         try {
-            usuarioService.registrarCuentaAdmin(usuario, planCodigo.trim().toUpperCase());
-            model.addAttribute("mensaje", "Cuenta creada con 1 mes gratis. Inicia sesion para usar tu plan.");
+            usuarioService.registrarCuentaAdmin(
+                    usuario,
+                    planCodigo.trim().toUpperCase(),
+                    registroLegalService.momentoAceptacion(),
+                    registroLegalService.versionVigente());
+            model.addAttribute("mensaje",
+                    "Cuenta creada con 1 mes gratis. Inicia sesion: te guiaremos para cargar tu primer producto.");
             return "login";
         } catch (ServiceJdbcException e) {
             errores.put("username", e.getMessage());
             model.addAttribute("errores", errores);
             model.addAttribute("username", username);
             model.addAttribute("email", email);
+            model.addAttribute("aceptaTerminos", aceptaTerminos);
+            model.addAttribute("aceptaPrivacidad", aceptaPrivacidad);
             cargarCatalogos(model, tipoNegocio, planCodigo);
+            model.addAttribute("versionLegal", registroLegalService.versionVigente());
             return "registro";
         }
     }
@@ -104,5 +124,8 @@ public class RegistroController {
         model.addAttribute("planes", suscripcionService.planesDisponibles());
         model.addAttribute("tipoNegocio", tipoNegocio);
         model.addAttribute("planCodigo", planCodigo != null ? planCodigo : "EMPRENDEDOR");
+        if (!model.containsAttribute("versionLegal")) {
+            model.addAttribute("versionLegal", registroLegalService.versionVigente());
+        }
     }
 }

@@ -100,6 +100,30 @@
                 </c:if>
             </div>
 
+            <div class="border rounded p-3 mb-4 bg-light">
+                <p class="small fw-semibold mb-2">Documentos legales (version ${versionLegal})</p>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="aceptaTerminos" id="aceptaTerminos" value="1"
+                           ${aceptaTerminos eq '1' || aceptaTerminos eq 'on' ? 'checked' : ''} required>
+                    <label class="form-check-label small" for="aceptaTerminos">
+                        Acepto los <a href="${pageContext.request.contextPath}/registro/terminos" target="_blank" rel="noopener">Terminos de servicio</a>
+                    </label>
+                </div>
+                <c:if test="${not empty errores.aceptaTerminos}">
+                    <div class="text-danger small mb-2">${errores.aceptaTerminos}</div>
+                </c:if>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="aceptaPrivacidad" id="aceptaPrivacidad" value="1"
+                           ${aceptaPrivacidad eq '1' || aceptaPrivacidad eq 'on' ? 'checked' : ''} required>
+                    <label class="form-check-label small" for="aceptaPrivacidad">
+                        Acepto el <a href="${pageContext.request.contextPath}/registro/privacidad" target="_blank" rel="noopener">Aviso de privacidad</a>
+                    </label>
+                </div>
+                <c:if test="${not empty errores.aceptaPrivacidad}">
+                    <div class="text-danger small mt-2">${errores.aceptaPrivacidad}</div>
+                </c:if>
+            </div>
+
             <button type="submit" class="btn btn-primary w-100 fw-bold py-2 mb-3">REGISTRARME</button>
         </form>
 

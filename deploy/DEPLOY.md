@@ -156,18 +156,35 @@ Deberias ver comprobaciones de `APP_BASE_URL`, SMTP y Mercado Pago.
 
 ## 4. Mercado Pago en produccion
 
-1. Token de **produccion** en `MERCADOPAGO_ACCESS_TOKEN`.
+Checklist detallado: **[CHECKLIST_MERCADOPAGO.md](CHECKLIST_MERCADOPAGO.md)**
+
+```bash
+chmod +x deploy/scripts/verificar-mercadopago.sh
+./deploy/scripts/verificar-mercadopago.sh
+```
+
+1. Token de **produccion** en `MERCADOPAGO_ACCESS_TOKEN` (`APP_USR-...`).
 2. `APP_BASE_URL=https://tu-dominio.com` (HTTPS real).
 3. Webhook en [panel MP](https://www.mercadopago.com.mx/developers/panel/app):
    - URL: `https://tu-dominio.com/api/mercadopago/notificaciones`
    - Copia el **secret** a `MERCADOPAGO_WEBHOOK_SECRET`.
-4. Ejecuta migraciones si la BD es nueva (`schema.sql` se carga al crear el contenedor `db`).
+4. BD nueva: `schema.sql` en el contenedor `db` + **Flyway** al arrancar la app (V1–V23, ver [docs/FLYWAY.md](../docs/FLYWAY.md)).
+5. Pagos MP pendientes expiran automaticamente a las **03:30** (America/Mexico_City); tambien puedes expirar desde `/plataforma/pagos`.
 
 ---
 
 ## 5. Migraciones en BD existente
 
-Si ya tienes MySQL con datos y solo actualizas la app:
+**Recomendado:** arranca la app o ejecuta Flyway (aplica solo versiones pendientes en `flyway_schema_history`):
+
+```bash
+chmod +x deploy/scripts/flyway-migrate.sh
+./deploy/scripts/flyway-migrate.sh
+```
+
+Documentacion: [docs/FLYWAY.md](../docs/FLYWAY.md).
+
+**Legacy (manual):**
 
 ```bash
 mysql -u root -p java_curso < src/main/resources/db/migracion_full.sql
@@ -177,10 +194,19 @@ mysql -u root -p java_curso < src/main/resources/db/migracion_full.sql
 
 ## 6. Verificar SMTP
 
+Checklist detallado: **[CHECKLIST_CORREOS.md](CHECKLIST_CORREOS.md)**
+
+```bash
+chmod +x deploy/scripts/verificar-smtp.sh
+./deploy/scripts/verificar-smtp.sh
+mysql -u root -p java_curso < src/main/resources/db/migracion_suscripcion_correos_enviados.sql
+```
+
 1. Arranca la app con SMTP configurado.
 2. En `/recuperar`, solicita restablecer contraseña con un email registrado.
 3. Debe llegar el correo (revisa spam).
-4. Los avisos de vencimiento de suscripcion se envian a las 8:00 (America/Mexico_City) si SMTP esta activo.
+4. Avisos de suscripcion: job **08:00** (Mexico) + boton **Enviar avisos ahora** en `/plataforma`.
+5. Tabla `suscripcion_correos_enviados` evita correos duplicados por ciclo de vencimiento.
 
 ---
 
@@ -199,7 +225,16 @@ Coloca Nginx delante con la misma config en `deploy/nginx/conf.d/app.conf` apunt
 
 ---
 
-## 8. Copias de seguridad
+## 8. Piloto y alta de un negocio
+
+- Checklist operativo: [CHECKLIST_PILOTO.md](CHECKLIST_PILOTO.md)
+- Script resumen: `./deploy/scripts/alta-negocio.sh`
+- Migraciones Fase 1 en BD existente: `./deploy/scripts/aplicar-migraciones-fase1.sh`
+- Guia para el cliente: [../docs/GUIA_OPERATIVA_NEGOCIO.md](../docs/GUIA_OPERATIVA_NEGOCIO.md)
+
+---
+
+## 9. Copias de seguridad
 
 Respaldar periodicamente:
 
