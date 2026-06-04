@@ -1,0 +1,215 @@
+{
+  "rubro": "farmacia",
+  "productos": [
+    {
+      "nombre": "Paracetamol 500 mg",
+      "sku": "FA015",
+      "categoria": "Medicamentos",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Ibuprofeno 400 mg",
+      "sku": "FA016",
+      "categoria": "Medicamentos",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Antigripal caps",
+      "sku": "FA017",
+      "categoria": "Medicamentos",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Suero oral",
+      "sku": "FA018",
+      "categoria": "Medicamentos",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Alcohol gel 120",
+      "sku": "FA019",
+      "categoria": "Medicamentos",
+      "precio": 28,
+      "existencias": 10
+    },
+    {
+      "nombre": "Vendas elasticas",
+      "sku": "FA020",
+      "categoria": "Medicamentos",
+      "precio": 32,
+      "existencias": 10
+    },
+    {
+      "nombre": "Jabon antibacterial",
+      "sku": "FA021",
+      "categoria": "Higiene",
+      "precio": 22,
+      "existencias": 10
+    },
+    {
+      "nombre": "Shampoo anticaspa",
+      "sku": "FA022",
+      "categoria": "Higiene",
+      "precio": 48,
+      "existencias": 10
+    },
+    {
+      "nombre": "Crema hidratante",
+      "sku": "FA023",
+      "categoria": "Higiene",
+      "precio": 65,
+      "existencias": 10
+    },
+    {
+      "nombre": "Bloqueador solar",
+      "sku": "FA024",
+      "categoria": "Higiene",
+      "precio": 95,
+      "existencias": 10
+    },
+    {
+      "nombre": "Repelente mosquitos",
+      "sku": "FA025",
+      "categoria": "Higiene",
+      "precio": 58,
+      "existencias": 10
+    },
+    {
+      "nombre": "Alcohol etilico",
+      "sku": "FA026",
+      "categoria": "Higiene",
+      "precio": 25,
+      "existencias": 10
+    },
+    {
+      "nombre": "Panal etapa 3",
+      "sku": "FA027",
+      "categoria": "Bebe",
+      "precio": 185,
+      "existencias": 10
+    },
+    {
+      "nombre": "Toallitas humedas",
+      "sku": "FA028",
+      "categoria": "Bebe",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Formula etapa 1",
+      "sku": "FA029",
+      "categoria": "Bebe",
+      "precio": 320,
+      "existencias": 10
+    },
+    {
+      "nombre": "Shampoo bebe",
+      "sku": "FA030",
+      "categoria": "Bebe",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Talco bebe",
+      "sku": "FA031",
+      "categoria": "Bebe",
+      "precio": 38,
+      "existencias": 10
+    },
+    {
+      "nombre": "Termometro digital",
+      "sku": "FA032",
+      "categoria": "Bebe",
+      "precio": 120,
+      "existencias": 10
+    },
+    {
+      "nombre": "Vitamina C 1000",
+      "sku": "FA033",
+      "categoria": "Vitaminas",
+      "precio": 85,
+      "existencias": 10
+    },
+    {
+      "nombre": "Multivitaminico",
+      "sku": "FA034",
+      "categoria": "Vitaminas",
+      "precio": 120,
+      "existencias": 10
+    },
+    {
+      "nombre": "Complejo B",
+      "sku": "FA035",
+      "categoria": "Vitaminas",
+      "precio": 75,
+      "existencias": 10
+    },
+    {
+      "nombre": "Vitamina D3",
+      "sku": "FA036",
+      "categoria": "Vitaminas",
+      "precio": 95,
+      "existencias": 10
+    },
+    {
+      "nombre": "Omega 3 caps",
+      "sku": "FA037",
+      "categoria": "Vitaminas",
+      "precio": 145,
+      "existencias": 10
+    },
+    {
+      "nombre": "Calcio + D",
+      "sku": "FA038",
+      "categoria": "Vitaminas",
+      "precio": 110,
+      "existencias": 10
+    },
+    {
+      "nombre": "Curitas caja",
+      "sku": "FA039",
+      "categoria": "Primeros auxilios",
+      "precio": 28,
+      "existencias": 10
+    },
+    {
+      "nombre": "Gasas esteriles",
+      "sku": "FA040",
+      "categoria": "Primeros auxilios",
+      "precio": 22,
+      "existencias": 10
+    },
+    {
+      "nombre": "Micropore",
+      "sku": "FA041",
+      "categoria": "Primeros auxilios",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Antiseptico",
+      "sku": "FA042",
+      "categoria": "Primeros auxilios",
+      "precio": 42,
+      "existencias": 10
+    },
+    {
+      "nombre": "Algodon 100 g",
+      "sku": "FA043",
+      "categoria": "Primeros auxilios",
+      "precio": 25,
+      "existencias": 10
+    },
+    {
+      "nombre": "Guantes latex",
+      "sku": "FA044",
+      "categoria": "Primeros auxilios",
+      "precio": 38,
+      "existencias": 10
+    }
+  ]
+}

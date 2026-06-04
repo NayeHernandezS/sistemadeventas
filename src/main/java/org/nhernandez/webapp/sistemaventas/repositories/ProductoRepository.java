@@ -22,4 +22,6 @@ public interface ProductoRepository {
     void actualizarExistencias(Long id, String ownerUsername, int existencias) throws SQLException;
 
     int contarPorOwner(String ownerUsername) throws SQLException;
+
+    boolean existeSkuPorOwner(String ownerUsername, String sku) throws SQLException;
 }

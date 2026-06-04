@@ -1,0 +1,215 @@
+{
+  "rubro": "restaurante",
+  "productos": [
+    {
+      "nombre": "Hamburguesa res",
+      "sku": "RE015",
+      "categoria": "Comida",
+      "precio": 85,
+      "existencias": 10
+    },
+    {
+      "nombre": "Hot dog clasico",
+      "sku": "RE016",
+      "categoria": "Comida",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Torta jamon",
+      "sku": "RE017",
+      "categoria": "Comida",
+      "precio": 65,
+      "existencias": 10
+    },
+    {
+      "nombre": "Ensalada mixta",
+      "sku": "RE018",
+      "categoria": "Comida",
+      "precio": 75,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pizza rebanada",
+      "sku": "RE019",
+      "categoria": "Comida",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Tacos orden 3",
+      "sku": "RE020",
+      "categoria": "Comida",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Refresco lata",
+      "sku": "RE021",
+      "categoria": "Bebidas",
+      "precio": 25,
+      "existencias": 10
+    },
+    {
+      "nombre": "Agua embotellada",
+      "sku": "RE022",
+      "categoria": "Bebidas",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cafe americano",
+      "sku": "RE023",
+      "categoria": "Bebidas",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Jugo natural",
+      "sku": "RE024",
+      "categoria": "Bebidas",
+      "precio": 40,
+      "existencias": 10
+    },
+    {
+      "nombre": "Agua de sabor",
+      "sku": "RE025",
+      "categoria": "Bebidas",
+      "precio": 28,
+      "existencias": 10
+    },
+    {
+      "nombre": "Te frio",
+      "sku": "RE026",
+      "categoria": "Bebidas",
+      "precio": 30,
+      "existencias": 10
+    },
+    {
+      "nombre": "Flan casero",
+      "sku": "RE027",
+      "categoria": "Postres",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pastel rebanada",
+      "sku": "RE028",
+      "categoria": "Postres",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Helado 2 bolas",
+      "sku": "RE029",
+      "categoria": "Postres",
+      "precio": 40,
+      "existencias": 10
+    },
+    {
+      "nombre": "Gelatina",
+      "sku": "RE030",
+      "categoria": "Postres",
+      "precio": 25,
+      "existencias": 10
+    },
+    {
+      "nombre": "Brownie",
+      "sku": "RE031",
+      "categoria": "Postres",
+      "precio": 38,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pay manzana",
+      "sku": "RE032",
+      "categoria": "Postres",
+      "precio": 42,
+      "existencias": 10
+    },
+    {
+      "nombre": "Harina trigo 1 kg",
+      "sku": "RE033",
+      "categoria": "Insumos",
+      "precio": 22,
+      "existencias": 10
+    },
+    {
+      "nombre": "Azucar 1 kg",
+      "sku": "RE034",
+      "categoria": "Insumos",
+      "precio": 24,
+      "existencias": 10
+    },
+    {
+      "nombre": "Aceite 900 ml",
+      "sku": "RE035",
+      "categoria": "Insumos",
+      "precio": 36,
+      "existencias": 10
+    },
+    {
+      "nombre": "Sal 1 kg",
+      "sku": "RE036",
+      "categoria": "Insumos",
+      "precio": 12,
+      "existencias": 10
+    },
+    {
+      "nombre": "Tomate kg",
+      "sku": "RE037",
+      "categoria": "Insumos",
+      "precio": 28,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cebolla kg",
+      "sku": "RE038",
+      "categoria": "Insumos",
+      "precio": 22,
+      "existencias": 10
+    },
+    {
+      "nombre": "Vaso foam 12 oz",
+      "sku": "RE039",
+      "categoria": "Desechables",
+      "precio": 2,
+      "existencias": 10
+    },
+    {
+      "nombre": "Plato desechable",
+      "sku": "RE040",
+      "categoria": "Desechables",
+      "precio": 3,
+      "existencias": 10
+    },
+    {
+      "nombre": "Servilletas 100",
+      "sku": "RE041",
+      "categoria": "Desechables",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Popote biodegradable",
+      "sku": "RE042",
+      "categoria": "Desechables",
+      "precio": 1,
+      "existencias": 10
+    },
+    {
+      "nombre": "Contenedor take out",
+      "sku": "RE043",
+      "categoria": "Desechables",
+      "precio": 5,
+      "existencias": 10
+    },
+    {
+      "nombre": "Bolsa delivery",
+      "sku": "RE044",
+      "categoria": "Desechables",
+      "precio": 2,
+      "existencias": 10
+    }
+  ]
+}

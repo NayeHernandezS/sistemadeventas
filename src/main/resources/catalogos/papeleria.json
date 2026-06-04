@@ -1,0 +1,215 @@
+{
+  "rubro": "papeleria",
+  "productos": [
+    {
+      "nombre": "Cuaderno profesional",
+      "sku": "PA015",
+      "categoria": "Cuadernos",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Libreta cosida",
+      "sku": "PA016",
+      "categoria": "Cuadernos",
+      "precio": 28,
+      "existencias": 10
+    },
+    {
+      "nombre": "Block notas",
+      "sku": "PA017",
+      "categoria": "Cuadernos",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Folder carta",
+      "sku": "PA018",
+      "categoria": "Cuadernos",
+      "precio": 12,
+      "existencias": 10
+    },
+    {
+      "nombre": "Sobre manila",
+      "sku": "PA019",
+      "categoria": "Cuadernos",
+      "precio": 3,
+      "existencias": 10
+    },
+    {
+      "nombre": "Block dibujo",
+      "sku": "PA020",
+      "categoria": "Cuadernos",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Lapicero azul",
+      "sku": "PA021",
+      "categoria": "Escritura",
+      "precio": 5,
+      "existencias": 10
+    },
+    {
+      "nombre": "Lapiz #2",
+      "sku": "PA022",
+      "categoria": "Escritura",
+      "precio": 4,
+      "existencias": 10
+    },
+    {
+      "nombre": "Marcador permanente",
+      "sku": "PA023",
+      "categoria": "Escritura",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Corrector liquido",
+      "sku": "PA024",
+      "categoria": "Escritura",
+      "precio": 22,
+      "existencias": 10
+    },
+    {
+      "nombre": "Resaltador amarillo",
+      "sku": "PA025",
+      "categoria": "Escritura",
+      "precio": 15,
+      "existencias": 10
+    },
+    {
+      "nombre": "Goma borrar",
+      "sku": "PA026",
+      "categoria": "Escritura",
+      "precio": 8,
+      "existencias": 10
+    },
+    {
+      "nombre": "Grapadora mediana",
+      "sku": "PA027",
+      "categoria": "Oficina",
+      "precio": 85,
+      "existencias": 10
+    },
+    {
+      "nombre": "Engrapas caja",
+      "sku": "PA028",
+      "categoria": "Oficina",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cinta adhesiva",
+      "sku": "PA029",
+      "categoria": "Oficina",
+      "precio": 25,
+      "existencias": 10
+    },
+    {
+      "nombre": "Tijeras escolar",
+      "sku": "PA030",
+      "categoria": "Oficina",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Calculadora basica",
+      "sku": "PA031",
+      "categoria": "Oficina",
+      "precio": 120,
+      "existencias": 10
+    },
+    {
+      "nombre": "Perforadora 2 orific",
+      "sku": "PA032",
+      "categoria": "Oficina",
+      "precio": 65,
+      "existencias": 10
+    },
+    {
+      "nombre": "Colores 12 pzas",
+      "sku": "PA033",
+      "categoria": "Arte",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Plumones finos",
+      "sku": "PA034",
+      "categoria": "Arte",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pintura acrilica",
+      "sku": "PA035",
+      "categoria": "Arte",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pincel set 3",
+      "sku": "PA036",
+      "categoria": "Arte",
+      "precio": 40,
+      "existencias": 10
+    },
+    {
+      "nombre": "Hoja opalina",
+      "sku": "PA037",
+      "categoria": "Arte",
+      "precio": 5,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pegamento blanco",
+      "sku": "PA038",
+      "categoria": "Arte",
+      "precio": 22,
+      "existencias": 10
+    },
+    {
+      "nombre": "Mochila basica",
+      "sku": "PA039",
+      "categoria": "Escolar",
+      "precio": 299,
+      "existencias": 10
+    },
+    {
+      "nombre": "Lonchera termica",
+      "sku": "PA040",
+      "categoria": "Escolar",
+      "precio": 149,
+      "existencias": 10
+    },
+    {
+      "nombre": "Regla 30 cm",
+      "sku": "PA041",
+      "categoria": "Escolar",
+      "precio": 12,
+      "existencias": 10
+    },
+    {
+      "nombre": "Compas escolar",
+      "sku": "PA042",
+      "categoria": "Escolar",
+      "precio": 25,
+      "existencias": 10
+    },
+    {
+      "nombre": "Tiralineas",
+      "sku": "PA043",
+      "categoria": "Escolar",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cartuchera",
+      "sku": "PA044",
+      "categoria": "Escolar",
+      "precio": 79,
+      "existencias": 10
+    }
+  ]
+}

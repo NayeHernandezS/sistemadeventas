@@ -1,0 +1,215 @@
+{
+  "rubro": "ferreteria",
+  "productos": [
+    {
+      "nombre": "Martillo 16 oz",
+      "sku": "FE015",
+      "categoria": "Herramientas",
+      "precio": 120,
+      "existencias": 10
+    },
+    {
+      "nombre": "Desarmador plano",
+      "sku": "FE016",
+      "categoria": "Herramientas",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pinzas universal",
+      "sku": "FE017",
+      "categoria": "Herramientas",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Flexometro 5 m",
+      "sku": "FE018",
+      "categoria": "Herramientas",
+      "precio": 65,
+      "existencias": 10
+    },
+    {
+      "nombre": "Nivel burbuja",
+      "sku": "FE019",
+      "categoria": "Herramientas",
+      "precio": 85,
+      "existencias": 10
+    },
+    {
+      "nombre": "Llave stillson 10",
+      "sku": "FE020",
+      "categoria": "Herramientas",
+      "precio": 95,
+      "existencias": 10
+    },
+    {
+      "nombre": "Tornillo madera 2",
+      "sku": "FE021",
+      "categoria": "Tornilleria",
+      "precio": 8,
+      "existencias": 10
+    },
+    {
+      "nombre": "Tornillo maq 1/2",
+      "sku": "FE022",
+      "categoria": "Tornilleria",
+      "precio": 6,
+      "existencias": 10
+    },
+    {
+      "nombre": "Taquete 8 mm",
+      "sku": "FE023",
+      "categoria": "Tornilleria",
+      "precio": 5,
+      "existencias": 10
+    },
+    {
+      "nombre": "Clavo 2 pulg",
+      "sku": "FE024",
+      "categoria": "Tornilleria",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Tuerca 3/8",
+      "sku": "FE025",
+      "categoria": "Tornilleria",
+      "precio": 4,
+      "existencias": 10
+    },
+    {
+      "nombre": "Rondana plana",
+      "sku": "FE026",
+      "categoria": "Tornilleria",
+      "precio": 3,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pintura vinilica blanco",
+      "sku": "FE027",
+      "categoria": "Pinturas",
+      "precio": 280,
+      "existencias": 10
+    },
+    {
+      "nombre": "Brocha 2 pulg",
+      "sku": "FE028",
+      "categoria": "Pinturas",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Rodillo 9 pulg",
+      "sku": "FE029",
+      "categoria": "Pinturas",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Thinner 1 L",
+      "sku": "FE030",
+      "categoria": "Pinturas",
+      "precio": 48,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cinta enmascarar",
+      "sku": "FE031",
+      "categoria": "Pinturas",
+      "precio": 25,
+      "existencias": 10
+    },
+    {
+      "nombre": "Sellador 4 L",
+      "sku": "FE032",
+      "categoria": "Pinturas",
+      "precio": 320,
+      "existencias": 10
+    },
+    {
+      "nombre": "Foco LED 9W",
+      "sku": "FE033",
+      "categoria": "Electricidad",
+      "precio": 28,
+      "existencias": 10
+    },
+    {
+      "nombre": "Apagador sencillo",
+      "sku": "FE034",
+      "categoria": "Electricidad",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Contacto duplex",
+      "sku": "FE035",
+      "categoria": "Electricidad",
+      "precio": 42,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cable calibre 12",
+      "sku": "FE036",
+      "categoria": "Electricidad",
+      "precio": 12,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cinta aislar",
+      "sku": "FE037",
+      "categoria": "Electricidad",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Breaker 15A",
+      "sku": "FE038",
+      "categoria": "Electricidad",
+      "precio": 95,
+      "existencias": 10
+    },
+    {
+      "nombre": "Llave mezcladora",
+      "sku": "FE039",
+      "categoria": "Plomeria",
+      "precio": 180,
+      "existencias": 10
+    },
+    {
+      "nombre": "Teflón industrial",
+      "sku": "FE040",
+      "categoria": "Plomeria",
+      "precio": 15,
+      "existencias": 10
+    },
+    {
+      "nombre": "Codo PVC 1/2",
+      "sku": "FE041",
+      "categoria": "Plomeria",
+      "precio": 8,
+      "existencias": 10
+    },
+    {
+      "nombre": "Tubería PVC 3 m",
+      "sku": "FE042",
+      "categoria": "Plomeria",
+      "precio": 65,
+      "existencias": 10
+    },
+    {
+      "nombre": "Silicón sanitario",
+      "sku": "FE043",
+      "categoria": "Plomeria",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Manguera jardin",
+      "sku": "FE044",
+      "categoria": "Plomeria",
+      "precio": 120,
+      "existencias": 10
+    }
+  ]
+}

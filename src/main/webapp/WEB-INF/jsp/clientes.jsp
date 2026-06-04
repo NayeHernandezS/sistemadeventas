@@ -40,7 +40,12 @@
             </p>
         </c:when>
         <c:otherwise>
-            <table class="table table-hover table-striped">
+            <c:set var="buscadorTablaId" value="tablaClientes"/>
+            <c:set var="buscadorEtiqueta" value="cliente"/>
+            <c:set var="buscadorPlaceholder" value="Buscar por nombre, RFC, razon social o correo..."/>
+            <%@ include file="fragmentos/buscador-tabla.jspf" %>
+            <div class="table-responsive">
+            <table id="tablaClientes" class="table table-hover table-striped">
                 <thead>
                 <tr>
                     <th>Nombre</th>
@@ -57,7 +62,8 @@
                 </thead>
                 <tbody>
                 <c:forEach items="${clientes}" var="cl">
-                    <tr>
+                    <tr data-fila-busqueda="1"
+                        data-buscar="${cl.nombre} ${cl.rfc} ${cl.razonSocial} ${cl.email} ${cl.codigoPostal} ${cl.usoCfdi}">
                         <td>${cl.nombre}</td>
                         <td><c:out value="${empty cl.rfc ? '—' : cl.rfc}"/></td>
                         <td><c:out value="${empty cl.razonSocial ? '—' : cl.razonSocial}"/></td>
@@ -79,8 +85,10 @@
                 </c:forEach>
                 </tbody>
             </table>
+            </div>
         </c:otherwise>
     </c:choose>
 </div>
+<script src="${pageContext.request.contextPath}/js/buscador-tabla.js"></script>
 </body>
 </html>

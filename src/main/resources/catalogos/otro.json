@@ -1,0 +1,215 @@
+{
+  "rubro": "otro",
+  "productos": [
+    {
+      "nombre": "Articulo surtido 1",
+      "sku": "OT015",
+      "categoria": "General",
+      "precio": 25,
+      "existencias": 10
+    },
+    {
+      "nombre": "Articulo surtido 2",
+      "sku": "OT016",
+      "categoria": "General",
+      "precio": 30,
+      "existencias": 10
+    },
+    {
+      "nombre": "Articulo surtido 3",
+      "sku": "OT017",
+      "categoria": "General",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Articulo surtido 4",
+      "sku": "OT018",
+      "categoria": "General",
+      "precio": 40,
+      "existencias": 10
+    },
+    {
+      "nombre": "Articulo surtido 5",
+      "sku": "OT019",
+      "categoria": "General",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Articulo surtido 6",
+      "sku": "OT020",
+      "categoria": "General",
+      "precio": 50,
+      "existencias": 10
+    },
+    {
+      "nombre": "Servicio basico",
+      "sku": "OT021",
+      "categoria": "General",
+      "precio": 100,
+      "existencias": 10
+    },
+    {
+      "nombre": "Paquete promocional",
+      "sku": "OT022",
+      "categoria": "General",
+      "precio": 150,
+      "existencias": 10
+    },
+    {
+      "nombre": "Producto generico A",
+      "sku": "OT023",
+      "categoria": "General",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Producto generico B",
+      "sku": "OT024",
+      "categoria": "General",
+      "precio": 65,
+      "existencias": 10
+    },
+    {
+      "nombre": "Producto generico C",
+      "sku": "OT025",
+      "categoria": "General",
+      "precio": 75,
+      "existencias": 10
+    },
+    {
+      "nombre": "Producto generico D",
+      "sku": "OT026",
+      "categoria": "General",
+      "precio": 85,
+      "existencias": 10
+    },
+    {
+      "nombre": "Refaccion menor",
+      "sku": "OT027",
+      "categoria": "General",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Consumible oficina",
+      "sku": "OT028",
+      "categoria": "General",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Insumo operativo",
+      "sku": "OT029",
+      "categoria": "General",
+      "precio": 28,
+      "existencias": 10
+    },
+    {
+      "nombre": "Material apoyo",
+      "sku": "OT030",
+      "categoria": "General",
+      "precio": 22,
+      "existencias": 10
+    },
+    {
+      "nombre": "Accesorio universal",
+      "sku": "OT031",
+      "categoria": "General",
+      "precio": 38,
+      "existencias": 10
+    },
+    {
+      "nombre": "Repuesto estandar",
+      "sku": "OT032",
+      "categoria": "General",
+      "precio": 48,
+      "existencias": 10
+    },
+    {
+      "nombre": "Kit basico",
+      "sku": "OT033",
+      "categoria": "General",
+      "precio": 120,
+      "existencias": 10
+    },
+    {
+      "nombre": "Combo economico",
+      "sku": "OT034",
+      "categoria": "General",
+      "precio": 95,
+      "existencias": 10
+    },
+    {
+      "nombre": "Unidad venta",
+      "sku": "OT035",
+      "categoria": "General",
+      "precio": 15,
+      "existencias": 10
+    },
+    {
+      "nombre": "Unidad mayoreo",
+      "sku": "OT036",
+      "categoria": "General",
+      "precio": 12,
+      "existencias": 10
+    },
+    {
+      "nombre": "Producto estacional",
+      "sku": "OT037",
+      "categoria": "General",
+      "precio": 58,
+      "existencias": 10
+    },
+    {
+      "nombre": "Articulo importado",
+      "sku": "OT038",
+      "categoria": "General",
+      "precio": 180,
+      "existencias": 10
+    },
+    {
+      "nombre": "Mercancia local",
+      "sku": "OT039",
+      "categoria": "General",
+      "precio": 42,
+      "existencias": 10
+    },
+    {
+      "nombre": "Donativo simbolico",
+      "sku": "OT040",
+      "categoria": "General",
+      "precio": 10,
+      "existencias": 10
+    },
+    {
+      "nombre": "Membresia mensual",
+      "sku": "OT041",
+      "categoria": "General",
+      "precio": 199,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cuota servicio",
+      "sku": "OT042",
+      "categoria": "General",
+      "precio": 250,
+      "existencias": 10
+    },
+    {
+      "nombre": "Deposito garantia",
+      "sku": "OT043",
+      "categoria": "General",
+      "precio": 500,
+      "existencias": 10
+    },
+    {
+      "nombre": "Ajuste inventario",
+      "sku": "OT044",
+      "categoria": "General",
+      "precio": 1,
+      "existencias": 10
+    }
+  ]
+}

@@ -99,8 +99,11 @@
         <div class="col-lg-8">
             <form id="formCarro" name="formcarro" action="${pageContext.request.contextPath}/carro/actualizar" method="post">
                 <%@ include file="csrf.jspf" %>
+                <c:set var="buscadorTablaId" value="tablaProductosCarro"/>
+                <c:set var="buscadorPlaceholder" value="Buscar producto en el carro..."/>
+                <%@ include file="fragmentos/buscador-tabla.jspf" %>
                 <div class="table-responsive">
-                    <table class="table table-hover table-striped mb-0">
+                    <table id="tablaProductosCarro" class="table table-hover table-striped mb-0">
                         <thead>
                         <tr>
                             <th>Producto</th>
@@ -113,7 +116,8 @@
                         </thead>
                         <tbody>
                         <c:forEach items="${carro.items}" var="item">
-                        <tr>
+                        <tr data-fila-busqueda="1"
+                            data-buscar="${item.producto.nombre} ${item.producto.id} ${item.producto.sku}">
                             <td>
                                 <span class="fw-semibold">${item.producto.nombre}</span>
                                 <span class="text-muted small d-block">#${item.producto.id}</span>
@@ -308,5 +312,6 @@
         panel.addEventListener('hide.bs.collapse', function () { sincronizarFlecha(false); });
     })();
 </script>
+<script src="${pageContext.request.contextPath}/js/buscador-tabla.js"></script>
 </body>
 </html>

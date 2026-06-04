@@ -37,7 +37,12 @@
                    value="${motivo}" placeholder="Ej. producto defectuoso, cambio de talla">
         </div>
 
-        <table class="table table-bordered">
+        <c:set var="buscadorTablaId" value="tablaProductosDevolucion"/>
+        <c:set var="buscadorPlaceholder" value="Buscar producto del ticket..."/>
+        <%@ include file="fragmentos/buscador-tabla.jspf" %>
+
+        <div class="table-responsive">
+        <table id="tablaProductosDevolucion" class="table table-bordered">
             <thead>
             <tr>
                 <th>Producto</th>
@@ -49,7 +54,7 @@
             </thead>
             <tbody>
             <c:forEach items="${lineas}" var="l">
-                <tr>
+                <tr data-fila-busqueda="1" data-buscar="${l.nombreProducto} ${l.productoId}">
                     <td>${l.nombreProducto}</td>
                     <td>$${l.precioUnitario}</td>
                     <td>${l.cantidadVendida}</td>
@@ -64,10 +69,12 @@
             </c:forEach>
             </tbody>
         </table>
+        </div>
 
         <button type="submit" class="btn btn-primary">Registrar devolucion</button>
         <a class="btn btn-secondary" href="${pageContext.request.contextPath}/devoluciones">Cancelar</a>
     </form>
 </div>
+<script src="${pageContext.request.contextPath}/js/buscador-tabla.js"></script>
 </body>
 </html>

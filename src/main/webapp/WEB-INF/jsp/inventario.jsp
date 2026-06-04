@@ -74,7 +74,12 @@
         </div>
     </c:if>
 
-    <table class="table table-hover table-striped">
+    <c:set var="buscadorTablaId" value="tablaProductosInventario"/>
+    <c:set var="buscadorPlaceholder" value="Buscar por nombre, SKU, categoria o ID..."/>
+    <%@ include file="fragmentos/buscador-tabla.jspf" %>
+
+    <div class="table-responsive">
+    <table id="tablaProductosInventario" class="table table-hover table-striped">
         <thead>
         <tr>
             <c:if test="${esAdmin}">
@@ -95,7 +100,9 @@
         </thead>
         <tbody>
         <c:forEach items="${productos}" var="p">
-            <tr class="${p.existencias == 0 ? 'table-danger' : (p.existencias <= stockMinimo ? 'table-warning' : '')}">
+            <tr data-fila-busqueda="1"
+                data-buscar="${p.nombre} ${p.sku} ${p.categoria.nombre} ${p.id}"
+                class="${p.existencias == 0 ? 'table-danger' : (p.existencias <= stockMinimo ? 'table-warning' : '')}">
                 <c:if test="${esAdmin}">
                     <td>${p.id}</td>
                 </c:if>
@@ -134,6 +141,8 @@
         </c:forEach>
         </tbody>
     </table>
+    </div>
 </div>
+<script src="${pageContext.request.contextPath}/js/buscador-tabla.js"></script>
 </body>
 </html>

@@ -42,6 +42,9 @@ class UsuarioServicePerfilTest {
     @Mock
     private PreferenciasTenantService preferenciasTenantService;
 
+    @Mock
+    private CatalogoPlantillaService catalogoPlantillaService;
+
     @InjectMocks
     private UsuarioServiceImpl usuarioService;
 

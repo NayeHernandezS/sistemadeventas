@@ -1,0 +1,28 @@
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<div class="mb-3 buscador-tabla-wrap">
+    <div class="row g-2 align-items-center">
+        <div class="col-md-6 col-lg-5">
+            <label class="form-label visually-hidden" for="buscador-${buscadorTablaId}">Buscar productos</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
+                <input type="search" class="form-control buscador-tabla-input"
+                       id="buscador-${buscadorTablaId}"
+                       data-tabla-id="${buscadorTablaId}"
+                       data-etiqueta="${empty buscadorEtiqueta ? 'producto' : buscadorEtiqueta}"
+                       placeholder="${empty buscadorPlaceholder ? 'Buscar producto...' : buscadorPlaceholder}"
+                       autocomplete="off">
+                <button type="button" class="btn btn-outline-secondary buscador-tabla-limpiar"
+                        data-tabla-id="${buscadorTablaId}" title="Limpiar busqueda" aria-label="Limpiar busqueda">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-auto">
+            <small class="text-muted buscador-tabla-contador" data-tabla-id="${buscadorTablaId}"></small>
+        </div>
+    </div>
+    <div class="alert alert-light border mt-2 mb-0 py-2 small d-none buscador-tabla-vacio"
+         data-tabla-id="${buscadorTablaId}" role="status">
+        <i class="bi bi-search"></i> No hay resultados que coincidan con tu busqueda.
+    </div>
+</div>

@@ -24,6 +24,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final CategoriaRepository categoriaRepository;
     private final PreferenciasTenantService preferenciasTenantService;
     private final PasswordEncoder passwordEncoder;
+    private final CatalogoPlantillaService catalogoPlantillaService;
 
     @Autowired
     private PlanLimiteService planLimiteService;
@@ -32,11 +33,13 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioServiceImpl(UsuarioReposository usuarioReposository,
                               CategoriaRepository categoriaRepository,
                               PreferenciasTenantService preferenciasTenantService,
-                              PasswordEncoder passwordEncoder) {
+                              PasswordEncoder passwordEncoder,
+                              CatalogoPlantillaService catalogoPlantillaService) {
         this.usuarioReposository = usuarioReposository;
         this.categoriaRepository = categoriaRepository;
         this.preferenciasTenantService = preferenciasTenantService;
         this.passwordEncoder = passwordEncoder;
+        this.catalogoPlantillaService = catalogoPlantillaService;
     }
 
     @Override
@@ -112,6 +115,10 @@ public class UsuarioServiceImpl implements UsuarioService {
                     CategoriaPlantillaUtil.paraTipoNegocio(usuario.getTipoNegocio())
             );
             preferenciasTenantService.iniciarOnboarding(usuario.getUsername());
+            catalogoPlantillaService.importarCatalogoInicial(
+                    usuario.getUsername(),
+                    usuario.getTipoNegocio()
+            );
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e.getCause());
         }

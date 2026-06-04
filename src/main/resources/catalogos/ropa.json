@@ -1,0 +1,215 @@
+{
+  "rubro": "ropa",
+  "productos": [
+    {
+      "nombre": "Blusa basica M",
+      "sku": "RO015",
+      "categoria": "Dama",
+      "precio": 199,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pantalon mezclilla",
+      "sku": "RO016",
+      "categoria": "Dama",
+      "precio": 349,
+      "existencias": 10
+    },
+    {
+      "nombre": "Vestido casual",
+      "sku": "RO017",
+      "categoria": "Dama",
+      "precio": 399,
+      "existencias": 10
+    },
+    {
+      "nombre": "Falda tableada",
+      "sku": "RO018",
+      "categoria": "Dama",
+      "precio": 249,
+      "existencias": 10
+    },
+    {
+      "nombre": "Sueter basico",
+      "sku": "RO019",
+      "categoria": "Dama",
+      "precio": 299,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pijama dama",
+      "sku": "RO020",
+      "categoria": "Dama",
+      "precio": 279,
+      "existencias": 10
+    },
+    {
+      "nombre": "Camisa formal",
+      "sku": "RO021",
+      "categoria": "Caballero",
+      "precio": 329,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pantalon gabardina",
+      "sku": "RO022",
+      "categoria": "Caballero",
+      "precio": 379,
+      "existencias": 10
+    },
+    {
+      "nombre": "Playera algodon",
+      "sku": "RO023",
+      "categoria": "Caballero",
+      "precio": 149,
+      "existencias": 10
+    },
+    {
+      "nombre": "Short deportivo",
+      "sku": "RO024",
+      "categoria": "Caballero",
+      "precio": 199,
+      "existencias": 10
+    },
+    {
+      "nombre": "Chaleco casual",
+      "sku": "RO025",
+      "categoria": "Caballero",
+      "precio": 289,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cinto piel sint",
+      "sku": "RO026",
+      "categoria": "Caballero",
+      "precio": 129,
+      "existencias": 10
+    },
+    {
+      "nombre": "Playera nino 8",
+      "sku": "RO027",
+      "categoria": "Ninos",
+      "precio": 99,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pantalon nino 10",
+      "sku": "RO028",
+      "categoria": "Ninos",
+      "precio": 149,
+      "existencias": 10
+    },
+    {
+      "nombre": "Vestido nina 6",
+      "sku": "RO029",
+      "categoria": "Ninos",
+      "precio": 179,
+      "existencias": 10
+    },
+    {
+      "nombre": "Short nino",
+      "sku": "RO030",
+      "categoria": "Ninos",
+      "precio": 89,
+      "existencias": 10
+    },
+    {
+      "nombre": "Sudadera nino",
+      "sku": "RO031",
+      "categoria": "Ninos",
+      "precio": 219,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pijama nino",
+      "sku": "RO032",
+      "categoria": "Ninos",
+      "precio": 169,
+      "existencias": 10
+    },
+    {
+      "nombre": "Tenis casual 26",
+      "sku": "RO033",
+      "categoria": "Calzado",
+      "precio": 499,
+      "existencias": 10
+    },
+    {
+      "nombre": "Sandalias dama",
+      "sku": "RO034",
+      "categoria": "Calzado",
+      "precio": 199,
+      "existencias": 10
+    },
+    {
+      "nombre": "Zapato escolar",
+      "sku": "RO035",
+      "categoria": "Calzado",
+      "precio": 349,
+      "existencias": 10
+    },
+    {
+      "nombre": "Chancla basica",
+      "sku": "RO036",
+      "categoria": "Calzado",
+      "precio": 79,
+      "existencias": 10
+    },
+    {
+      "nombre": "Bota trabajo",
+      "sku": "RO037",
+      "categoria": "Calzado",
+      "precio": 599,
+      "existencias": 10
+    },
+    {
+      "nombre": "Tennis running",
+      "sku": "RO038",
+      "categoria": "Calzado",
+      "precio": 649,
+      "existencias": 10
+    },
+    {
+      "nombre": "Gorra basica",
+      "sku": "RO039",
+      "categoria": "Accesorios",
+      "precio": 99,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cartera mediana",
+      "sku": "RO040",
+      "categoria": "Accesorios",
+      "precio": 249,
+      "existencias": 10
+    },
+    {
+      "nombre": "Calcetines 3 pares",
+      "sku": "RO041",
+      "categoria": "Accesorios",
+      "precio": 59,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cinturon dama",
+      "sku": "RO042",
+      "categoria": "Accesorios",
+      "precio": 89,
+      "existencias": 10
+    },
+    {
+      "nombre": "Bufanda invierno",
+      "sku": "RO043",
+      "categoria": "Accesorios",
+      "precio": 119,
+      "existencias": 10
+    },
+    {
+      "nombre": "Lentes sol",
+      "sku": "RO044",
+      "categoria": "Accesorios",
+      "precio": 149,
+      "existencias": 10
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "rubro": "tecnologia",
+  "productos": [
+    {
+      "nombre": "Mouse optico USB",
+      "sku": "TE015",
+      "categoria": "Computo",
+      "precio": 120,
+      "existencias": 10
+    },
+    {
+      "nombre": "Teclado basico",
+      "sku": "TE016",
+      "categoria": "Computo",
+      "precio": 180,
+      "existencias": 10
+    },
+    {
+      "nombre": "Memoria USB 32GB",
+      "sku": "TE017",
+      "categoria": "Computo",
+      "precio": 95,
+      "existencias": 10
+    },
+    {
+      "nombre": "Hub USB 4 puertos",
+      "sku": "TE018",
+      "categoria": "Computo",
+      "precio": 150,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pad mouse",
+      "sku": "TE019",
+      "categoria": "Computo",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Webcam HD",
+      "sku": "TE020",
+      "categoria": "Computo",
+      "precio": 350,
+      "existencias": 10
+    },
+    {
+      "nombre": "Funda silicon",
+      "sku": "TE021",
+      "categoria": "Celulares",
+      "precio": 89,
+      "existencias": 10
+    },
+    {
+      "nombre": "Mica templada",
+      "sku": "TE022",
+      "categoria": "Celulares",
+      "precio": 79,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cargador Tipo C",
+      "sku": "TE023",
+      "categoria": "Celulares",
+      "precio": 149,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cable USB 1 m",
+      "sku": "TE024",
+      "categoria": "Celulares",
+      "precio": 65,
+      "existencias": 10
+    },
+    {
+      "nombre": "Audifonos alambricos",
+      "sku": "TE025",
+      "categoria": "Celulares",
+      "precio": 120,
+      "existencias": 10
+    },
+    {
+      "nombre": "Power bank 10000",
+      "sku": "TE026",
+      "categoria": "Celulares",
+      "precio": 399,
+      "existencias": 10
+    },
+    {
+      "nombre": "Bocina Bluetooth",
+      "sku": "TE027",
+      "categoria": "Audio",
+      "precio": 450,
+      "existencias": 10
+    },
+    {
+      "nombre": "Audifonos BT",
+      "sku": "TE028",
+      "categoria": "Audio",
+      "precio": 299,
+      "existencias": 10
+    },
+    {
+      "nombre": "Microfono basico",
+      "sku": "TE029",
+      "categoria": "Audio",
+      "precio": 220,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cable aux 3.5",
+      "sku": "TE030",
+      "categoria": "Audio",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Adaptador audio",
+      "sku": "TE031",
+      "categoria": "Audio",
+      "precio": 75,
+      "existencias": 10
+    },
+    {
+      "nombre": "Barra sonido mini",
+      "sku": "TE032",
+      "categoria": "Audio",
+      "precio": 899,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pila AA 4 pzas",
+      "sku": "TE033",
+      "categoria": "Accesorios",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pila AAA 4 pzas",
+      "sku": "TE034",
+      "categoria": "Accesorios",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Organizador cables",
+      "sku": "TE035",
+      "categoria": "Accesorios",
+      "precio": 65,
+      "existencias": 10
+    },
+    {
+      "nombre": "Soporte celular auto",
+      "sku": "TE036",
+      "categoria": "Accesorios",
+      "precio": 120,
+      "existencias": 10
+    },
+    {
+      "nombre": "Limpia pantallas",
+      "sku": "TE037",
+      "categoria": "Accesorios",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Adaptador HDMI",
+      "sku": "TE038",
+      "categoria": "Accesorios",
+      "precio": 180,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cable UTP 5 m",
+      "sku": "TE039",
+      "categoria": "Redes",
+      "precio": 85,
+      "existencias": 10
+    },
+    {
+      "nombre": "Router basico",
+      "sku": "TE040",
+      "categoria": "Redes",
+      "precio": 599,
+      "existencias": 10
+    },
+    {
+      "nombre": "Switch 5 puertos",
+      "sku": "TE041",
+      "categoria": "Redes",
+      "precio": 350,
+      "existencias": 10
+    },
+    {
+      "nombre": "Conector RJ45",
+      "sku": "TE042",
+      "categoria": "Redes",
+      "precio": 8,
+      "existencias": 10
+    },
+    {
+      "nombre": "Patch cord 1 m",
+      "sku": "TE043",
+      "categoria": "Redes",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Antena WiFi",
+      "sku": "TE044",
+      "categoria": "Redes",
+      "precio": 220,
+      "existencias": 10
+    }
+  ]
+}

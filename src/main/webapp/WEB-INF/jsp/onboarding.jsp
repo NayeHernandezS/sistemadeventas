@@ -36,7 +36,7 @@
                         <h1 class="h3 mb-3"><i class="bi bi-rocket-takeoff text-primary"></i> Bienvenido, ${tenant}</h1>
                         <p class="text-muted">
                             Tu cuenta esta lista con <strong>1 mes de prueba</strong>.
-                            En unos minutos dejamos tu negocio listo para vender.
+                            Ya cargamos categorias y un catalogo inicial segun tu rubro (Coca-Cola, Sabritas, Barcel, Bimbo, Marinela en abarrotes).
                         </p>
                         <ul class="list-group list-group-flush mb-4">
                             <li class="list-group-item">
@@ -46,6 +46,10 @@
                             <li class="list-group-item">
                                 <i class="bi bi-tags text-success"></i>
                                 Categorias sugeridas creadas: <strong>${categorias.size()}</strong>
+                            </li>
+                            <li class="list-group-item">
+                                <i class="bi bi-box-seam text-success"></i>
+                                Catalogo inicial del rubro con marcas y productos frecuentes (precios sugeridos, editables en inventario).
                             </li>
                         </ul>
                         <p class="small text-muted mb-0">

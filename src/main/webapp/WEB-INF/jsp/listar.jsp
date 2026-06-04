@@ -74,7 +74,11 @@
         ${cantidadConAlerta} producto(s) con stock bajo o agotado (alerta desde ${stockMinimo} unidades).
     </div>
 </c:if>
-<table class="table table-hover table-striped">
+<c:set var="buscadorTablaId" value="tablaProductosCatalogo"/>
+<c:set var="buscadorPlaceholder" value="Buscar por nombre, categoria o ID..."/>
+<%@ include file="fragmentos/buscador-tabla.jspf" %>
+<div class="table-responsive">
+<table id="tablaProductosCatalogo" class="table table-hover table-striped">
     <thead>
     <tr>
         <th>Id</th>
@@ -89,7 +93,9 @@
     </thead>
     <tbody>
     <c:forEach items="${productos}" var="p">
-    <tr class="${p.existencias == 0 ? 'table-danger' : (p.existencias <= stockMinimo ? 'table-warning' : '')}">
+    <tr data-fila-busqueda="1"
+        data-buscar="${p.nombre} ${p.sku} ${p.categoria.nombre} ${p.id}"
+        class="${p.existencias == 0 ? 'table-danger' : (p.existencias <= stockMinimo ? 'table-warning' : '')}">
         <td>${p.id}</td>
         <td>${p.nombre}</td>
         <td>${p.categoria.nombre}</td>
@@ -119,8 +125,10 @@
     </c:forEach>
     </tbody>
 </table>
+</div>
 <p>${applicationScope.mensaje}</p>
 <p>${requestScope.mensaje}</p>
 </div>
+<script src="${pageContext.request.contextPath}/js/buscador-tabla.js"></script>
 </body>
 </html>

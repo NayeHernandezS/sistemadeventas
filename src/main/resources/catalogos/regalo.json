@@ -1,0 +1,215 @@
+{
+  "rubro": "regalo",
+  "productos": [
+    {
+      "nombre": "Tarjeta felicitacion",
+      "sku": "RE015",
+      "categoria": "Detalles",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Globo latex",
+      "sku": "RE016",
+      "categoria": "Detalles",
+      "precio": 15,
+      "existencias": 10
+    },
+    {
+      "nombre": "Vela aromatica",
+      "sku": "RE017",
+      "categoria": "Detalles",
+      "precio": 65,
+      "existencias": 10
+    },
+    {
+      "nombre": "Portarretrato 4x6",
+      "sku": "RE018",
+      "categoria": "Detalles",
+      "precio": 85,
+      "existencias": 10
+    },
+    {
+      "nombre": "Taza sublimacion",
+      "sku": "RE019",
+      "categoria": "Detalles",
+      "precio": 75,
+      "existencias": 10
+    },
+    {
+      "nombre": "Llavero metal",
+      "sku": "RE020",
+      "categoria": "Detalles",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Adorno navidad",
+      "sku": "RE021",
+      "categoria": "Temporada",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Corona puerta",
+      "sku": "RE022",
+      "categoria": "Temporada",
+      "precio": 120,
+      "existencias": 10
+    },
+    {
+      "nombre": "Serpentina fiesta",
+      "sku": "RE023",
+      "categoria": "Temporada",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Piñata chica",
+      "sku": "RE024",
+      "categoria": "Temporada",
+      "precio": 95,
+      "existencias": 10
+    },
+    {
+      "nombre": "Velas cumpleaños",
+      "sku": "RE025",
+      "categoria": "Temporada",
+      "precio": 25,
+      "existencias": 10
+    },
+    {
+      "nombre": "Confeti bolsita",
+      "sku": "RE026",
+      "categoria": "Temporada",
+      "precio": 15,
+      "existencias": 10
+    },
+    {
+      "nombre": "Papel regalo rollo",
+      "sku": "RE027",
+      "categoria": "Envolturas",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Bolsa regalo med",
+      "sku": "RE028",
+      "categoria": "Envolturas",
+      "precio": 12,
+      "existencias": 10
+    },
+    {
+      "nombre": "Liston 5 m",
+      "sku": "RE029",
+      "categoria": "Envolturas",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Caja regalo",
+      "sku": "RE030",
+      "categoria": "Envolturas",
+      "precio": 28,
+      "existencias": 10
+    },
+    {
+      "nombre": "Relleno celofan",
+      "sku": "RE031",
+      "categoria": "Envolturas",
+      "precio": 22,
+      "existencias": 10
+    },
+    {
+      "nombre": "Etiqueta adhesiva",
+      "sku": "RE032",
+      "categoria": "Envolturas",
+      "precio": 8,
+      "existencias": 10
+    },
+    {
+      "nombre": "Oso peluche 25 cm",
+      "sku": "RE033",
+      "categoria": "Peluches",
+      "precio": 149,
+      "existencias": 10
+    },
+    {
+      "nombre": "Conejo peluche",
+      "sku": "RE034",
+      "categoria": "Peluches",
+      "precio": 129,
+      "existencias": 10
+    },
+    {
+      "nombre": "Perro peluche",
+      "sku": "RE035",
+      "categoria": "Peluches",
+      "precio": 139,
+      "existencias": 10
+    },
+    {
+      "nombre": "Unicornio peluche",
+      "sku": "RE036",
+      "categoria": "Peluches",
+      "precio": 159,
+      "existencias": 10
+    },
+    {
+      "nombre": "Dinosaurio mini",
+      "sku": "RE037",
+      "categoria": "Peluches",
+      "precio": 89,
+      "existencias": 10
+    },
+    {
+      "nombre": "Peluche corazon",
+      "sku": "RE038",
+      "categoria": "Peluches",
+      "precio": 99,
+      "existencias": 10
+    },
+    {
+      "nombre": "Flor artificial",
+      "sku": "RE039",
+      "categoria": "Varios",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Caja sorpresa",
+      "sku": "RE040",
+      "categoria": "Varios",
+      "precio": 65,
+      "existencias": 10
+    },
+    {
+      "nombre": "Set plumas regalo",
+      "sku": "RE041",
+      "categoria": "Varios",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Almohada decorativa",
+      "sku": "RE042",
+      "categoria": "Varios",
+      "precio": 175,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cuadro motivacional",
+      "sku": "RE043",
+      "categoria": "Varios",
+      "precio": 95,
+      "existencias": 10
+    },
+    {
+      "nombre": "Reloj de mesa",
+      "sku": "RE044",
+      "categoria": "Varios",
+      "precio": 220,
+      "existencias": 10
+    }
+  ]
+}

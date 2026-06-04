@@ -113,6 +113,21 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
     }
 
     @Override
+    public boolean existeSkuPorOwner(String ownerUsername, String sku) throws SQLException {
+        if (ownerUsername == null || ownerUsername.isBlank() || sku == null || sku.isBlank()) {
+            return false;
+        }
+        String sql = "SELECT 1 FROM productos WHERE owner_username = ? AND sku = ? LIMIT 1";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, ownerUsername);
+            stmt.setString(2, sku.trim());
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    @Override
     public void agregarExistencias(Long id, String ownerUsername, int cantidad) throws SQLException {
         if (cantidad <= 0) {
             return;

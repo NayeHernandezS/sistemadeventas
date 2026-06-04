@@ -1,0 +1,215 @@
+{
+  "rubro": "belleza",
+  "productos": [
+    {
+      "nombre": "Shampoo hidratante",
+      "sku": "BE015",
+      "categoria": "Cabello",
+      "precio": 85,
+      "existencias": 10
+    },
+    {
+      "nombre": "Acondicionador",
+      "sku": "BE016",
+      "categoria": "Cabello",
+      "precio": 85,
+      "existencias": 10
+    },
+    {
+      "nombre": "Gel fijador",
+      "sku": "BE017",
+      "categoria": "Cabello",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cera capilar",
+      "sku": "BE018",
+      "categoria": "Cabello",
+      "precio": 65,
+      "existencias": 10
+    },
+    {
+      "nombre": "Tinte caja",
+      "sku": "BE019",
+      "categoria": "Cabello",
+      "precio": 95,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cepillo cabello",
+      "sku": "BE020",
+      "categoria": "Cabello",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Labial mate",
+      "sku": "BE021",
+      "categoria": "Maquillaje",
+      "precio": 75,
+      "existencias": 10
+    },
+    {
+      "nombre": "Base liquida",
+      "sku": "BE022",
+      "categoria": "Maquillaje",
+      "precio": 120,
+      "existencias": 10
+    },
+    {
+      "nombre": "Rimel volumen",
+      "sku": "BE023",
+      "categoria": "Maquillaje",
+      "precio": 95,
+      "existencias": 10
+    },
+    {
+      "nombre": "Polvo compacto",
+      "sku": "BE024",
+      "categoria": "Maquillaje",
+      "precio": 85,
+      "existencias": 10
+    },
+    {
+      "nombre": "Delineador",
+      "sku": "BE025",
+      "categoria": "Maquillaje",
+      "precio": 65,
+      "existencias": 10
+    },
+    {
+      "nombre": "Brocha set",
+      "sku": "BE026",
+      "categoria": "Maquillaje",
+      "precio": 149,
+      "existencias": 10
+    },
+    {
+      "nombre": "Crema corporal",
+      "sku": "BE027",
+      "categoria": "Cuidado personal",
+      "precio": 78,
+      "existencias": 10
+    },
+    {
+      "nombre": "Desodorante roll",
+      "sku": "BE028",
+      "categoria": "Cuidado personal",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Bloqueador FPS50",
+      "sku": "BE029",
+      "categoria": "Cuidado personal",
+      "precio": 145,
+      "existencias": 10
+    },
+    {
+      "nombre": "Agua micelar",
+      "sku": "BE030",
+      "categoria": "Cuidado personal",
+      "precio": 95,
+      "existencias": 10
+    },
+    {
+      "nombre": "Exfoliante facial",
+      "sku": "BE031",
+      "categoria": "Cuidado personal",
+      "precio": 110,
+      "existencias": 10
+    },
+    {
+      "nombre": "Serum vitamina C",
+      "sku": "BE032",
+      "categoria": "Cuidado personal",
+      "precio": 180,
+      "existencias": 10
+    },
+    {
+      "nombre": "Esponja maquillaje",
+      "sku": "BE033",
+      "categoria": "Accesorios",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pinza cejas",
+      "sku": "BE034",
+      "categoria": "Accesorios",
+      "precio": 25,
+      "existencias": 10
+    },
+    {
+      "nombre": "Lima uñas",
+      "sku": "BE035",
+      "categoria": "Accesorios",
+      "precio": 15,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cotonetes 200",
+      "sku": "BE036",
+      "categoria": "Accesorios",
+      "precio": 28,
+      "existencias": 10
+    },
+    {
+      "nombre": "Algodon 80 pzas",
+      "sku": "BE037",
+      "categoria": "Accesorios",
+      "precio": 22,
+      "existencias": 10
+    },
+    {
+      "nombre": "Espejo bolsillo",
+      "sku": "BE038",
+      "categoria": "Accesorios",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Kit viaje mini",
+      "sku": "BE039",
+      "categoria": "Promociones",
+      "precio": 99,
+      "existencias": 10
+    },
+    {
+      "nombre": "Set uñas esmalte",
+      "sku": "BE040",
+      "categoria": "Promociones",
+      "precio": 120,
+      "existencias": 10
+    },
+    {
+      "nombre": "Mascarilla facial",
+      "sku": "BE041",
+      "categoria": "Promociones",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Aceite argan 60ml",
+      "sku": "BE042",
+      "categoria": "Promociones",
+      "precio": 165,
+      "existencias": 10
+    },
+    {
+      "nombre": "Balsamo labial",
+      "sku": "BE043",
+      "categoria": "Promociones",
+      "precio": 38,
+      "existencias": 10
+    },
+    {
+      "nombre": "Peine detangle",
+      "sku": "BE044",
+      "categoria": "Promociones",
+      "precio": 55,
+      "existencias": 10
+    }
+  ]
+}

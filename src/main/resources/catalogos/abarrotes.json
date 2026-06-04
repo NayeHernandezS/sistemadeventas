@@ -1,0 +1,257 @@
+{
+  "rubro": "abarrotes",
+  "productos": [
+    {
+      "nombre": "Coca-Cola 600 ml",
+      "sku": "CC600",
+      "categoria": "Bebidas",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Coca-Cola Sin Azucar 600 ml",
+      "sku": "CC600SA",
+      "categoria": "Bebidas",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Coca-Cola 2.5 L",
+      "sku": "CC2L5",
+      "categoria": "Bebidas",
+      "precio": 38,
+      "existencias": 10
+    },
+    {
+      "nombre": "Sprite 600 ml",
+      "sku": "SP600",
+      "categoria": "Bebidas",
+      "precio": 17,
+      "existencias": 10
+    },
+    {
+      "nombre": "Fanta Naranja 600 ml",
+      "sku": "FN600",
+      "categoria": "Bebidas",
+      "precio": 17,
+      "existencias": 10
+    },
+    {
+      "nombre": "Agua Ciel 1 L",
+      "sku": "CIEL1L",
+      "categoria": "Bebidas",
+      "precio": 12,
+      "existencias": 10
+    },
+    {
+      "nombre": "Sabritas Original 45 g",
+      "sku": "SAB045",
+      "categoria": "Abarrotes",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Sabritas Adobadas 45 g",
+      "sku": "SABADO",
+      "categoria": "Abarrotes",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Doritos Nacho 58 g",
+      "sku": "DOR058",
+      "categoria": "Abarrotes",
+      "precio": 22,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cheetos Torciditos 55 g",
+      "sku": "CHE055",
+      "categoria": "Abarrotes",
+      "precio": 20,
+      "existencias": 10
+    },
+    {
+      "nombre": "Ruffles Queso 42 g",
+      "sku": "RUF042",
+      "categoria": "Abarrotes",
+      "precio": 20,
+      "existencias": 10
+    },
+    {
+      "nombre": "Takis Fuego 56 g",
+      "sku": "TAK056",
+      "categoria": "Abarrotes",
+      "precio": 19,
+      "existencias": 10
+    },
+    {
+      "nombre": "Takis Intense 56 g",
+      "sku": "TAKINT",
+      "categoria": "Abarrotes",
+      "precio": 19,
+      "existencias": 10
+    },
+    {
+      "nombre": "Big Mix Barcel 50 g",
+      "sku": "BIG050",
+      "categoria": "Abarrotes",
+      "precio": 16,
+      "existencias": 10
+    },
+    {
+      "nombre": "Runners Barcel 50 g",
+      "sku": "RUN050",
+      "categoria": "Abarrotes",
+      "precio": 16,
+      "existencias": 10
+    },
+    {
+      "nombre": "Churrumais Barcel 55 g",
+      "sku": "CHU055",
+      "categoria": "Abarrotes",
+      "precio": 15,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pan Blanco Bimbo 680 g",
+      "sku": "BIM680",
+      "categoria": "Abarrotes",
+      "precio": 58,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pan Integral Bimbo 680 g",
+      "sku": "BIMINT",
+      "categoria": "Abarrotes",
+      "precio": 62,
+      "existencias": 10
+    },
+    {
+      "nombre": "Mantecadas Bimbo 6 pzas",
+      "sku": "BIMMAN",
+      "categoria": "Abarrotes",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Conchas Bimbo 4 pzas",
+      "sku": "BIMCON",
+      "categoria": "Abarrotes",
+      "precio": 42,
+      "existencias": 10
+    },
+    {
+      "nombre": "Gansito Marinela",
+      "sku": "GANSIT",
+      "categoria": "Abarrotes",
+      "precio": 14,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pinguinos Marinela 2 pzas",
+      "sku": "PINGUI",
+      "categoria": "Abarrotes",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Submarinos Marinela",
+      "sku": "SUBMAR",
+      "categoria": "Abarrotes",
+      "precio": 16,
+      "existencias": 10
+    },
+    {
+      "nombre": "Choco Roles Marinela",
+      "sku": "CHOROL",
+      "categoria": "Abarrotes",
+      "precio": 15,
+      "existencias": 10
+    },
+    {
+      "nombre": "Leche entera 1 L",
+      "sku": "LEC1L",
+      "categoria": "Lacteos",
+      "precio": 28,
+      "existencias": 10
+    },
+    {
+      "nombre": "Yogurt natural",
+      "sku": "YOG001",
+      "categoria": "Lacteos",
+      "precio": 14,
+      "existencias": 10
+    },
+    {
+      "nombre": "Huevo blanco 12 pzas",
+      "sku": "HUE12",
+      "categoria": "Lacteos",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Arroz 1 kg",
+      "sku": "ARR1K",
+      "categoria": "Abarrotes",
+      "precio": 28,
+      "existencias": 10
+    },
+    {
+      "nombre": "Frijol negro 1 kg",
+      "sku": "FRI1K",
+      "categoria": "Abarrotes",
+      "precio": 32,
+      "existencias": 10
+    },
+    {
+      "nombre": "Aceite 1 L",
+      "sku": "ACE1L",
+      "categoria": "Abarrotes",
+      "precio": 38,
+      "existencias": 10
+    },
+    {
+      "nombre": "Detergente 1 kg",
+      "sku": "DET1K",
+      "categoria": "Limpieza",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Cloro 2 L",
+      "sku": "CLOR2L",
+      "categoria": "Limpieza",
+      "precio": 22,
+      "existencias": 10
+    },
+    {
+      "nombre": "Jabon de trastes",
+      "sku": "JABTRA",
+      "categoria": "Limpieza",
+      "precio": 18,
+      "existencias": 10
+    },
+    {
+      "nombre": "Papel higienico 4 rollos",
+      "sku": "PAPHIG",
+      "categoria": "Higiene",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pasta dental",
+      "sku": "PASDEN",
+      "categoria": "Higiene",
+      "precio": 22,
+      "existencias": 10
+    },
+    {
+      "nombre": "Jabon de barra",
+      "sku": "JABBAR",
+      "categoria": "Higiene",
+      "precio": 14,
+      "existencias": 10
+    }
+  ]
+}
