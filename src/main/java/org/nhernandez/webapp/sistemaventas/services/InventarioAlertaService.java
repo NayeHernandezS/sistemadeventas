@@ -27,7 +27,7 @@ public class InventarioAlertaService {
     }
 
     public boolean esAgotado(Producto producto) {
-        return producto != null && producto.getExistencias() <= 0;
+        return producto != null && producto.esProducto() && producto.getExistencias() <= 0;
     }
 
     public boolean esStockBajo(Producto producto) {
@@ -40,6 +40,7 @@ public class InventarioAlertaService {
 
     public boolean esStockBajo(Producto producto, int umbral) {
         return producto != null
+                && producto.esProducto()
                 && producto.getExistencias() > 0
                 && producto.getExistencias() <= umbral;
     }

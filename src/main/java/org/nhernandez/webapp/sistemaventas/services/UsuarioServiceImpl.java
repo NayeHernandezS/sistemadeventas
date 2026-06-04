@@ -112,7 +112,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             guardar(usuario);
             categoriaRepository.crearSugeridasSiNoExisten(
                     usuario.getUsername(),
-                    CategoriaPlantillaUtil.paraTipoNegocio(usuario.getTipoNegocio())
+                    CategoriaPlantillaUtil.todasCategoriasParaTipoNegocio(usuario.getTipoNegocio())
             );
             preferenciasTenantService.iniciarOnboarding(usuario.getUsername());
             catalogoPlantillaService.importarCatalogoInicial(

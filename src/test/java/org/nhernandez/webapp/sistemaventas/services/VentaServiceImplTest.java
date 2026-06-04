@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.nhernandez.webapp.sistemaventas.models.Factura;
 import org.nhernandez.webapp.sistemaventas.models.Producto;
+import org.nhernandez.webapp.sistemaventas.models.TipoItem;
 import org.nhernandez.webapp.sistemaventas.models.TicketItem;
 import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 import org.nhernandez.webapp.sistemaventas.repositories.FacturaRepository;
@@ -66,6 +67,17 @@ class VentaServiceImplTest {
                 () -> ventaService.validarStock("tienda1", 1L, 5));
 
         assertEquals(true, ex.getMessage().contains("Stock insuficiente"));
+    }
+
+    @Test
+    void validarStock_ignoraServicios() throws SQLException {
+        producto.setTipoItem(TipoItem.SERVICIO);
+        producto.setExistencias(0);
+        when(productoRepository.porIdPorOwner(1L, "tienda1")).thenReturn(producto);
+
+        ventaService.validarStock("tienda1", 1L, 10);
+
+        verify(productoRepository).porIdPorOwner(1L, "tienda1");
     }
 
     @Test

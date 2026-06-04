@@ -3,6 +3,7 @@ package org.nhernandez.webapp.sistemaventas.services;
 import org.nhernandez.webapp.sistemaventas.models.Devolucion;
 import org.nhernandez.webapp.sistemaventas.models.DevolucionItem;
 import org.nhernandez.webapp.sistemaventas.models.LineaDevolucionVista;
+import org.nhernandez.webapp.sistemaventas.models.Producto;
 import org.nhernandez.webapp.sistemaventas.models.TicketItem;
 import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 import org.nhernandez.webapp.sistemaventas.repositories.DevolucionRepository;
@@ -137,6 +138,10 @@ public class DevolucionServiceImpl implements DevolucionService {
         try {
             devolucionRepository.guardar(devolucion);
             for (DevolucionItem item : itemsDevolucion) {
+                Producto producto = productoRepository.porIdPorOwner(item.getProductoId(), tenantOwner);
+                if (producto != null && producto.esServicio()) {
+                    continue;
+                }
                 productoRepository.agregarExistencias(item.getProductoId(), tenantOwner, item.getCantidad());
             }
             actualizarEstadoTicket(ticket, tenantOwner);

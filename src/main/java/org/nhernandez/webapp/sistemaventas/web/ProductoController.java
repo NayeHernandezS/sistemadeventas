@@ -5,11 +5,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
 import org.nhernandez.webapp.sistemaventas.models.Categoria;
 import org.nhernandez.webapp.sistemaventas.models.Producto;
+import org.nhernandez.webapp.sistemaventas.models.TipoItem;
+import org.nhernandez.webapp.sistemaventas.services.CategoriaService;
 import org.nhernandez.webapp.sistemaventas.services.InventarioAlertaService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ProductoService;
+import org.nhernandez.webapp.sistemaventas.services.UsuarioService;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
+import org.nhernandez.webapp.sistemaventas.util.ServicioPlantillaUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
+import org.nhernandez.webapp.sistemaventas.util.TipoNegocioUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,13 +35,19 @@ public class ProductoController {
     private final ProductoService service;
     private final LoginService auth;
     private final InventarioAlertaService inventarioAlertaService;
+    private final UsuarioService usuarioService;
+    private final CategoriaService categoriaService;
 
     public ProductoController(@ProductoServicePrincipal ProductoService service,
                               LoginService auth,
-                              InventarioAlertaService inventarioAlertaService) {
+                              InventarioAlertaService inventarioAlertaService,
+                              UsuarioService usuarioService,
+                              CategoriaService categoriaService) {
         this.service = service;
         this.auth = auth;
         this.inventarioAlertaService = inventarioAlertaService;
+        this.usuarioService = usuarioService;
+        this.categoriaService = categoriaService;
     }
 
     @GetMapping({"/productos", "/productos.html"})
@@ -83,7 +94,7 @@ public class ProductoController {
         if (!model.containsAttribute("producto")) {
             model.addAttribute("producto", producto);
         }
-        model.addAttribute("categorias", service.listarCategoria(tenant));
+        prepararFormulario(model, tenant);
         return "form";
     }
 
@@ -102,18 +113,23 @@ public class ProductoController {
         String fechaStr = req.getParameter("fecha_registro");
         Long categoriaId = parseLong(req.getParameter("categoria"), 0L);
         long id = parseLong(req.getParameter("id"), 0L);
+        TipoItem tipoItem = TipoItem.porCodigo(req.getParameter("tipo_item")).orElse(TipoItem.PRODUCTO);
+        if (tipoItem == TipoItem.SERVICIO) {
+            existencias = 0;
+        }
 
-        Map<String, String> errores = validarProducto(nombre, sku, fechaStr, precio, existencias, categoriaId);
+        Map<String, String> errores = validarProducto(nombre, sku, fechaStr, precio, existencias, categoriaId, tipoItem);
         LocalDate fecha = parseFecha(fechaStr);
 
         Producto producto = new Producto();
         producto.setId(id);
         producto.setNombre(nombre);
-        producto.setSku(sku);
+        producto.setSku(sku != null && !sku.isBlank() ? sku.trim() : null);
         producto.setPrecio(precio);
         producto.setExistencias(existencias);
         producto.setFechaRegistro(fecha);
         producto.setOwnerUsername(tenant);
+        producto.setTipoItem(tipoItem);
 
         if (id > 0 && service.porIdPorOwner(id, tenant).isEmpty()) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Producto no pertenece a tu cuenta.");
@@ -129,7 +145,7 @@ public class ProductoController {
             return "redirect:/crudprod";
         }
         model.addAttribute("errores", errores);
-        model.addAttribute("categorias", service.listarCategoria(tenant));
+        prepararFormulario(model, tenant);
         model.addAttribute("producto", producto);
         return "form";
     }
@@ -152,14 +168,20 @@ public class ProductoController {
     }
 
     private Map<String, String> validarProducto(String nombre, String sku, String fechaStr,
-                                                Integer precio, int existencias, Long categoriaId) {
+                                                Integer precio, int existencias, Long categoriaId,
+                                                TipoItem tipoItem) {
         Map<String, String> errores = new HashMap<>();
         if (nombre == null || nombre.isBlank()) {
             errores.put("nombre", "el nombre es requerido!");
         }
-        if (sku == null || sku.isBlank()) {
-            errores.put("sku", "el sku es requerido!");
-        } else if (sku.length() > 10) {
+        boolean esServicio = tipoItem == TipoItem.SERVICIO;
+        if (!esServicio) {
+            if (sku == null || sku.isBlank()) {
+                errores.put("sku", "el sku es requerido!");
+            } else if (sku.length() > 10) {
+                errores.put("sku", "el sku debe tener max 10 caracteres!");
+            }
+        } else if (sku != null && sku.length() > 10) {
             errores.put("sku", "el sku debe tener max 10 caracteres!");
         }
         if (fechaStr == null || fechaStr.isBlank()) {
@@ -168,13 +190,26 @@ public class ProductoController {
         if (precio.equals(0)) {
             errores.put("precio", "el precio es requerido!");
         }
-        if (existencias < 0) {
+        if (!esServicio && existencias < 0) {
             errores.put("existencias", "las existencias no pueden ser negativas");
         }
         if (categoriaId.equals(0L)) {
             errores.put("categoria", "la categoria es requerida!");
         }
         return errores;
+    }
+
+    private void prepararFormulario(Model model, String tenant) {
+        String tipoNegocio = usuarioService.porUsername(tenant)
+                .map(u -> u.getTipoNegocio())
+                .filter(t -> t != null && !t.isBlank())
+                .orElse("otro");
+        categoriaService.asegurarCategoriasPlantilla(tenant, tipoNegocio);
+        model.addAttribute("categorias", service.listarCategoria(tenant));
+        model.addAttribute("tiposItem", TipoItem.values());
+        model.addAttribute("tipoNegocio", tipoNegocio);
+        model.addAttribute("tipoNegocioEtiqueta", TipoNegocioUtil.etiqueta(tipoNegocio));
+        model.addAttribute("sugerenciasServicio", ServicioPlantillaUtil.sugerenciasParaRubro(tipoNegocio));
     }
 
     private void agregarAlertasStock(Model model, List<Producto> productos, String tenant) {

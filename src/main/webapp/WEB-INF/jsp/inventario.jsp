@@ -65,7 +65,7 @@
         <div class="mb-3">
             <a class="btn btn-secondary" href="${pageContext.request.contextPath}/">Volver</a>
             <c:if test="${esAdmin}">
-                <a class="btn btn-primary ms-2" href="${pageContext.request.contextPath}/productos/form">Crear producto [+]</a>
+                <a class="btn btn-primary ms-2" href="${pageContext.request.contextPath}/productos/form">Crear producto o servicio</a>
                 <a class="btn btn-outline-primary ms-2" href="${pageContext.request.contextPath}/categorias">Categorias</a>
                 <a class="btn btn-outline-secondary ms-2" href="${pageContext.request.contextPath}/inventario/movimientos">
                     Historial de movimientos
@@ -86,6 +86,7 @@
                 <th>ID</th>
             </c:if>
             <th>Nombre</th>
+            <th>Tipo</th>
             <c:if test="${esAdmin}">
                 <th>Categoria</th>
             </c:if>
@@ -101,30 +102,50 @@
         <tbody>
         <c:forEach items="${productos}" var="p">
             <tr data-fila-busqueda="1"
-                data-buscar="${p.nombre} ${p.sku} ${p.categoria.nombre} ${p.id}"
-                class="${p.existencias == 0 ? 'table-danger' : (p.existencias <= stockMinimo ? 'table-warning' : '')}">
+                data-buscar="${p.nombre} ${p.sku} ${p.categoria.nombre} ${p.id} ${p.tipoItem.etiqueta}"
+                class="${p.esServicio ? '' : (p.existencias == 0 ? 'table-danger' : (p.existencias <= stockMinimo ? 'table-warning' : ''))}">
                 <c:if test="${esAdmin}">
                     <td>${p.id}</td>
                 </c:if>
                 <td>${p.nombre}</td>
+                <td>
+                    <c:choose>
+                        <c:when test="${p.esServicio}">
+                            <span class="badge bg-info text-dark">Servicio</span>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="badge bg-secondary">Producto</span>
+                        </c:otherwise>
+                    </c:choose>
+                </td>
                 <c:if test="${esAdmin}">
                     <td><c:out value="${empty p.categoria.nombre ? '—' : p.categoria.nombre}"/></td>
                 </c:if>
                 <td>
-                    ${p.existencias}
-                    <c:if test="${p.existencias == 0}">
-                        <span class="badge bg-danger ms-1">Agotado</span>
-                    </c:if>
-                    <c:if test="${p.existencias > 0 && p.existencias <= stockMinimo}">
-                        <span class="badge bg-warning text-dark ms-1">Stock bajo</span>
-                    </c:if>
+                    <c:choose>
+                        <c:when test="${p.esServicio}">
+                            <span class="text-muted">N/A</span>
+                        </c:when>
+                        <c:otherwise>
+                            ${p.existencias}
+                            <c:if test="${p.existencias == 0}">
+                                <span class="badge bg-danger ms-1">Agotado</span>
+                            </c:if>
+                            <c:if test="${p.existencias > 0 && p.existencias <= stockMinimo}">
+                                <span class="badge bg-warning text-dark ms-1">Stock bajo</span>
+                            </c:if>
+                        </c:otherwise>
+                    </c:choose>
                 </td>
                 <td>$${p.precio}</td>
                 <c:if test="${esAdmin}">
                     <td>
-                        <c:if test="${p.id != null && p.id > 0}">
+                        <c:if test="${!p.esServicio && p.id != null && p.id > 0}">
                             <a class="btn btn-sm btn-outline-primary"
                                href="${pageContext.request.contextPath}/inventario/ajuste?id=${p.id}">Ajustar</a>
+                        </c:if>
+                        <c:if test="${p.esServicio}">
+                            <span class="text-muted small">—</span>
                         </c:if>
                     </td>
                     <td>

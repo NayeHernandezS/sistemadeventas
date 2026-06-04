@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.nhernandez.webapp.sistemaventas.models.PreferenciasTenant;
 import org.nhernandez.webapp.sistemaventas.models.Producto;
+import org.nhernandez.webapp.sistemaventas.models.TipoItem;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,6 +48,13 @@ class InventarioAlertaServiceTest {
     void esAgotado_cuandoExistenciasEsCero() {
         assertTrue(inventarioAlertaService.esAgotado(producto(0)));
         assertFalse(inventarioAlertaService.esAgotado(producto(1)));
+    }
+
+    @Test
+    void esAgotado_ignoraServicios() {
+        Producto servicio = producto(0);
+        servicio.setTipoItem(TipoItem.SERVICIO);
+        assertFalse(inventarioAlertaService.esAgotado(servicio));
     }
 
     private Producto producto(int existencias) {

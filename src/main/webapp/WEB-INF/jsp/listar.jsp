@@ -68,7 +68,7 @@
 <a class="btn btn-sm btn-secondary" href="${pageContext.request.contextPath}/">Volver</a>
 <a class="btn btn-sm btn-success" href="${pageContext.request.contextPath}/carro/ver">Ver carro</a>
 </div>
-<h2 class="h5 mt-3">Catálogo</h2>
+<h2 class="h5 mt-3">Catalogo</h2>
 <c:if test="${cantidadConAlerta > 0}">
     <div class="alert alert-warning py-2 small">
         ${cantidadConAlerta} producto(s) con stock bajo o agotado (alerta desde ${stockMinimo} unidades).
@@ -84,6 +84,7 @@
         <th>Id</th>
         <th>Nombre</th>
         <th>Tipo</th>
+        <th>Categoria</th>
         <c:if test="${not empty sessionScope.username}">
         <th>Precio</th>
         <th>Existencias</th>
@@ -94,25 +95,42 @@
     <tbody>
     <c:forEach items="${productos}" var="p">
     <tr data-fila-busqueda="1"
-        data-buscar="${p.nombre} ${p.sku} ${p.categoria.nombre} ${p.id}"
-        class="${p.existencias == 0 ? 'table-danger' : (p.existencias <= stockMinimo ? 'table-warning' : '')}">
+        data-buscar="${p.nombre} ${p.sku} ${p.categoria.nombre} ${p.id} ${p.tipoItem.etiqueta}"
+        class="${p.esServicio ? '' : (p.existencias == 0 ? 'table-danger' : (p.existencias <= stockMinimo ? 'table-warning' : ''))}">
         <td>${p.id}</td>
         <td>${p.nombre}</td>
+        <td>
+            <c:choose>
+                <c:when test="${p.esServicio}">
+                    <span class="badge bg-info text-dark">Servicio</span>
+                </c:when>
+                <c:otherwise>
+                    <span class="badge bg-secondary">Producto</span>
+                </c:otherwise>
+            </c:choose>
+        </td>
         <td>${p.categoria.nombre}</td>
         <c:if test="${not empty sessionScope.username}">
         <td>${p.precio}</td>
         <td>
-            ${p.existencias}
-            <c:if test="${p.existencias == 0}">
-                <span class="badge bg-danger ms-1">Agotado</span>
-            </c:if>
-            <c:if test="${p.existencias > 0 && p.existencias <= stockMinimo}">
-                <span class="badge bg-warning text-dark ms-1">Stock bajo</span>
-            </c:if>
+            <c:choose>
+                <c:when test="${p.esServicio}">
+                    <span class="text-muted">N/A</span>
+                </c:when>
+                <c:otherwise>
+                    ${p.existencias}
+                    <c:if test="${p.existencias == 0}">
+                        <span class="badge bg-danger ms-1">Agotado</span>
+                    </c:if>
+                    <c:if test="${p.existencias > 0 && p.existencias <= stockMinimo}">
+                        <span class="badge bg-warning text-dark ms-1">Stock bajo</span>
+                    </c:if>
+                </c:otherwise>
+            </c:choose>
         </td>
         <td>
             <c:choose>
-                <c:when test="${p.existencias > 0}">
+                <c:when test="${p.esServicio || p.existencias > 0}">
                     <a class="btn btn-sm btn-primary" href="${pageContext.request.contextPath}/carro/agregar?id=${p.id}">Agregar al carro</a>
                 </c:when>
                 <c:otherwise>

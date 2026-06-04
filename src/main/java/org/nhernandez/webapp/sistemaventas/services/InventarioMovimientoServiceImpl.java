@@ -49,6 +49,9 @@ public class InventarioMovimientoServiceImpl implements InventarioMovimientoServ
             if (producto == null) {
                 throw new ServiceJdbcException("Producto no encontrado en tu inventario.", null);
             }
+            if (producto.esServicio()) {
+                throw new ServiceJdbcException("Los servicios no tienen movimientos de inventario.", null);
+            }
 
             int antes = producto.getExistencias();
             int despues = calcularExistenciasDespues(tipo, antes, cantidad);

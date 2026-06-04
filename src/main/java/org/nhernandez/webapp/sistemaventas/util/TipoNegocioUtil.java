@@ -19,6 +19,7 @@ public final class TipoNegocioUtil {
         TIPOS.put("restaurante", "Restaurante / cafeteria");
         TIPOS.put("belleza", "Belleza y cuidado personal");
         TIPOS.put("regalo", "Regalos y detalles");
+        TIPOS.put("servicios_profesionales", "Servicios profesionales / consultoria");
         TIPOS.put("otro", "Otro");
     }
 

@@ -2,6 +2,7 @@ package org.nhernandez.webapp.sistemaventas.services;
 
 import org.nhernandez.webapp.sistemaventas.models.Categoria;
 import org.nhernandez.webapp.sistemaventas.repositories.CategoriaRepository;
+import org.nhernandez.webapp.sistemaventas.util.CategoriaPlantillaUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,17 @@ public class CategoriaServiceImpl implements CategoriaService {
     public void eliminarPorOwner(Long id, String ownerUsername) {
         try {
             repository.eliminarPorOwner(id, ownerUsername);
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void asegurarCategoriasPlantilla(String ownerUsername, String tipoNegocio) {
+        try {
+            repository.crearSugeridasSiNoExisten(
+                    ownerUsername,
+                    CategoriaPlantillaUtil.todasCategoriasParaTipoNegocio(tipoNegocio));
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e);
         }

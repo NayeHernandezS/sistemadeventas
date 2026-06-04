@@ -8,6 +8,7 @@ import org.nhernandez.webapp.sistemaventas.configs.MysqlConn;
 
 import org.nhernandez.webapp.sistemaventas.models.Categoria;
 import org.nhernandez.webapp.sistemaventas.models.Producto;
+import org.nhernandez.webapp.sistemaventas.models.TipoItem;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -71,25 +72,26 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
 
         String sql;
         if (producto.getId() != null && producto.getId() > 0) {
-            sql = "UPDATE productos SET nombre=?, precio=?, existencias=?, sku=?, categoria_id=? "
+            sql = "UPDATE productos SET nombre=?, precio=?, existencias=?, sku=?, categoria_id=?, tipo_item=? "
                     + "WHERE id=? AND owner_username=?";
         } else {
-            sql = "INSERT INTO productos (nombre, precio, existencias, sku, categoria_id, fecha_registro, owner_username) "
-                    + "VALUES (?,?,?,?,?,?,?)";
+            sql = "INSERT INTO productos (nombre, precio, existencias, sku, categoria_id, fecha_registro, owner_username, tipo_item) "
+                    + "VALUES (?,?,?,?,?,?,?,?)";
         }
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, producto.getNombre());
             stmt.setInt(2, producto.getPrecio());
-            stmt.setInt(3, producto.getExistencias());
+            stmt.setInt(3, producto.esServicio() ? 0 : producto.getExistencias());
             stmt.setString(4, producto.getSku());
             stmt.setLong(5, producto.getCategoria().getId());
+            stmt.setString(6, producto.getTipoItem().name());
 
             if (producto.getId() != null && producto.getId() > 0) {
-                stmt.setLong(6, producto.getId());
-                stmt.setString(7, producto.getOwnerUsername());
+                stmt.setLong(7, producto.getId());
+                stmt.setString(8, producto.getOwnerUsername());
             } else {
-                stmt.setDate(6, Date.valueOf(producto.getFechaRegistro()));
-                stmt.setString(7, producto.getOwnerUsername());
+                stmt.setDate(7, Date.valueOf(producto.getFechaRegistro()));
+                stmt.setString(8, producto.getOwnerUsername());
             }
             int filas = stmt.executeUpdate();
             if (filas == 0) {
@@ -210,10 +212,19 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
         p.setSku(rs.getString("sku"));
         p.setFechaRegistro(rs.getDate("fecha_registro").toLocalDate());
         p.setOwnerUsername(rs.getString("owner_username"));
+        p.setTipoItem(leerTipoItem(rs));
         Categoria c = new Categoria();
         c.setId(rs.getLong("categoria_id"));
         c.setNombre(rs.getString("categoria"));
         p.setCategoria(c);
         return p;
+    }
+
+    private TipoItem leerTipoItem(ResultSet rs) throws SQLException {
+        try {
+            return TipoItem.porCodigo(rs.getString("tipo_item")).orElse(TipoItem.PRODUCTO);
+        } catch (SQLException e) {
+            return TipoItem.PRODUCTO;
+        }
     }
 }

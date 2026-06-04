@@ -54,7 +54,8 @@ public class CatalogoPlantillaServiceImpl implements CatalogoPlantillaService {
 
             List<ProductoPlantilla> plantillas = catalogoOpt.get().productos();
             categoriaRepository.crearSugeridasSiNoExisten(
-                    tenantOwner, CategoriaPlantillaUtil.paraTipoNegocio(tipoNegocio));
+                    tenantOwner,
+                    CategoriaPlantillaUtil.todasCategoriasParaTipoNegocio(tipoNegocio));
 
             Map<String, Long> categoriasPorNombre = mapaCategorias(tenantOwner);
             PlanSuscripcion plan = planLimiteService.planActivo(tenantOwner);

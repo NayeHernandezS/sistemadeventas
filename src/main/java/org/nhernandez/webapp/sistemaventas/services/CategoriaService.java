@@ -14,4 +14,6 @@ public interface CategoriaService {
     void guardar(Categoria categoria);
 
     void eliminarPorOwner(Long id, String ownerUsername);
+
+    void asegurarCategoriasPlantilla(String ownerUsername, String tipoNegocio);
 }

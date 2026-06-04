@@ -40,6 +40,9 @@ public class VentaServiceImpl implements VentaService {
             if (producto == null) {
                 throw new ServiceJdbcException("Producto no encontrado", null);
             }
+            if (producto.esServicio()) {
+                return;
+            }
             if (producto.getExistencias() < cantidadRequerida) {
                 throw new ServiceJdbcException(
                         "Stock insuficiente para \"" + producto.getNombre()

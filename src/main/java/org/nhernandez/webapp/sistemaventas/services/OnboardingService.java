@@ -4,12 +4,9 @@ import org.nhernandez.webapp.sistemaventas.models.Categoria;
 import org.nhernandez.webapp.sistemaventas.models.Producto;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
 import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
-import org.nhernandez.webapp.sistemaventas.repositories.CategoriaRepository;
-import org.nhernandez.webapp.sistemaventas.util.CategoriaPlantillaUtil;
 import org.nhernandez.webapp.sistemaventas.util.TipoNegocioUtil;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -24,20 +21,17 @@ public class OnboardingService {
     private final CategoriaService categoriaService;
     private final ProductoService productoService;
     private final UsuarioService usuarioService;
-    private final CategoriaRepository categoriaRepository;
 
     public OnboardingService(PreferenciasTenantService preferenciasTenantService,
                              PlanLimiteService planLimiteService,
                              CategoriaService categoriaService,
                              @ProductoServicePrincipal ProductoService productoService,
-                             UsuarioService usuarioService,
-                             CategoriaRepository categoriaRepository) {
+                             UsuarioService usuarioService) {
         this.preferenciasTenantService = preferenciasTenantService;
         this.planLimiteService = planLimiteService;
         this.categoriaService = categoriaService;
         this.productoService = productoService;
         this.usuarioService = usuarioService;
-        this.categoriaRepository = categoriaRepository;
     }
 
     public boolean requiereOnboarding(String tenantAdmin) {
@@ -67,12 +61,7 @@ public class OnboardingService {
     }
 
     public void asegurarCategoriasPlantilla(String tenantAdmin, String tipoNegocio) {
-        try {
-            categoriaRepository.crearSugeridasSiNoExisten(
-                    tenantAdmin, CategoriaPlantillaUtil.paraTipoNegocio(tipoNegocio));
-        } catch (SQLException e) {
-            throw new ServiceJdbcException(e.getMessage(), e);
-        }
+        categoriaService.asegurarCategoriasPlantilla(tenantAdmin, tipoNegocio);
     }
 
     public Map<String, String> validarPrimerProducto(String nombre, String sku, String precioStr,

@@ -14,6 +14,7 @@ public class Producto implements Serializable {
     private String sku;
     private LocalDate fechaRegistro;
     private String ownerUsername;
+    private TipoItem tipoItem = TipoItem.PRODUCTO;
 
     public Producto() {
     }
@@ -89,5 +90,26 @@ public class Producto implements Serializable {
 
     public void setOwnerUsername(String ownerUsername) {
         this.ownerUsername = ownerUsername;
+    }
+
+    public TipoItem getTipoItem() {
+        return tipoItem != null ? tipoItem : TipoItem.PRODUCTO;
+    }
+
+    public void setTipoItem(TipoItem tipoItem) {
+        this.tipoItem = tipoItem != null ? tipoItem : TipoItem.PRODUCTO;
+    }
+
+    public boolean esServicio() {
+        return getTipoItem() == TipoItem.SERVICIO;
+    }
+
+    /** Expuesto para EL/JSP ({@code ${p.esServicio}}). */
+    public boolean getEsServicio() {
+        return esServicio();
+    }
+
+    public boolean esProducto() {
+        return !esServicio();
     }
 }

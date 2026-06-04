@@ -70,6 +70,9 @@ public class InventarioController {
         if (producto.isEmpty()) {
             return inventarioConMensaje(req, "Producto no encontrado en tu inventario.");
         }
+        if (producto.get().esServicio()) {
+            return inventarioConMensaje(req, "Los servicios no tienen stock que ajustar.");
+        }
         model.addAttribute("producto", producto.get());
         model.addAttribute("tiposMovimiento", Arrays.asList(TipoMovimientoInventario.values()));
         return "inventarioAjuste";

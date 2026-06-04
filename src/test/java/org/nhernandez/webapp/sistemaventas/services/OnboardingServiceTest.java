@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.nhernandez.webapp.sistemaventas.repositories.CategoriaRepository;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,16 +29,13 @@ class OnboardingServiceTest {
     @Mock
     private UsuarioService usuarioService;
 
-    @Mock
-    private CategoriaRepository categoriaRepository;
-
     private OnboardingService service;
 
     @BeforeEach
     void setUp() {
         service = new OnboardingService(
                 preferenciasTenantService, planLimiteService, categoriaService,
-                productoService, usuarioService, categoriaRepository);
+                productoService, usuarioService);
     }
 
     @Test

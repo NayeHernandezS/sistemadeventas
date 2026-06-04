@@ -6,6 +6,7 @@ import org.nhernandez.webapp.sistemaventas.configs.MysqlConn;
 
 import org.nhernandez.webapp.sistemaventas.models.ProductoVentaRanking;
 import org.nhernandez.webapp.sistemaventas.models.ResumenVentasVendedor;
+import org.nhernandez.webapp.sistemaventas.models.Producto;
 import org.nhernandez.webapp.sistemaventas.models.TicketItem;
 import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 
@@ -224,6 +225,13 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
             throw new SQLException("tenant_owner es obligatorio para descontar inventario");
         }
         for (TicketItem item : ticket.getItems()) {
+            Producto producto = productoRepository.porIdPorOwner(item.getProductoId(), tenantOwner);
+            if (producto == null) {
+                throw new SQLException("Producto no encontrado id=" + item.getProductoId());
+            }
+            if (producto.esServicio()) {
+                continue;
+            }
             productoRepository.descontarExistencias(
                     item.getProductoId(), tenantOwner, item.getCantidad());
         }
