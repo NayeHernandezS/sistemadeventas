@@ -208,7 +208,7 @@
                                         <button type="submit" class="btn btn-primary">Solicitar pago</button>
                                     </c:otherwise>
                                 </c:choose>
-                                <a href="${pageContext.request.contextPath}/" class="btn btn-outline-secondary ms-2">Volver</a>
+                                <a href="${pageContext.request.contextPath}/inicio" class="btn btn-outline-secondary ms-2">Volver</a>
                             </div>
                         </div>
                     </form>

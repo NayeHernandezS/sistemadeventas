@@ -1,14 +1,16 @@
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <nav class="navbar navbar-expand-lg navbar-dark navbar-app shadow-sm py-3 mb-4 no-print">
     <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="${pageContext.request.contextPath}/" title="Inicio">
-            <%@ include file="logo-tenant.jspf" %>
+        <a class="navbar-brand d-flex align-items-center gap-2" href="${pageContext.request.contextPath}/inicio" title="Inicio">
+            <span class="logo-slot logo-slot--nav">
+                <%@ include file="logo-tenant.jspf" %>
+            </span>
             <span class="fw-bold fs-5 d-none d-sm-inline">
                 <span class="text-primary">FUSION</span> <span class="text-warning">DIGITAL</span>
             </span>
         </a>
         <div class="ms-auto d-flex align-items-center gap-2 flex-wrap justify-content-end">
-            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/">
+            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/inicio">
                 <i class="bi bi-house"></i><span class="d-none d-md-inline ms-1">Inicio</span>
             </a>
             <span class="text-muted small d-none d-lg-inline">Hola, ${sessionScope.username}</span>

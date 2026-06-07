@@ -156,12 +156,13 @@
             <div class="card-header">Logo de tu marca</div>
             <div class="card-body">
                 <p class="small text-muted mb-3">
-                    Sube el logo de tu empresa. Todos los vendedores de tu cuenta veran la misma imagen
-                    en el panel principal.
+                    Sube el logo de tu empresa (PNG, JPG o WebP, max. 2 MB).
+                    La imagen se ajusta automaticamente al espacio del panel, navbar y tickets.
+                    Todos los vendedores de tu cuenta veran la misma imagen en el panel principal.
                 </p>
                 <div class="d-flex align-items-center gap-3 mb-3">
-                    <div class="logo-slot" style="width: 96px; height: 96px;">
-                        <c:set var="logoCssClass" value="logo-hero" scope="request"/>
+                    <div class="logo-slot logo-slot--md">
+                        <c:set var="logoCssClass" value="logo-tenant-img--preview" scope="request"/>
                         <%@ include file="fragmentos/logo-tenant.jspf" %>
                     </div>
                     <div>
@@ -197,8 +198,8 @@
         <div class="card shadow-sm mb-4">
             <div class="card-header">Logo del negocio</div>
             <div class="card-body d-flex align-items-center gap-3">
-                <div class="logo-slot" style="width: 72px; height: 72px;">
-                    <c:set var="logoCssClass" value="logo-hero" scope="request"/>
+                <div class="logo-slot logo-slot--sm">
+                    <c:set var="logoCssClass" value="logo-tenant-img--preview" scope="request"/>
                     <%@ include file="fragmentos/logo-tenant.jspf" %>
                 </div>
                 <p class="small text-muted mb-0">
@@ -405,7 +406,7 @@
                     </c:if>
                 </div>
                 <button type="submit" class="btn btn-primary">Guardar contraseña</button>
-                <a href="${pageContext.request.contextPath}/" class="btn btn-outline-secondary">Volver</a>
+                <a href="${pageContext.request.contextPath}/inicio" class="btn btn-outline-secondary">Volver</a>
             </form>
         </div>
     </div>

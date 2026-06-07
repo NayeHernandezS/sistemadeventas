@@ -1,5 +1,6 @@
 package org.nhernandez.webapp.sistemaventas.services;
 
+import org.nhernandez.webapp.sistemaventas.util.LogoImageUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -60,7 +62,13 @@ public class TenantLogoService {
             Files.createDirectories(directorio);
             borrarLogosAnteriores(directorio);
             Path destino = directorio.resolve(filename);
-            archivo.transferTo(destino.toFile());
+            if (LogoImageUtil.puedeNormalizar(contentType)) {
+                try (InputStream entrada = archivo.getInputStream()) {
+                    LogoImageUtil.normalizarYGuardar(entrada, destino, extension);
+                }
+            } else {
+                archivo.transferTo(destino.toFile());
+            }
             preferenciasTenantService.guardarLogoFilename(tenant, filename);
         } catch (IOException e) {
             throw new ServiceJdbcException("No se pudo guardar el logo: " + e.getMessage(), e);

@@ -21,6 +21,10 @@
             <p class="text-muted small mb-0">Tras registrarte, inicias sesion y eliges tu plan en el panel (1 mes gratis).</p>
         </div>
 
+        <c:if test="${not empty errores.general}">
+            <div class="alert alert-danger py-2">${errores.general}</div>
+        </c:if>
+
         <form action="${pageContext.request.contextPath}/registro" method="post" autocomplete="on">
             <%@ include file="csrf.jspf" %>
 
@@ -128,6 +132,8 @@
         <p class="text-center mb-0">
             ¿Ya tienes cuenta?
             <a href="${pageContext.request.contextPath}/login">Iniciar sesion</a>
+            ·
+            <a href="${pageContext.request.contextPath}/">Sitio</a>
         </p>
     </div>
 </div>

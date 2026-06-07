@@ -1,6 +1,7 @@
 package org.nhernandez.webapp.sistemaventas.config;
 
 import org.nhernandez.webapp.sistemaventas.filters.ConexionFilter;
+import org.nhernandez.webapp.sistemaventas.filters.LoginPostRedirectFilter;
 import org.nhernandez.webapp.sistemaventas.filters.SuscripcionFiltro;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.SuscripcionService;
@@ -12,6 +13,15 @@ import org.springframework.core.Ordered;
 
 @Configuration
 public class FilterConfig {
+
+    @Bean
+    public FilterRegistrationBean<LoginPostRedirectFilter> loginPostRedirectFilterRegistration() {
+        FilterRegistrationBean<LoginPostRedirectFilter> registration =
+                new FilterRegistrationBean<>(new LoginPostRedirectFilter());
+        registration.addUrlPatterns("/login");
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 3);
+        return registration;
+    }
 
     @Bean
     public FilterRegistrationBean<ConexionFilter> conexionFilterRegistration(javax.sql.DataSource dataSource) {

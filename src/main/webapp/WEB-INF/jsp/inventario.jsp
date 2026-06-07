@@ -63,9 +63,17 @@
 
     <c:if test="${logueado}">
         <div class="mb-3">
-            <a class="btn btn-secondary" href="${pageContext.request.contextPath}/">Volver</a>
+            <a class="btn btn-secondary" href="${pageContext.request.contextPath}/inicio">Volver</a>
             <c:if test="${esAdmin}">
                 <a class="btn btn-primary ms-2" href="${pageContext.request.contextPath}/productos/form">Crear producto o servicio</a>
+                <c:if test="${mostrarOpcionServicios}">
+                    <a class="btn btn-outline-info ms-2" href="${pageContext.request.contextPath}/productos/servicios">
+                        <i class="bi bi-scissors"></i> Catalogo de servicios
+                    </a>
+                    <a class="btn btn-outline-success ms-2" href="${pageContext.request.contextPath}/productos/form?tipo_item=SERVICIO">
+                        <i class="bi bi-plus-lg"></i> Agregar servicio
+                    </a>
+                </c:if>
                 <a class="btn btn-outline-primary ms-2" href="${pageContext.request.contextPath}/categorias">Categorias</a>
                 <a class="btn btn-outline-secondary ms-2" href="${pageContext.request.contextPath}/inventario/movimientos">
                     Historial de movimientos

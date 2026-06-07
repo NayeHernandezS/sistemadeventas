@@ -4,7 +4,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>FUSION DIGITAL</title>
+    <title>Panel — FUSION DIGITAL</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
@@ -17,7 +17,7 @@
 <main class="container my-5">
     <div class="text-center mb-5">
         <div class="logo-slot logo-slot--hero mx-auto mb-3">
-            <c:set var="logoCssClass" value="logo-hero" scope="request"/>
+            <c:set var="logoCssClass" value="logo-tenant-img--hero" scope="request"/>
             <%@ include file="fragmentos/logo-tenant.jspf" %>
         </div>
         <h2 class="hero-title mb-2">Panel de ventas</h2>
@@ -26,6 +26,12 @@
             <div class="alert alert-success mt-3 mx-auto text-start" style="max-width: 520px;">
                 ${mensajeExito}
             </div>
+        </c:if>
+        <c:if test="${not empty sessionScope.mensajeError}">
+            <div class="alert alert-warning mt-3 mx-auto text-start" style="max-width: 520px;">
+                ${sessionScope.mensajeError}
+            </div>
+            <c:remove var="mensajeError" scope="session"/>
         </c:if>
         <c:if test="${param.sinPlan eq '1' && sessionScope.rol ne 'ADMIN'}">
             <div class="alert alert-warning mt-3 mx-auto" style="max-width: 520px;">
@@ -173,6 +179,21 @@
                 <a href="${pageContext.request.contextPath}/clientes" class="menu-link stretched-link">Clientes</a>
             </div>
         </div>
+
+        <c:if test="${mostrarAgendaServicios}">
+        <div class="col-md-4 col-lg-3">
+            <div class="card h-100 menu-card p-4 border-start border-info border-3">
+                <div class="icon-circle"><i class="bi bi-calendar-event"></i></div>
+                <a href="${pageContext.request.contextPath}/agenda" class="menu-link stretched-link">Agenda de servicios</a>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-3">
+            <div class="card h-100 menu-card p-4 border-start border-info border-3">
+                <div class="icon-circle"><i class="bi bi-scissors"></i></div>
+                <a href="${pageContext.request.contextPath}/productos/servicios" class="menu-link stretched-link">Catalogo de servicios</a>
+            </div>
+        </div>
+        </c:if>
 
         <c:if test="${sessionScope.rol eq 'ADMIN'}">
         <div class="col-md-4 col-lg-3">

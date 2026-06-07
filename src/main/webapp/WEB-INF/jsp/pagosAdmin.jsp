@@ -29,7 +29,7 @@
     </div>
 
     <a href="${pageContext.request.contextPath}/suscripcion" class="btn btn-outline-primary mb-3">Ir a Suscripcion</a>
-    <a href="${pageContext.request.contextPath}/" class="btn btn-secondary mb-3 ms-2">Volver</a>
+    <a href="${pageContext.request.contextPath}/inicio" class="btn btn-secondary mb-3 ms-2">Volver</a>
 
     <c:if test="${empty pagosPendientes}">
         <p class="text-muted">No tienes pagos pendientes. Puedes solicitar uno nuevo en Suscripcion.</p>

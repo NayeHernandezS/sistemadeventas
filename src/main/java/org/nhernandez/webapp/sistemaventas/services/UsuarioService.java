@@ -4,6 +4,7 @@ import org.nhernandez.webapp.sistemaventas.models.Usuario;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface UsuarioService {
@@ -17,6 +18,8 @@ public interface UsuarioService {
     void guardarVendedor(Usuario usuario, String tenantOwner);
 
     void eliminarDeTenant(Long id, String tenantOwner);
+
+    Map<String, String> validarRegistroCuentaAdmin(Usuario usuario, String confirmarPassword);
 
     void registrarCuentaAdmin(Usuario usuario, LocalDateTime aceptacionLegalEn, String aceptacionLegalVersion);
 

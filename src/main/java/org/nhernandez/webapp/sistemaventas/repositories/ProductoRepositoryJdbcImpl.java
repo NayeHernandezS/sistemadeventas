@@ -11,6 +11,7 @@ import org.nhernandez.webapp.sistemaventas.models.Producto;
 import org.nhernandez.webapp.sistemaventas.models.TipoItem;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -41,6 +42,17 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
     @Override
     public List<Producto> listarPorOwner(String ownerUsername) throws SQLException {
         String sql = SELECT_BASE + "WHERE p.owner_username = ? ORDER BY p.id ASC";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, ownerUsername);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return mapProductos(rs);
+            }
+        }
+    }
+
+    @Override
+    public List<Producto> listarServiciosPorOwner(String ownerUsername) throws SQLException {
+        String sql = SELECT_BASE + "WHERE p.owner_username = ? AND p.tipo_item = 'SERVICIO' ORDER BY p.nombre ASC";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, ownerUsername);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -84,14 +96,18 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
             stmt.setInt(3, producto.esServicio() ? 0 : producto.getExistencias());
             stmt.setString(4, producto.getSku());
             stmt.setLong(5, producto.getCategoria().getId());
-            stmt.setString(6, producto.getTipoItem().name());
 
             if (producto.getId() != null && producto.getId() > 0) {
+                stmt.setString(6, producto.getTipoItem().name());
                 stmt.setLong(7, producto.getId());
                 stmt.setString(8, producto.getOwnerUsername());
             } else {
-                stmt.setDate(7, Date.valueOf(producto.getFechaRegistro()));
-                stmt.setString(8, producto.getOwnerUsername());
+                LocalDate registro = producto.getFechaRegistro() != null
+                        ? producto.getFechaRegistro()
+                        : LocalDate.now();
+                stmt.setDate(6, Date.valueOf(registro));
+                stmt.setString(7, producto.getOwnerUsername());
+                stmt.setString(8, producto.getTipoItem().name());
             }
             int filas = stmt.executeUpdate();
             if (filas == 0) {

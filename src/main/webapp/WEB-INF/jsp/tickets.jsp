@@ -1,80 +1,88 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="jakarta.tags.core" prefix="c"%>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Tickets de Venta</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <title>Mis tickets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
 </head>
 <body>
 <%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container my-4">
-    <h1>Tickets de Venta</h1>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h1 class="h3 mb-0"><i class="bi bi-ticket-detailed"></i> Tickets de venta</h1>
+        <a class="btn btn-primary" href="${pageContext.request.contextPath}/productos">
+            <i class="bi bi-cart-plus"></i> Nueva venta
+        </a>
+    </div>
+
     <c:choose>
         <c:when test="${empty tickets}">
             <div class="alert alert-warning">No hay tickets registrados.</div>
         </c:when>
         <c:otherwise>
-            <c:forEach items="${tickets}" var="ticket">
-                <div class="card mb-3">
-                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <span><strong>Folio:</strong> ${ticket.folio}</span>
-                        <c:choose>
-                            <c:when test="${ticket.estado eq 'DEVUELTO_TOTAL'}">
-                                <span class="badge bg-secondary">Devuelto total</span>
-                            </c:when>
-                            <c:when test="${ticket.estado eq 'DEVUELTO_PARCIAL'}">
-                                <span class="badge bg-warning text-dark">Devolucion parcial</span>
-                            </c:when>
-                            <c:otherwise>
-                                <span class="badge bg-success">Activo</span>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-1"><strong>Vendedor:</strong> ${ticket.usernameVendedor}</p>
-                        <p class="mb-1"><strong>Fecha:</strong> ${ticket.fechaVenta}</p>
-                        <p class="mb-3"><strong>Total:</strong> $${ticket.total}</p>
-                        <p class="mb-2 d-flex flex-wrap gap-2">
-                            <a class="btn btn-sm btn-outline-primary" href="${pageContext.request.contextPath}/factura?folioTicket=${ticket.folio}">Ver / imprimir factura</a>
-                            <c:if test="${ticket.estado ne 'DEVUELTO_TOTAL'}">
-                            <a class="btn btn-sm btn-outline-warning" href="${pageContext.request.contextPath}/devoluciones/nueva?ticketId=${ticket.id}">
-                                <i class="bi bi-arrow-return-left"></i> Devolucion
-                            </a>
-                            </c:if>
-                        </p>
-                        <table class="table table-sm table-striped">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Producto</th>
-                                    <th>Precio</th>
-                                    <th>Cantidad</th>
-                                    <th>Importe</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach items="${ticket.items}" var="item">
-                                    <tr>
-                                        <td>${item.productoId}</td>
-                                        <td>${item.nombreProducto}</td>
-                                        <td>$${item.precioUnitario}</td>
-                                        <td>${item.cantidad}</td>
-                                        <td>$${item.importe}</td>
-                                    </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </c:forEach>
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle">
+                    <thead>
+                    <tr>
+                        <th>Folio</th>
+                        <th>Fecha</th>
+                        <th>Vendedor</th>
+                        <th class="text-end">Total</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <c:forEach items="${tickets}" var="ticket">
+                        <tr>
+                            <td><strong>${ticket.folio}</strong></td>
+                            <td>${ticket.fechaVenta}</td>
+                            <td>${ticket.usernameVendedor}</td>
+                            <td class="text-end">$${ticket.total}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${ticket.estado eq 'DEVUELTO_TOTAL'}">
+                                        <span class="badge bg-secondary">Devuelto total</span>
+                                    </c:when>
+                                    <c:when test="${ticket.estado eq 'DEVUELTO_PARCIAL'}">
+                                        <span class="badge bg-warning text-dark">Dev. parcial</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="badge bg-success">Vigente</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                    <a class="btn btn-sm btn-primary"
+                                       href="${pageContext.request.contextPath}/tickets/ver?id=${ticket.id}">
+                                        <i class="bi bi-eye"></i> Ver ticket
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       href="${pageContext.request.contextPath}/factura?folioTicket=${ticket.folio}">
+                                        Factura
+                                    </a>
+                                    <c:if test="${ticket.estado ne 'DEVUELTO_TOTAL'}">
+                                        <a class="btn btn-sm btn-outline-warning"
+                                           href="${pageContext.request.contextPath}/devoluciones/nueva?ticketId=${ticket.id}">
+                                            Devolucion
+                                        </a>
+                                    </c:if>
+                                </div>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    </tbody>
+                </table>
+            </div>
         </c:otherwise>
     </c:choose>
-    <a class="btn btn-secondary" href="${pageContext.request.contextPath}/">Volver</a>
-    <a class="btn btn-primary" href="${pageContext.request.contextPath}/productos">Nueva venta</a>
+
+    <a class="btn btn-secondary mt-2" href="${pageContext.request.contextPath}/inicio">Inicio</a>
 </div>
 </body>
 </html>

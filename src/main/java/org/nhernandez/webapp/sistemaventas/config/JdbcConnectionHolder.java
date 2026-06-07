@@ -1,6 +1,7 @@
 package org.nhernandez.webapp.sistemaventas.config;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Conexion JDBC activa en la peticion HTTP actual (una por hilo).
@@ -31,5 +32,20 @@ public final class JdbcConnectionHolder {
 
     public static void clear() {
         CONNECTION.remove();
+    }
+
+    /** Revierte la transaccion de la peticion actual sin lanzar excepcion. */
+    public static void rollbackSilencioso() {
+        Connection connection = get();
+        if (connection == null) {
+            return;
+        }
+        try {
+            if (!connection.isClosed()) {
+                connection.rollback();
+            }
+        } catch (SQLException ignored) {
+            // ignorar error al revertir
+        }
     }
 }

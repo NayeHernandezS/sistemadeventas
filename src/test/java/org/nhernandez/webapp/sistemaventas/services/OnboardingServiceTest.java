@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.nhernandez.webapp.sistemaventas.models.TipoItem;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -63,5 +65,20 @@ class OnboardingServiceTest {
     void validarPrimerProducto_rechazaPrecioCero() {
         var errores = service.validarPrimerProducto("Agua", "A1", "0", "5", 1L);
         assertTrue(errores.containsKey("precio"));
+    }
+
+    @Test
+    void validarPrimerItem_servicioNoRequiereSku() {
+        var errores = service.validarPrimerItem(
+                TipoItem.SERVICIO.name(), "Consultoria legal", "", "500", "0", 1L);
+        assertFalse(errores.containsKey("sku"));
+        assertFalse(errores.containsKey("existencias"));
+    }
+
+    @Test
+    void validarPrimerItem_productoRequiereSku() {
+        var errores = service.validarPrimerItem(
+                TipoItem.PRODUCTO.name(), "Agua", "", "15", "10", 1L);
+        assertTrue(errores.containsKey("sku"));
     }
 }

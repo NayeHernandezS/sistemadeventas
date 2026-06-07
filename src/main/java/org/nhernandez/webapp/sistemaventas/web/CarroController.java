@@ -87,6 +87,11 @@ public class CarroController {
             return "redirect:/productos";
         }
         carro.addItemCarro(new ItemCarro(1, producto.get()));
+        if ("productos".equals(req.getParameter("origen"))) {
+            req.getSession().setAttribute("mensajeExito",
+                    producto.get().getNombre() + " agregado al carro.");
+            return "redirect:/productos";
+        }
         return "redirect:/carro/ver";
     }
 
@@ -99,6 +104,12 @@ public class CarroController {
             ventaService.validarStockCarrito(tenant, carro.getItems());
         } catch (ServiceJdbcException e) {
             req.getSession().setAttribute("mensajeError", e.getMessage());
+        }
+        if ("productos".equals(req.getParameter("origen"))) {
+            if (req.getSession().getAttribute("mensajeError") == null) {
+                req.getSession().setAttribute("mensajeExito", "Carro actualizado.");
+            }
+            return "redirect:/productos";
         }
         return "redirect:/carro/ver";
     }
@@ -181,7 +192,7 @@ public class CarroController {
             }
         }
         req.getSession().setAttribute("mensajeTicket", msg);
-        resp.sendRedirect(req.getContextPath() + "/tickets");
+        resp.sendRedirect(req.getContextPath() + "/tickets/ver?id=" + ticket.getId());
     }
 
     private void updateProductos(HttpServletRequest request, Carro carro) {

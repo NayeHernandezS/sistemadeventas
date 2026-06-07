@@ -1,6 +1,7 @@
 package org.nhernandez.webapp.sistemaventas.web;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.nhernandez.webapp.sistemaventas.config.JdbcConnectionHolder;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
 import org.nhernandez.webapp.sistemaventas.services.RegistroLegalService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
@@ -48,44 +49,22 @@ public class RegistroController {
         Map<String, String> errores = new HashMap<>();
         errores.putAll(registroLegalService.validarAceptacion(aceptaTerminos, aceptaPrivacidad));
 
-        if (username == null || username.isBlank()) {
-            errores.put("username", "El usuario es requerido");
-        } else if (username.length() < 3) {
-            errores.put("username", "Minimo 3 caracteres");
-        }
-
-        if (password == null || password.isBlank()) {
-            errores.put("password", "La contraseña es requerida");
-        } else if (password.length() < 4) {
-            errores.put("password", "Minimo 4 caracteres");
-        }
-
-        if (confirmar == null || !confirmar.equals(password)) {
-            errores.put("confirmarPassword", "Las contraseñas no coinciden");
-        }
-
-        if (email == null || email.isBlank()) {
-            errores.put("email", "El email es requerido");
-        }
         if (!TipoNegocioUtil.esValido(tipoNegocio)) {
             errores.put("tipoNegocio", "Selecciona el tipo de negocio");
         }
-        if (!errores.isEmpty()) {
-            model.addAttribute("errores", errores);
-            model.addAttribute("username", username);
-            model.addAttribute("email", email);
-            model.addAttribute("aceptaTerminos", aceptaTerminos);
-            model.addAttribute("aceptaPrivacidad", aceptaPrivacidad);
-            cargarCatalogos(model, tipoNegocio);
-            model.addAttribute("versionLegal", registroLegalService.versionVigente());
-            return "registro";
-        }
 
         Usuario usuario = new Usuario();
-        usuario.setUsername(username.trim());
+        usuario.setUsername(username != null ? username.trim() : null);
         usuario.setPassword(password);
-        usuario.setEmail(email.trim());
-        usuario.setTipoNegocio(tipoNegocio.trim().toLowerCase());
+        usuario.setEmail(email != null ? email.trim() : null);
+        usuario.setTipoNegocio(tipoNegocio != null ? tipoNegocio.trim().toLowerCase() : null);
+
+        errores.putAll(usuarioService.validarRegistroCuentaAdmin(usuario, confirmar));
+
+        if (!errores.isEmpty()) {
+            return mostrarRegistroConErrores(model, errores, username, email, tipoNegocio,
+                    aceptaTerminos, aceptaPrivacidad);
+        }
 
         try {
             usuarioService.registrarCuentaAdmin(
@@ -96,16 +75,38 @@ public class RegistroController {
                     "Cuenta creada. Inicia sesion y elige tu plan (1 mes gratis) en el panel de administrador.");
             return "login";
         } catch (ServiceJdbcException e) {
-            errores.put("username", e.getMessage());
-            model.addAttribute("errores", errores);
-            model.addAttribute("username", username);
-            model.addAttribute("email", email);
-            model.addAttribute("aceptaTerminos", aceptaTerminos);
-            model.addAttribute("aceptaPrivacidad", aceptaPrivacidad);
-            cargarCatalogos(model, tipoNegocio);
-            model.addAttribute("versionLegal", registroLegalService.versionVigente());
-            return "registro";
+            JdbcConnectionHolder.rollbackSilencioso();
+            asignarErrorServicio(errores, e);
+            return mostrarRegistroConErrores(model, errores, username, email, tipoNegocio,
+                    aceptaTerminos, aceptaPrivacidad);
         }
+    }
+
+    private void asignarErrorServicio(Map<String, String> errores, ServiceJdbcException e) {
+        String msg = e.getMessage() != null ? e.getMessage() : "No se pudo crear la cuenta";
+        String msgLower = msg.toLowerCase();
+        if (msgLower.contains("usuario") || msgLower.contains("username")) {
+            errores.put("username", msg);
+        } else if (msgLower.contains("email")) {
+            errores.put("email", msg);
+        } else if (msgLower.contains("contrase") || msgLower.contains("password")) {
+            errores.put("password", msg);
+        } else {
+            errores.put("general", msg);
+        }
+    }
+
+    private String mostrarRegistroConErrores(Model model, Map<String, String> errores,
+                                             String username, String email, String tipoNegocio,
+                                             String aceptaTerminos, String aceptaPrivacidad) {
+        model.addAttribute("errores", errores);
+        model.addAttribute("username", username);
+        model.addAttribute("email", email);
+        model.addAttribute("aceptaTerminos", aceptaTerminos);
+        model.addAttribute("aceptaPrivacidad", aceptaPrivacidad);
+        cargarCatalogos(model, tipoNegocio);
+        model.addAttribute("versionLegal", registroLegalService.versionVigente());
+        return "registro";
     }
 
     private void cargarCatalogos(Model model, String tipoNegocio) {

@@ -44,4 +44,34 @@ public final class TipoNegocioUtil {
     public static boolean esValido(String codigo) {
         return codigo != null && TIPOS.containsKey(codigo.trim().toLowerCase(Locale.ROOT));
     }
+
+    /** Rubros que al registrarse no cargan catalogo JSON de mercancia. */
+    public static boolean importaCatalogoProductos(String codigo) {
+        return !"servicios_profesionales".equals(normalizar(codigo));
+    }
+
+    /** Onboarding sugiere servicio como tipo por defecto. */
+    public static boolean predominanServicios(String codigo) {
+        String rubro = normalizar(codigo);
+        return "servicios_profesionales".equals(rubro);
+    }
+
+    /**
+     * Rubros con plantillas de servicio en catalogo (belleza, consultoria, etc.).
+     * La agenda de citas solo aplica a estos negocios.
+     */
+    public static boolean tieneOpcionServicios(String codigo) {
+        return switch (normalizar(codigo)) {
+            case "belleza", "tecnologia", "restaurante", "regalo",
+                 "servicios_profesionales", "otro" -> true;
+            default -> false;
+        };
+    }
+
+    private static String normalizar(String codigo) {
+        if (codigo == null || codigo.isBlank()) {
+            return "otro";
+        }
+        return codigo.trim().toLowerCase(Locale.ROOT);
+    }
 }

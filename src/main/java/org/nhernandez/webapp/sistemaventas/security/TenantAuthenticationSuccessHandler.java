@@ -26,7 +26,7 @@ public class TenantAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                                                 OnboardingService onboardingService) {
         this.suscripcionService = suscripcionService;
         this.onboardingService = onboardingService;
-        setDefaultTargetUrl("/");
+        setDefaultTargetUrl("/inicio");
         setAlwaysUseDefaultTargetUrl(true);
     }
 
@@ -60,7 +60,7 @@ public class TenantAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                     ? (suscripcionService.consultar(tenant).isEmpty()
                     ? "/suscripcion?eligePlan=1"
                     : "/suscripcion?requierePago=1")
-                    : "/?sinPlan=1";
+                    : "/inicio?sinPlan=1";
             getRedirectStrategy().sendRedirect(request, response, request.getContextPath() + destino);
             return;
         }

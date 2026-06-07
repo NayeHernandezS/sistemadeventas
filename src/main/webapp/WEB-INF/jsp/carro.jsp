@@ -267,7 +267,7 @@
                     </div>
                     <hr class="my-3">
                     <div class="d-flex flex-wrap gap-2">
-                        <a class="btn btn-sm btn-outline-secondary" href="${pageContext.request.contextPath}/">
+                        <a class="btn btn-sm btn-outline-secondary" href="${pageContext.request.contextPath}/inicio">
                             <i class="bi bi-house"></i> Inicio
                         </a>
                         <a class="btn btn-sm btn-outline-dark" href="${pageContext.request.contextPath}/tickets">

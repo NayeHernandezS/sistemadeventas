@@ -60,7 +60,7 @@ public class SuscripcionController {
     @GetMapping("/suscripcion")
     public String suscripcionGet(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
         if (!RolUtil.esAdmin(req)) {
-            return "redirect:/";
+            return "redirect:/inicio";
         }
         cargarDatosSuscripcion(req, model);
         return "suscripcion";
@@ -152,7 +152,7 @@ public class SuscripcionController {
     @GetMapping("/suscripcion/pago-exitoso")
     public String pagoExitoso(HttpServletRequest req, Model model) throws IOException {
         if (!RolUtil.esAdmin(req)) {
-            return "redirect:/";
+            return "redirect:/inicio";
         }
         String paymentId = req.getParameter("payment_id");
         if (paymentId == null) {
@@ -181,7 +181,7 @@ public class SuscripcionController {
     @GetMapping("/suscripcion/pago-pendiente")
     public String pagoPendiente(HttpServletRequest req, Model model) throws IOException {
         if (!RolUtil.esAdmin(req)) {
-            return "redirect:/";
+            return "redirect:/inicio";
         }
         model.addAttribute("mensajeExito",
                 "Tu pago esta pendiente (por ejemplo SPEI u OXXO). Cuando Mercado Pago lo confirme, se activara el plan.");
@@ -192,7 +192,7 @@ public class SuscripcionController {
     @GetMapping("/suscripcion/pago-fallido")
     public String pagoFallido(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
         if (!RolUtil.esAdmin(req)) {
-            return "redirect:/";
+            return "redirect:/inicio";
         }
         model.addAttribute("errores", Map.of("general",
                 "El pago no se completo. Puedes intentar de nuevo o solicitar pago manual."));
@@ -245,7 +245,7 @@ public class SuscripcionController {
     @GetMapping("/suscripcion/auto-renovar-exito")
     public String autoRenovarExito(HttpServletRequest req, Model model) throws IOException {
         if (!RolUtil.esAdmin(req)) {
-            return "redirect:/";
+            return "redirect:/inicio";
         }
         String preapprovalId = req.getParameter("preapproval_id");
         if (preapprovalId == null) {
@@ -309,7 +309,7 @@ public class SuscripcionController {
     public String cancelarPagoDesdeSuscripcion(HttpServletRequest req, Model model, HttpServletResponse resp)
             throws IOException {
         if (!RolUtil.esAdmin(req)) {
-            return "redirect:/";
+            return "redirect:/inicio";
         }
         String tenant = TenantUtil.getTenantOwner(req);
         try {

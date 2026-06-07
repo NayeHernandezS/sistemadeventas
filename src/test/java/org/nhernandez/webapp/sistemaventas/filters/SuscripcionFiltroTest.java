@@ -78,6 +78,19 @@ class SuscripcionFiltroTest {
     }
 
     @Test
+    void rutaExenta_landingGet_noRequiereSuscripcion() {
+        when(request.getRequestURI()).thenReturn("/");
+        when(request.getMethod()).thenReturn("GET");
+
+        assertTrue(SuscripcionFiltro.esRutaExenta(request));
+    }
+
+    @Test
+    void rutaPermitidaSinPlan_inicioCuandoPlanVencido() {
+        assertTrue(SuscripcionFiltro.rutaPermitidaSinPlan("/inicio", request));
+    }
+
+    @Test
     void rutaPermitidaSinPlan_soporteCuandoPlanVencido() {
         when(request.getRequestURI()).thenReturn("/soporte");
         when(session.getAttribute("rol")).thenReturn(RolUtil.ROL_VENDEDOR);
@@ -130,7 +143,7 @@ class SuscripcionFiltroTest {
 
         filtro.doFilter(request, response, chain);
 
-        verify(response).sendRedirect("/?sinPlan=1");
+        verify(response).sendRedirect("/inicio?sinPlan=1");
         verify(chain, never()).doFilter(any(), any());
     }
 

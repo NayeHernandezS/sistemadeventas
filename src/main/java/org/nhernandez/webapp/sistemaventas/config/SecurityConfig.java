@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -21,11 +23,21 @@ public class SecurityConfig {
             HttpSecurity http,
             TenantAuthenticationSuccessHandler successHandler,
             LoginAuthenticationFailureHandler failureHandler) throws Exception {
+        CsrfTokenRequestAttributeHandler csrfHandler = new CsrfTokenRequestAttributeHandler();
+        csrfHandler.setCsrfRequestAttributeName(null);
+
         http
                 .requestCache(cache -> cache.disable())
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(csrfHandler)
+                        .ignoringRequestMatchers(
+                                new AntPathRequestMatcher("/login/process"),
+                                new AntPathRequestMatcher("/api/mercadopago/**")))
                 .authorizeHttpRequests(auth -> auth
                         .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                         .requestMatchers(
+                                new AntPathRequestMatcher("/"),
                                 new AntPathRequestMatcher("/login"),
                                 new AntPathRequestMatcher("/login.html"),
                                 new AntPathRequestMatcher("/login.jsp"),

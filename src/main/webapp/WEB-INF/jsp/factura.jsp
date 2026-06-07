@@ -188,6 +188,8 @@
             </c:if>
         </c:if>
         <button type="button" class="btn btn-outline-primary" onclick="window.print()">Imprimir</button>
+        <a class="btn btn-outline-secondary"
+           href="${pageContext.request.contextPath}/tickets/ver?folio=${ticket.folio}">Ver ticket</a>
         <a class="btn btn-secondary" href="${pageContext.request.contextPath}/tickets">Volver a tickets</a>
     </div>
 </div>

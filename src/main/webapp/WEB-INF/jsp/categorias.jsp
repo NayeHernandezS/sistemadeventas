@@ -21,7 +21,7 @@
     </c:if>
 
     <div class="mb-3">
-        <a class="btn btn-secondary" href="${pageContext.request.contextPath}/">Volver</a>
+        <a class="btn btn-secondary" href="${pageContext.request.contextPath}/inicio">Volver</a>
         <a class="btn btn-outline-secondary ms-2" href="${pageContext.request.contextPath}/crudprod">Inventario</a>
         <a class="btn btn-primary ms-2" href="${pageContext.request.contextPath}/categorias/form">Nueva categoria [+]</a>
     </div>

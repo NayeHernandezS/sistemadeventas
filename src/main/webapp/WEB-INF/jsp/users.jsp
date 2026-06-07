@@ -15,7 +15,7 @@
 <%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container py-4">
  <div class="mb-3">
-     <a class="btn btn-secondary" href="${pageContext.request.contextPath}/">Volver</a>
+     <a class="btn btn-secondary" href="${pageContext.request.contextPath}/inicio">Volver</a>
      <c:if test="${username.present}">
          <a class="btn btn-primary ms-2" href="${pageContext.request.contextPath}/usuarios/form">Crear vendedor [+]</a>
      </c:if>

@@ -79,7 +79,7 @@
         </div>
     </c:if>
 
-    <a class="btn btn-secondary" href="${pageContext.request.contextPath}/">Inicio</a>
+    <a class="btn btn-secondary" href="${pageContext.request.contextPath}/inicio">Inicio</a>
     <a class="btn btn-outline-primary" href="${pageContext.request.contextPath}/tickets">Ver tickets</a>
 </div>
 </body>

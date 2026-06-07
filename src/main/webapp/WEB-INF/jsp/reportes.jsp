@@ -187,7 +187,7 @@
         </c:otherwise>
     </c:choose>
 
-    <a class="btn btn-secondary" href="${pageContext.request.contextPath}/">Volver</a>
+    <a class="btn btn-secondary" href="${pageContext.request.contextPath}/inicio">Volver</a>
     <a class="btn btn-primary" href="${pageContext.request.contextPath}/tickets">Ver tickets</a>
 </div>
 </body>

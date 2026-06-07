@@ -11,6 +11,8 @@ public interface ProductoRepository {
 
     List<Producto> listarPorOwner(String ownerUsername) throws SQLException;
 
+    List<Producto> listarServiciosPorOwner(String ownerUsername) throws SQLException;
+
     Producto porIdPorOwner(Long id, String ownerUsername) throws SQLException;
 
     void eliminarPorOwner(Long id, String ownerUsername) throws SQLException;

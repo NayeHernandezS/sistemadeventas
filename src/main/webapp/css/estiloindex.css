@@ -12,39 +12,7 @@ body {
     min-height: 100vh;
 }
 
-/* Logo */
-.logo-slot {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.logo-slot--hero {
-    min-height: 100px;
-    max-width: 220px;
-}
-
-.navbar-logo,
-.logo-hero {
-    width: auto;
-    object-fit: contain;
-    background-color: #fff;
-    border: 1px solid rgba(107, 33, 168, 0.2);
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(10, 10, 10, 0.12);
-}
-
-.navbar-logo {
-    max-height: 56px;
-    max-width: 140px;
-    padding: 6px 10px;
-}
-
-.logo-hero {
-    max-width: 180px;
-    max-height: 90px;
-    padding: 10px 14px;
-}
+/* Logo: estilos globales en tema.css */
 
 /* Hero Section */
 .hero-title {

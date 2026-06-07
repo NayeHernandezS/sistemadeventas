@@ -19,6 +19,10 @@
     <div class="alert alert-danger">${sessionScope.mensajeError}</div>
     <c:remove var="mensajeError" scope="session"/>
 </c:if>
+<c:if test="${not empty sessionScope.mensajeExito}">
+    <div class="alert alert-success">${sessionScope.mensajeExito}</div>
+    <c:remove var="mensajeExito" scope="session"/>
+</c:if>
 <c:if test="${not empty sessionScope.username}">
    <div class="alert alert-info">Hola ${sessionScope.username}, bienvenido!</div>
 </c:if>
@@ -30,6 +34,7 @@
 <c:otherwise>
 <form name="formcarro" action="${pageContext.request.contextPath}/carro/actualizar" method="post">
 <%@ include file="csrf.jspf" %>
+<input type="hidden" name="origen" value="productos">
 <table class="table table-hover table-striped mb-3">
     <thead>
     <tr>
@@ -65,7 +70,7 @@
 </c:otherwise>
 </c:choose>
 <div class="my-2">
-<a class="btn btn-sm btn-secondary" href="${pageContext.request.contextPath}/">Volver</a>
+<a class="btn btn-sm btn-secondary" href="${pageContext.request.contextPath}/inicio">Volver</a>
 <a class="btn btn-sm btn-success" href="${pageContext.request.contextPath}/carro/ver">Ver carro</a>
 </div>
 <h2 class="h5 mt-3">Catalogo</h2>
@@ -131,7 +136,7 @@
         <td>
             <c:choose>
                 <c:when test="${p.esServicio || p.existencias > 0}">
-                    <a class="btn btn-sm btn-primary" href="${pageContext.request.contextPath}/carro/agregar?id=${p.id}">Agregar al carro</a>
+                    <a class="btn btn-sm btn-primary" href="${pageContext.request.contextPath}/carro/agregar?id=${p.id}&origen=productos">Agregar al carro</a>
                 </c:when>
                 <c:otherwise>
                     <span class="text-muted small">Sin stock</span>

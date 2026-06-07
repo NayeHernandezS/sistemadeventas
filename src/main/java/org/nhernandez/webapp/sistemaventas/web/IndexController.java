@@ -9,8 +9,10 @@ import org.nhernandez.webapp.sistemaventas.services.PanelNegocioService;
 import org.nhernandez.webapp.sistemaventas.services.PlanLimiteService;
 import org.nhernandez.webapp.sistemaventas.services.ProductoService;
 import org.nhernandez.webapp.sistemaventas.services.SuscripcionAvisoService;
+import org.nhernandez.webapp.sistemaventas.services.UsuarioService;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
+import org.nhernandez.webapp.sistemaventas.util.TipoNegocioUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +27,7 @@ public class IndexController {
     private final PanelNegocioService panelNegocioService;
     private final LoginService loginService;
     private final OnboardingService onboardingService;
+    private final UsuarioService usuarioService;
 
     public IndexController(PlanLimiteService planLimiteService,
                            @ProductoServicePrincipal ProductoService productoService,
@@ -32,7 +35,8 @@ public class IndexController {
                            SuscripcionAvisoService suscripcionAvisoService,
                            PanelNegocioService panelNegocioService,
                            LoginService loginService,
-                           OnboardingService onboardingService) {
+                           OnboardingService onboardingService,
+                           UsuarioService usuarioService) {
         this.planLimiteService = planLimiteService;
         this.productoService = productoService;
         this.inventarioAlertaService = inventarioAlertaService;
@@ -40,13 +44,15 @@ public class IndexController {
         this.panelNegocioService = panelNegocioService;
         this.loginService = loginService;
         this.onboardingService = onboardingService;
+        this.usuarioService = usuarioService;
     }
 
-    @GetMapping("/")
+    @GetMapping("/inicio")
     public String index(HttpServletRequest req, Model model) {
         if (RolUtil.esSuperAdmin(req)) {
             return "redirect:/plataforma";
         }
+        agregarVisibilidadAgenda(req, model);
         if (RolUtil.esAdmin(req)) {
             String tenant = TenantUtil.getTenantOwner(req);
             if (onboardingService.requiereOnboarding(tenant)) {
@@ -78,8 +84,20 @@ public class IndexController {
         return "index";
     }
 
+    private void agregarVisibilidadAgenda(HttpServletRequest req, Model model) {
+        String tenant = TenantUtil.getTenantOwner(req);
+        if (tenant == null || tenant.isBlank()) {
+            model.addAttribute("mostrarAgendaServicios", false);
+            return;
+        }
+        boolean mostrar = usuarioService.porUsername(tenant)
+                .map(u -> TipoNegocioUtil.tieneOpcionServicios(u.getTipoNegocio()))
+                .orElse(false);
+        model.addAttribute("mostrarAgendaServicios", mostrar);
+    }
+
     @GetMapping("/index.jsp")
     public String indexLegacy() {
-        return "redirect:/";
+        return "redirect:/inicio";
     }
 }

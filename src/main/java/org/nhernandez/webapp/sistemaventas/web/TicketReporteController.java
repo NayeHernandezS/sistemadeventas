@@ -77,6 +77,71 @@ public class TicketReporteController {
         return "tickets";
     }
 
+    @GetMapping("/tickets/ver")
+    public String verTicket(HttpServletRequest req, Model model, HttpServletResponse resp)
+            throws IOException, SQLException {
+        Optional<String> usernameOpt = loginService.getUsername(req);
+        if (usernameOpt.isEmpty()) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Debe iniciar sesion para consultar tickets.");
+            return null;
+        }
+        String tenant = TenantUtil.getTenantOwner(req);
+        if (tenant == null || tenant.isBlank()) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Debe iniciar sesion.");
+            return null;
+        }
+
+        TicketVenta ticket = resolverTicket(req, tenant, resp);
+        if (ticket == null) {
+            return null;
+        }
+        if (!RolUtil.esAdmin(req)
+                && !usernameOpt.get().equalsIgnoreCase(ticket.getUsernameVendedor())) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "No tienes permiso para ver este ticket.");
+            return null;
+        }
+
+        Factura factura = facturaRepository.porTicketId(ticket.getId());
+        model.addAttribute("ticket", ticket);
+        model.addAttribute("factura", factura);
+        model.addAttribute("tieneFactura", factura != null);
+
+        Object mensaje = req.getSession().getAttribute("mensajeTicket");
+        if (mensaje != null) {
+            model.addAttribute("mensajeExito", mensaje.toString());
+            req.getSession().removeAttribute("mensajeTicket");
+        }
+        return "ticket";
+    }
+
+    private TicketVenta resolverTicket(HttpServletRequest req, String tenant, HttpServletResponse resp)
+            throws IOException, SQLException {
+        String idParam = req.getParameter("id");
+        if (idParam != null && !idParam.isBlank()) {
+            try {
+                long id = Long.parseLong(idParam.trim());
+                TicketVenta ticket = ticketRepository.porIdDeTenant(id, tenant);
+                if (ticket == null) {
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Ticket no encontrado.");
+                }
+                return ticket;
+            } catch (NumberFormatException e) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Id de ticket invalido.");
+                return null;
+            }
+        }
+        String folio = req.getParameter("folio");
+        if (folio != null && !folio.isBlank()) {
+            TicketVenta ticket = ticketRepository.porFolioDeTenant(folio.trim(), tenant);
+            if (ticket == null) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Ticket no encontrado.");
+            }
+            return ticket;
+        }
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Indique id o folio del ticket.");
+        return null;
+    }
+
     @GetMapping("/factura")
     public String factura(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException, SQLException {
         Optional<TicketVenta> ticketOpt = cargarTicket(req, resp);

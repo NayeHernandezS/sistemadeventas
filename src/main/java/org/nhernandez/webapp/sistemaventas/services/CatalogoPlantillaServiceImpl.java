@@ -6,6 +6,10 @@ import org.nhernandez.webapp.sistemaventas.catalogo.ProductoPlantilla;
 import org.nhernandez.webapp.sistemaventas.models.Categoria;
 import org.nhernandez.webapp.sistemaventas.models.PlanSuscripcion;
 import org.nhernandez.webapp.sistemaventas.models.Producto;
+import org.nhernandez.webapp.sistemaventas.models.TipoItem;
+import org.nhernandez.webapp.sistemaventas.util.ServicioPlantillaUtil;
+import org.nhernandez.webapp.sistemaventas.util.SugerenciaServicio;
+import org.nhernandez.webapp.sistemaventas.util.TipoNegocioUtil;
 import org.nhernandez.webapp.sistemaventas.repositories.CategoriaRepository;
 import org.nhernandez.webapp.sistemaventas.repositories.ProductoRepository;
 import org.nhernandez.webapp.sistemaventas.util.CategoriaPlantillaUtil;
@@ -38,6 +42,96 @@ public class CatalogoPlantillaServiceImpl implements CatalogoPlantillaService {
 
     @Override
     public ResultadoImportacionCatalogo importarCatalogoInicial(String tenantOwner, String tipoNegocio) {
+        if (!TipoNegocioUtil.importaCatalogoProductos(tipoNegocio)) {
+            return new ResultadoImportacionCatalogo(0, 0, 0);
+        }
+        return importarDesdePlantillasProducto(tenantOwner, tipoNegocio);
+    }
+
+    @Override
+    public ResultadoImportacionCatalogo importarServiciosIniciales(String tenantOwner, String tipoNegocio) {
+        if (tenantOwner == null || tenantOwner.isBlank()) {
+            return new ResultadoImportacionCatalogo(0, 0, 0);
+        }
+        try {
+            if (productoRepository.contarPorOwner(tenantOwner) > 0) {
+                return new ResultadoImportacionCatalogo(0, 0, 0);
+            }
+            return importarPlantillasServicio(tenantOwner, tipoNegocio);
+        } catch (SQLException e) {
+            throw new ServiceJdbcException("No se pudo importar servicios iniciales: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ResultadoImportacionCatalogo asegurarServiciosPlantilla(String tenantOwner, String tipoNegocio) {
+        if (tenantOwner == null || tenantOwner.isBlank()
+                || !TipoNegocioUtil.tieneOpcionServicios(tipoNegocio)) {
+            return new ResultadoImportacionCatalogo(0, 0, 0);
+        }
+        try {
+            if (!productoRepository.listarServiciosPorOwner(tenantOwner).isEmpty()) {
+                return new ResultadoImportacionCatalogo(0, 0, 0);
+            }
+            return importarPlantillasServicio(tenantOwner, tipoNegocio);
+        } catch (SQLException e) {
+            throw new ServiceJdbcException("No se pudo cargar servicios del rubro: " + e.getMessage(), e);
+        }
+    }
+
+    private ResultadoImportacionCatalogo importarPlantillasServicio(String tenantOwner, String tipoNegocio)
+            throws SQLException {
+        List<SugerenciaServicio> sugerencias = ServicioPlantillaUtil.sugerenciasParaRubro(tipoNegocio);
+        if (sugerencias.isEmpty()) {
+            return new ResultadoImportacionCatalogo(0, 0, 0);
+        }
+
+        categoriaRepository.crearSugeridasSiNoExisten(
+                tenantOwner,
+                CategoriaPlantillaUtil.todasCategoriasParaTipoNegocio(tipoNegocio));
+
+        Map<String, Long> categoriasPorNombre = mapaCategorias(tenantOwner);
+        PlanSuscripcion plan = planLimiteService.planActivo(tenantOwner);
+        int cupo = plan.getMaxProductos();
+        int importados = 0;
+        int omitidos = 0;
+        int indiceSku = 1;
+
+        for (SugerenciaServicio sugerencia : sugerencias) {
+            if (importados >= cupo) {
+                omitidos++;
+                continue;
+            }
+            String sku = "S" + indiceSku++;
+            while (productoRepository.existeSkuPorOwner(tenantOwner, sku)) {
+                sku = "S" + indiceSku++;
+            }
+            Long categoriaId = resolverCategoria(sugerencia.categoria(), categoriasPorNombre);
+            if (categoriaId == null) {
+                omitidos++;
+                continue;
+            }
+
+            Producto producto = new Producto();
+            producto.setOwnerUsername(tenantOwner);
+            producto.setNombre(sugerencia.nombre().trim());
+            producto.setSku(sku);
+            producto.setPrecio(100);
+            producto.setExistencias(0);
+            producto.setTipoItem(TipoItem.SERVICIO);
+            producto.setFechaRegistro(LocalDate.now());
+            Categoria categoria = new Categoria();
+            categoria.setId(categoriaId);
+            producto.setCategoria(categoria);
+
+            productoRepository.guardar(producto);
+            importados++;
+        }
+
+        return new ResultadoImportacionCatalogo(importados, omitidos, sugerencias.size());
+    }
+
+    private ResultadoImportacionCatalogo importarDesdePlantillasProducto(String tenantOwner, String tipoNegocio) {
         if (tenantOwner == null || tenantOwner.isBlank()) {
             return new ResultadoImportacionCatalogo(0, 0, 0);
         }

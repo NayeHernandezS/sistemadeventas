@@ -75,7 +75,7 @@ public class SuscripcionFiltro implements Filter {
         }
 
         if (rutaPermitidaSinPlan(path, req)) {
-            if ("/".equals(path) && RolUtil.esAdmin(req)) {
+            if ("/inicio".equals(path) && RolUtil.esAdmin(req)) {
                 String query = suscripcionService.consultar(tenantOwner).isEmpty()
                         ? "eligePlan=1"
                         : "requierePago=1";
@@ -93,7 +93,7 @@ public class SuscripcionFiltro implements Filter {
             resp.sendRedirect(req.getContextPath() + "/suscripcion?" + query);
             return;
         }
-        resp.sendRedirect(req.getContextPath() + "/?sinPlan=1");
+        resp.sendRedirect(req.getContextPath() + "/inicio?sinPlan=1");
     }
 
     static String normalizarPath(HttpServletRequest req) {
@@ -117,6 +117,9 @@ public class SuscripcionFiltro implements Filter {
             return true;
         }
         if (path.equals("/registro") || path.startsWith("/registro/")) {
+            return "GET".equalsIgnoreCase(method);
+        }
+        if (path.equals("/")) {
             return "GET".equalsIgnoreCase(method);
         }
         if (path.startsWith("/recuperar")) {
@@ -143,7 +146,7 @@ public class SuscripcionFiltro implements Filter {
      * Perfil permite gestionar cuenta (email, contraseña) aunque el plan este vencido.
      */
     static boolean rutaPermitidaSinPlan(String path, HttpServletRequest req) {
-        if (path.equals("/") || path.equals("/index.jsp")) {
+        if (path.equals("/inicio") || path.equals("/index.jsp")) {
             return true;
         }
         if (path.equals("/perfil") || path.startsWith("/perfil/")) {

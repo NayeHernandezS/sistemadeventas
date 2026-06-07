@@ -79,7 +79,7 @@
         </ul>
     </c:if>
 
-    <a class="btn btn-secondary" href="${pageContext.request.contextPath}/">Volver al panel</a>
+    <a class="btn btn-secondary" href="${pageContext.request.contextPath}/inicio">Volver al panel</a>
 </div>
 </body>
 </html>

@@ -14,7 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -96,15 +98,64 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    public Map<String, String> validarRegistroCuentaAdmin(Usuario usuario, String confirmarPassword) {
+        Map<String, String> errores = new HashMap<>();
+        String username = usuario != null ? usuario.getUsername() : null;
+        String password = usuario != null ? usuario.getPassword() : null;
+        String email = usuario != null ? usuario.getEmail() : null;
+
+        if (username == null || username.isBlank()) {
+            errores.put("username", "El usuario es requerido");
+        } else if (username.trim().length() < 3) {
+            errores.put("username", "Minimo 3 caracteres");
+        }
+
+        if (password == null || password.isBlank()) {
+            errores.put("password", "La contraseña es requerida");
+        } else if (password.length() < 4) {
+            errores.put("password", "Minimo 4 caracteres");
+        }
+
+        if (confirmarPassword == null || !confirmarPassword.equals(password)) {
+            errores.put("confirmarPassword", "Las contraseñas no coinciden");
+        }
+
+        if (email == null || email.isBlank()) {
+            errores.put("email", "El email es requerido");
+        } else if (!emailValido(email)) {
+            errores.put("email", "Indica un email valido");
+        }
+
+        if (errores.isEmpty()) {
+            try {
+                String usernameNorm = username.trim();
+                if (usuarioReposository.existeUsername(usernameNorm)) {
+                    errores.put("username", "El nombre de usuario ya esta registrado");
+                }
+                Usuario existentePorEmail = usuarioReposository.porEmail(email.trim());
+                if (existentePorEmail != null) {
+                    errores.put("email", "Ese email ya esta registrado");
+                }
+            } catch (SQLException e) {
+                throw new ServiceJdbcException(e.getMessage(), e);
+            }
+        }
+        return errores;
+    }
+
+    @Override
     public void registrarCuentaAdmin(Usuario usuario,
                                      LocalDateTime aceptacionLegalEn, String aceptacionLegalVersion) {
+        Map<String, String> errores = validarRegistroCuentaAdmin(usuario, usuario.getPassword());
+        if (!errores.isEmpty()) {
+            throw new ServiceJdbcException(errores.values().iterator().next(), null);
+        }
+        if (aceptacionLegalEn == null || aceptacionLegalVersion == null || aceptacionLegalVersion.isBlank()) {
+            throw new ServiceJdbcException("Se requiere aceptacion de terminos y privacidad", null);
+        }
         try {
-            if (usuarioReposository.existeUsername(usuario.getUsername())) {
-                throw new ServiceJdbcException("El nombre de usuario ya esta registrado", null);
-            }
-            if (aceptacionLegalEn == null || aceptacionLegalVersion == null || aceptacionLegalVersion.isBlank()) {
-                throw new ServiceJdbcException("Se requiere aceptacion de terminos y privacidad", null);
-            }
+            usuario.setUsername(usuario.getUsername().trim());
+            usuario.setEmail(usuario.getEmail().trim());
             usuario.setRol(RolUtil.ROL_ADMIN);
             usuario.setAdminOwner(null);
             usuario.setAceptacionLegalEn(aceptacionLegalEn);
@@ -115,13 +166,31 @@ public class UsuarioServiceImpl implements UsuarioService {
                     CategoriaPlantillaUtil.todasCategoriasParaTipoNegocio(usuario.getTipoNegocio())
             );
             preferenciasTenantService.iniciarOnboarding(usuario.getUsername());
-            catalogoPlantillaService.importarCatalogoInicial(
-                    usuario.getUsername(),
-                    usuario.getTipoNegocio()
-            );
+            if (TipoNegocioUtil.importaCatalogoProductos(usuario.getTipoNegocio())) {
+                catalogoPlantillaService.importarCatalogoInicial(
+                        usuario.getUsername(),
+                        usuario.getTipoNegocio()
+                );
+            }
+            if (TipoNegocioUtil.tieneOpcionServicios(usuario.getTipoNegocio())) {
+                catalogoPlantillaService.asegurarServiciosPlantilla(
+                        usuario.getUsername(),
+                        usuario.getTipoNegocio()
+                );
+            } else if (!TipoNegocioUtil.importaCatalogoProductos(usuario.getTipoNegocio())) {
+                catalogoPlantillaService.importarServiciosIniciales(
+                        usuario.getUsername(),
+                        usuario.getTipoNegocio()
+                );
+            }
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e.getCause());
         }
+    }
+
+    private static boolean emailValido(String email) {
+        String valor = email.trim();
+        return valor.contains("@") && valor.length() >= 5;
     }
 
     @Override

@@ -106,7 +106,14 @@
 
     <div class="col-12">
         <button type="submit" class="btn btn-primary">${producto.id != null && producto.id > 0 ? 'Guardar cambios' : 'Crear'}</button>
-        <a class="btn btn-secondary" href="${pageContext.request.contextPath}/crudprod">Cancelar</a>
+        <c:choose>
+            <c:when test="${producto.esServicio}">
+                <a class="btn btn-secondary" href="${pageContext.request.contextPath}/productos/servicios">Cancelar</a>
+            </c:when>
+            <c:otherwise>
+                <a class="btn btn-secondary" href="${pageContext.request.contextPath}/crudprod">Cancelar</a>
+            </c:otherwise>
+        </c:choose>
     </div>
     <input type="hidden" name="id" value="${producto.id}">
 </form>

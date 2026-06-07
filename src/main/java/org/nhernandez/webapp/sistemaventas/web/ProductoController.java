@@ -7,6 +7,7 @@ import org.nhernandez.webapp.sistemaventas.models.Categoria;
 import org.nhernandez.webapp.sistemaventas.models.Producto;
 import org.nhernandez.webapp.sistemaventas.models.TipoItem;
 import org.nhernandez.webapp.sistemaventas.services.CategoriaService;
+import org.nhernandez.webapp.sistemaventas.services.CitaServicioService;
 import org.nhernandez.webapp.sistemaventas.services.InventarioAlertaService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ProductoService;
@@ -37,17 +38,20 @@ public class ProductoController {
     private final InventarioAlertaService inventarioAlertaService;
     private final UsuarioService usuarioService;
     private final CategoriaService categoriaService;
+    private final CitaServicioService citaServicioService;
 
     public ProductoController(@ProductoServicePrincipal ProductoService service,
                               LoginService auth,
                               InventarioAlertaService inventarioAlertaService,
                               UsuarioService usuarioService,
-                              CategoriaService categoriaService) {
+                              CategoriaService categoriaService,
+                              CitaServicioService citaServicioService) {
         this.service = service;
         this.auth = auth;
         this.inventarioAlertaService = inventarioAlertaService;
         this.usuarioService = usuarioService;
         this.categoriaService = categoriaService;
+        this.citaServicioService = citaServicioService;
     }
 
     @GetMapping({"/productos", "/productos.html"})
@@ -69,6 +73,7 @@ public class ProductoController {
         model.addAttribute("logueado", auth.getUsername(req).isPresent());
         model.addAttribute("esAdmin", esAdmin);
         model.addAttribute("soloLectura", !esAdmin);
+        model.addAttribute("mostrarOpcionServicios", negocioConServicios(tenant));
         agregarAlertasStock(model, productos, tenant);
         Object mensajeError = req.getSession().getAttribute("mensajeError");
         if (mensajeError != null) {
@@ -76,6 +81,29 @@ public class ProductoController {
             req.getSession().removeAttribute("mensajeError");
         }
         return "inventario";
+    }
+
+    @GetMapping("/productos/servicios")
+    public String catalogoServicios(HttpServletRequest req, Model model) {
+        String tenant = TenantUtil.getTenantOwner(req);
+        if (!negocioConServicios(tenant)) {
+            return "redirect:/inicio";
+        }
+        boolean esAdmin = RolUtil.esAdmin(req);
+        model.addAttribute("servicios", citaServicioService.listarServicios(tenant));
+        model.addAttribute("esAdmin", esAdmin);
+        model.addAttribute("soloLectura", !esAdmin);
+        Object mensajeExito = req.getSession().getAttribute("mensajeExito");
+        if (mensajeExito != null) {
+            model.addAttribute("mensajeExito", mensajeExito);
+            req.getSession().removeAttribute("mensajeExito");
+        }
+        Object mensajeError = req.getSession().getAttribute("mensajeError");
+        if (mensajeError != null) {
+            model.addAttribute("mensajeError", mensajeError);
+            req.getSession().removeAttribute("mensajeError");
+        }
+        return "servicios";
     }
 
     @GetMapping("/productos/form")
@@ -92,6 +120,8 @@ public class ProductoController {
             service.porIdPorOwner(id, tenant).ifPresent(p -> model.addAttribute("producto", p));
         }
         if (!model.containsAttribute("producto")) {
+            TipoItem tipoDefecto = TipoItem.porCodigo(req.getParameter("tipo_item")).orElse(TipoItem.PRODUCTO);
+            producto.setTipoItem(tipoDefecto);
             model.addAttribute("producto", producto);
         }
         prepararFormulario(model, tenant);
@@ -142,6 +172,10 @@ public class ProductoController {
 
         if (errores.isEmpty()) {
             service.guardar(producto);
+            if (tipoItem == TipoItem.SERVICIO) {
+                req.getSession().setAttribute("mensajeExito", "Servicio guardado correctamente.");
+                return "redirect:/productos/servicios";
+            }
             return "redirect:/crudprod";
         }
         model.addAttribute("errores", errores);
@@ -159,7 +193,14 @@ public class ProductoController {
         long id = parseLong(req.getParameter("id"), 0L);
         String tenant = TenantUtil.getTenantOwner(req);
         if (id > 0) {
+            boolean eraServicio = service.porIdPorOwner(id, tenant)
+                    .map(p -> p.getTipoItem() == TipoItem.SERVICIO)
+                    .orElse(false);
             service.eliminarPorOwner(id, tenant);
+            if (eraServicio || "servicios".equals(req.getParameter("origen"))) {
+                req.getSession().setAttribute("mensajeExito", "Servicio eliminado.");
+                return "redirect:/productos/servicios";
+            }
             return "redirect:/crudprod";
         }
         resp.sendError(HttpServletResponse.SC_NOT_FOUND,
@@ -210,6 +251,12 @@ public class ProductoController {
         model.addAttribute("tipoNegocio", tipoNegocio);
         model.addAttribute("tipoNegocioEtiqueta", TipoNegocioUtil.etiqueta(tipoNegocio));
         model.addAttribute("sugerenciasServicio", ServicioPlantillaUtil.sugerenciasParaRubro(tipoNegocio));
+    }
+
+    private boolean negocioConServicios(String tenant) {
+        return usuarioService.porUsername(tenant)
+                .map(u -> TipoNegocioUtil.tieneOpcionServicios(u.getTipoNegocio()))
+                .orElse(false);
     }
 
     private void agregarAlertasStock(Model model, List<Producto> productos, String tenant) {
