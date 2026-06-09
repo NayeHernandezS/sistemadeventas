@@ -129,8 +129,8 @@
 
                             <div class="col-md-4" id="sku-group">
                                 <label class="form-label" for="sku">SKU <span id="sku-hint" class="text-muted small"></span></label>
-                                <input type="text" class="form-control" id="sku" name="sku" maxlength="10"
-                                       value="${sku}" placeholder="SKU001">
+                                <input type="text" class="form-control" id="sku" name="sku" maxlength="13"
+                                       value="${sku}" placeholder="7501234567890">
                                 <c:if test="${not empty errores.sku}">
                                     <div class="text-danger small">${errores.sku}</div>
                                 </c:if>

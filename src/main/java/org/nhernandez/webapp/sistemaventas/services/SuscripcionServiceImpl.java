@@ -258,7 +258,7 @@ public class SuscripcionServiceImpl implements SuscripcionService {
                 throw new ServiceJdbcException("No se pudo registrar el pago", null);
             }
 
-            String base = MercadoPagoUrls.resolverBase(appBaseUrl, baseUrlPublica);
+            String base = MercadoPagoUrls.resolverBaseCheckoutRetorno(appBaseUrl, baseUrlPublica);
             String ref = MercadoPagoCheckoutService.REF_PREFIX + pago.getId();
             String titulo = plan.getNombre() + " - " + meses + " mes(es)";
 

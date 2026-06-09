@@ -2,6 +2,8 @@ package org.nhernandez.webapp.sistemaventas.pagos.mercadopago;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.nhernandez.webapp.sistemaventas.config.MercadoPagoProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -17,6 +19,7 @@ import java.util.Optional;
 @Component
 public class MercadoPagoApiClient {
 
+    private static final Logger log = LoggerFactory.getLogger(MercadoPagoApiClient.class);
     private static final String API_BASE = "https://api.mercadopago.com";
 
     private final RestClient restClient;
@@ -62,13 +65,11 @@ public class MercadoPagoApiClient {
                 throw new MercadoPagoException("Respuesta vacia al crear preferencia");
             }
             String preferenceId = texto(json, "id");
-            String initPoint = texto(json, "init_point");
-            if (initPoint == null || initPoint.isBlank()) {
-                initPoint = texto(json, "sandbox_init_point");
-            }
+            String initPoint = resolverInitPoint(json);
             if (initPoint == null || initPoint.isBlank()) {
                 throw new MercadoPagoException("Mercado Pago no devolvio URL de pago");
             }
+            log.info("Checkout MP preferencia={} url={}", preferenceId, initPoint);
             return new PreferenciaCreada(preferenceId, initPoint);
         } catch (RestClientResponseException e) {
             String cuerpo = e.getResponseBodyAsString();
@@ -187,10 +188,7 @@ public class MercadoPagoApiClient {
                 throw new MercadoPagoException("Respuesta vacia al crear preapproval");
             }
             String preapprovalId = texto(json, "id");
-            String initPoint = texto(json, "init_point");
-            if (initPoint == null || initPoint.isBlank()) {
-                initPoint = texto(json, "sandbox_init_point");
-            }
+            String initPoint = resolverInitPoint(json);
             if (initPoint == null || initPoint.isBlank()) {
                 throw new MercadoPagoException("Mercado Pago no devolvio URL de suscripcion");
             }
@@ -272,6 +270,23 @@ public class MercadoPagoApiClient {
             return BigDecimal.ZERO;
         }
         return child.decimalValue();
+    }
+
+    private String resolverInitPoint(JsonNode json) {
+        String sandbox = texto(json, "sandbox_init_point");
+        String produccion = texto(json, "init_point");
+        boolean tokenPrueba = tokenSeguro(properties.getAccessToken()).startsWith("TEST-");
+        if (tokenPrueba) {
+            return primeroNoVacio(sandbox, produccion);
+        }
+        return primeroNoVacio(produccion, sandbox);
+    }
+
+    private static String primeroNoVacio(String preferido, String alterno) {
+        if (preferido != null && !preferido.isBlank()) {
+            return preferido;
+        }
+        return alterno;
     }
 
     private static String tokenSeguro(String token) {

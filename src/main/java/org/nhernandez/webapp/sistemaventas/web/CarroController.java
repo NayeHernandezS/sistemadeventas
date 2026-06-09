@@ -13,12 +13,15 @@ import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
 import org.nhernandez.webapp.sistemaventas.services.VentaService;
 import org.nhernandez.webapp.sistemaventas.util.FacturaDatosUtil;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
+import org.nhernandez.webapp.sistemaventas.util.SkuUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -72,25 +75,145 @@ public class CarroController {
 
     @GetMapping("/agregar")
     public String agregar(HttpServletRequest req) {
-        Long id = Long.parseLong(req.getParameter("id"));
+        long id = parseLongParam(req.getParameter("id"), 0L);
+        if (id <= 0) {
+            req.getSession().setAttribute("mensajeError", "Producto no valido.");
+            return redirigirTrasEscaneo(req.getParameter("origen"));
+        }
         String tenant = TenantUtil.getTenantOwner(req);
         Optional<Producto> producto = productoService.porIdPorOwner(id, tenant);
         if (producto.isEmpty()) {
             req.getSession().setAttribute("mensajeError", "Producto no encontrado.");
-            return "redirect:/productos";
+            return redirigirTrasEscaneo(req.getParameter("origen"));
         }
+        ResultadoEscaneoCarro resultado = agregarProductoAlCarro(req, producto.get());
+        if (resultado.ok()) {
+            req.getSession().setAttribute("mensajeExito", resultado.mensaje());
+        } else {
+            req.getSession().setAttribute("mensajeError", resultado.mensaje());
+        }
+        return redirigirTrasEscaneo(req.getParameter("origen"));
+    }
+
+    @GetMapping("/api/agregar")
+    @ResponseBody
+    public EscaneoCarroRespuesta agregarApi(HttpServletRequest req,
+                                            @RequestParam long id,
+                                            @RequestParam(required = false) String origen) {
+        if (id <= 0) {
+            return respuestaCarro(false, "Producto no valido.", null);
+        }
+        String tenant = TenantUtil.getTenantOwner(req);
+        Optional<Producto> producto = productoService.porIdPorOwner(id, tenant);
+        if (producto.isEmpty()) {
+            return respuestaCarro(false, "Producto no encontrado.", null);
+        }
+        ResultadoEscaneoCarro resultado = agregarProductoAlCarro(req, producto.get());
+        return respuestaCarro(resultado.ok(), resultado.mensaje(), producto.get());
+    }
+
+    @GetMapping("/agregar-por-sku")
+    public String agregarPorSku(HttpServletRequest req,
+                                @RequestParam(required = false) String sku,
+                                @RequestParam(required = false) String origen) {
+        ResultadoEscaneoCarro resultado = procesarEscaneo(req, sku, origen);
+        if (resultado.ok()) {
+            req.getSession().setAttribute("mensajeExito", resultado.mensaje());
+        } else {
+            req.getSession().setAttribute("mensajeError", resultado.mensaje());
+        }
+        return redirigirTrasEscaneo(origen);
+    }
+
+    @GetMapping("/api/agregar-por-sku")
+    @ResponseBody
+    public EscaneoCarroRespuesta agregarPorSkuApi(HttpServletRequest req,
+                                                   @RequestParam String sku,
+                                                   @RequestParam(required = false) String origen) {
+        ResultadoEscaneoCarro resultado = procesarEscaneo(req, sku, origen);
+        Producto producto = null;
+        if (resultado.ok() && resultado.productoId() != null) {
+            String tenant = TenantUtil.getTenantOwner(req);
+            producto = productoService.porIdPorOwner(resultado.productoId(), tenant).orElse(null);
+        }
+        return respuestaCarro(resultado.ok(), resultado.mensaje(), producto);
+    }
+
+    private ResultadoEscaneoCarro procesarEscaneo(HttpServletRequest req, String skuParam, String origen) {
+        String sku = SkuUtil.normalizar(skuParam);
+        if (sku == null) {
+            return ResultadoEscaneoCarro.error("Escanea o escribe un codigo de barras / SKU.");
+        }
+        if (!SkuUtil.longitudValida(sku)) {
+            return ResultadoEscaneoCarro.error(
+                    "El codigo debe tener maximo " + SkuUtil.LONGITUD_MAXIMA + " caracteres.");
+        }
+
+        String tenant = TenantUtil.getTenantOwner(req);
+        Optional<Producto> producto = productoService.porSkuPorOwner(sku, tenant);
+        if (producto.isEmpty()) {
+            return ResultadoEscaneoCarro.error("No hay producto con codigo: " + sku);
+        }
+
+        Producto p = producto.get();
+        Long id = p.getId();
         int cantidadNueva = carro.getCantidadEnCarro(id) + 1;
         try {
             ventaService.validarStock(tenant, id, cantidadNueva);
         } catch (ServiceJdbcException e) {
-            req.getSession().setAttribute("mensajeError", e.getMessage());
-            return "redirect:/productos";
+            return ResultadoEscaneoCarro.error(e.getMessage());
         }
-        carro.addItemCarro(new ItemCarro(1, producto.get()));
-        if ("productos".equals(req.getParameter("origen"))) {
-            req.getSession().setAttribute("mensajeExito",
-                    producto.get().getNombre() + " agregado al carro.");
-            return "redirect:/productos";
+
+        carro.addItemCarro(new ItemCarro(1, p));
+        return ResultadoEscaneoCarro.exito(p.getNombre() + " agregado al carro.", p.getNombre(), p.getId());
+    }
+
+    private record ResultadoEscaneoCarro(boolean ok, String mensaje, String productoNombre, Long productoId) {
+
+        static ResultadoEscaneoCarro exito(String mensaje, String productoNombre, Long productoId) {
+            return new ResultadoEscaneoCarro(true, mensaje, productoNombre, productoId);
+        }
+
+        static ResultadoEscaneoCarro error(String mensaje) {
+            return new ResultadoEscaneoCarro(false, mensaje, null, null);
+        }
+    }
+
+    private ResultadoEscaneoCarro agregarProductoAlCarro(HttpServletRequest req, Producto producto) {
+        Long id = producto.getId();
+        String tenant = TenantUtil.getTenantOwner(req);
+        int cantidadNueva = carro.getCantidadEnCarro(id) + 1;
+        try {
+            ventaService.validarStock(tenant, id, cantidadNueva);
+        } catch (ServiceJdbcException e) {
+            return ResultadoEscaneoCarro.error(e.getMessage());
+        }
+        carro.addItemCarro(new ItemCarro(1, producto));
+        return ResultadoEscaneoCarro.exito(producto.getNombre() + " agregado al carro.", producto.getNombre(), id);
+    }
+
+    private EscaneoCarroRespuesta respuestaCarro(boolean ok, String mensaje, Producto producto) {
+        Long productoId = producto != null ? producto.getId() : null;
+        int cantidadProducto = productoId != null ? carro.getCantidadEnCarro(productoId) : 0;
+        int precioUnitario = producto != null ? producto.getPrecio() : 0;
+        int importeLinea = cantidadProducto * precioUnitario;
+        String nombre = producto != null ? producto.getNombre() : null;
+        return new EscaneoCarroRespuesta(
+                ok,
+                mensaje,
+                nombre,
+                carro.getTotal(),
+                carro.getItems().size(),
+                productoId,
+                cantidadProducto,
+                importeLinea,
+                precioUnitario
+        );
+    }
+
+    private static String redirigirTrasEscaneo(String origen) {
+        if ("productos".equals(origen)) {
+            return "redirect:/productos#catalogo";
         }
         return "redirect:/carro/ver";
     }
@@ -109,7 +232,7 @@ public class CarroController {
             if (req.getSession().getAttribute("mensajeError") == null) {
                 req.getSession().setAttribute("mensajeExito", "Carro actualizado.");
             }
-            return "redirect:/productos";
+            return "redirect:/productos#catalogo";
         }
         return "redirect:/carro/ver";
     }

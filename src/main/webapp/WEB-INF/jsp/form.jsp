@@ -56,12 +56,49 @@
     </div>
 
     <div class="col-md-4">
-        <label for="precio" class="form-label">Precio</label>
-        <input type="number" name="precio" id="precio" class="form-control"
+        <label for="precio" class="form-label">Precio de venta</label>
+        <input type="number" name="precio" id="precio" min="1" class="form-control"
                value="${producto.precio > 0 ? producto.precio : ''}">
+        <div class="form-text">Precio publico que ven clientes y vendedores.</div>
         <c:if test="${errores != null && not empty errores.precio}">
             <div class="text-danger small">${errores.precio}</div>
         </c:if>
+    </div>
+
+    <div class="col-md-4" id="precio-compra-group">
+        <label for="precio_compra" class="form-label">Precio de compra</label>
+        <input type="number" name="precio_compra" id="precio_compra" min="0" class="form-control"
+               value="${producto.precioCompra > 0 ? producto.precioCompra : ''}">
+        <div class="form-text">Costo interno; solo visible para el administrador en inventario.</div>
+        <c:if test="${errores != null && not empty errores.precio_compra}">
+            <div class="text-danger small">${errores.precio_compra}</div>
+        </c:if>
+    </div>
+
+    <div class="col-md-4" id="porcentaje-ganancia-group">
+        <label for="porcentaje_ganancia" class="form-label">Porcentaje de ganancia (%)</label>
+        <input type="number" name="porcentaje_ganancia" id="porcentaje_ganancia" min="0" max="999" step="1"
+               class="form-control"
+               value="${producto.porcentajeGanancia > 0 ? producto.porcentajeGanancia : ''}">
+        <div class="form-text">Ganancia deseada sobre el precio de compra. Ej: 30 = 30% de utilidad.</div>
+        <c:if test="${errores != null && not empty errores.porcentaje_ganancia}">
+            <div class="text-danger small">${errores.porcentaje_ganancia}</div>
+        </c:if>
+    </div>
+
+    <div class="col-md-8" id="calcular-precio-group">
+        <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" name="calcular_precio_venta" id="calcular_precio_venta" checked>
+            <label class="form-check-label" for="calcular_precio_venta">
+                Calcular precio de venta automaticamente (compra + % ganancia)
+            </label>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+            <button type="button" class="btn btn-sm btn-outline-primary" id="btn-aplicar-precio">
+                Aplicar precio sugerido ahora
+            </button>
+            <small class="text-muted" id="precio-sugerido-texto"></small>
+        </div>
     </div>
 
     <div class="col-md-4" id="existencias-group">
@@ -74,8 +111,12 @@
     </div>
 
     <div class="col-md-4" id="sku-group">
-        <label for="sku" class="form-label">SKU <span id="sku-opcional" class="text-muted small">(opcional en servicios)</span></label>
-        <input type="text" name="sku" id="sku" class="form-control" value="${producto.sku}">
+        <label for="sku" class="form-label">SKU / codigo de barras
+            <span id="sku-opcional" class="text-muted small">(opcional en servicios)</span></label>
+        <input type="text" name="sku" id="sku" class="form-control" maxlength="13"
+               inputmode="numeric" value="${producto.sku}"
+               placeholder="Ej. 7501234567890">
+        <div class="form-text">Hasta 13 caracteres (EAN-13). Se usa para escanear en caja.</div>
         <c:if test="${errores != null && not empty errores.sku}">
              <div class="text-danger small">${errores.sku}</div>
         </c:if>
@@ -122,7 +163,16 @@
 (function () {
     var tipo = document.getElementById('tipo_item');
     var existenciasGroup = document.getElementById('existencias-group');
+    var precioCompraGroup = document.getElementById('precio-compra-group');
+    var porcentajeGananciaGroup = document.getElementById('porcentaje-ganancia-group');
+    var calcularPrecioGroup = document.getElementById('calcular-precio-group');
     var existencias = document.getElementById('existencias');
+    var precio = document.getElementById('precio');
+    var precioCompra = document.getElementById('precio_compra');
+    var porcentajeGanancia = document.getElementById('porcentaje_ganancia');
+    var calcularPrecioVenta = document.getElementById('calcular_precio_venta');
+    var precioSugeridoTexto = document.getElementById('precio-sugerido-texto');
+    var btnAplicarPrecio = document.getElementById('btn-aplicar-precio');
     var tipoServicioGroup = document.getElementById('tipo-servicio-group');
     var tipoServicioSugerido = document.getElementById('tipo_servicio_sugerido');
     var nombre = document.getElementById('nombre');
@@ -152,17 +202,58 @@
         seleccionarCategoriaPorNombre(opt.getAttribute('data-categoria'));
     }
 
+    function calcularPrecioSugerido() {
+        var compra = parseInt(precioCompra.value, 10) || 0;
+        var pct = parseInt(porcentajeGanancia.value, 10) || 0;
+        if (compra <= 0 || pct <= 0) {
+            return 0;
+        }
+        return Math.round(compra * (1 + pct / 100));
+    }
+
+    function actualizarPrecioSugerido() {
+        var sugerido = calcularPrecioSugerido();
+        if (sugerido > 0) {
+            precioSugeridoTexto.textContent = 'Precio sugerido: $' + sugerido;
+        } else {
+            precioSugeridoTexto.textContent = 'Indica precio de compra y porcentaje para calcular.';
+        }
+    }
+
+    function aplicarPrecioSugerido() {
+        var sugerido = calcularPrecioSugerido();
+        if (sugerido > 0) {
+            precio.value = String(sugerido);
+        }
+    }
+
     function actualizarTipoItem() {
         var esServicio = tipo.value === 'SERVICIO';
         existenciasGroup.style.display = esServicio ? 'none' : '';
+        precioCompraGroup.style.display = esServicio ? 'none' : '';
+        porcentajeGananciaGroup.style.display = esServicio ? 'none' : '';
+        calcularPrecioGroup.style.display = esServicio ? 'none' : '';
         tipoServicioGroup.style.display = esServicio ? '' : 'none';
         if (esServicio) {
             existencias.value = '0';
+        } else {
+            actualizarPrecioSugerido();
+        }
+    }
+
+    function recalcularSiActivo() {
+        actualizarPrecioSugerido();
+        if (calcularPrecioVenta.checked) {
+            aplicarPrecioSugerido();
         }
     }
 
     tipo.addEventListener('change', actualizarTipoItem);
     tipoServicioSugerido.addEventListener('change', aplicarSugerenciaServicio);
+    precioCompra.addEventListener('input', recalcularSiActivo);
+    porcentajeGanancia.addEventListener('input', recalcularSiActivo);
+    calcularPrecioVenta.addEventListener('change', recalcularSiActivo);
+    btnAplicarPrecio.addEventListener('click', aplicarPrecioSugerido);
     actualizarTipoItem();
 })();
 </script>

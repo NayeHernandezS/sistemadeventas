@@ -1,0 +1,149 @@
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<c:set var="filtrosModoActual" value="${empty filtrosModo ? 'inventario' : filtrosModo}"/>
+<div class="filtros-columnas-wrap" data-tabla-id="${filtrosTablaId}"
+     data-usuario="${empty sessionScope.username ? 'anon' : sessionScope.username}"
+     data-tenant="${empty sessionScope.tenantOwner ? 'local' : sessionScope.tenantOwner}">
+    <div class="dropdown">
+        <button type="button" class="btn btn-outline-secondary dropdown-toggle filtros-columnas-toggle"
+                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+            <i class="bi bi-funnel" aria-hidden="true"></i> Filtros de columnas
+        </button>
+        <div class="dropdown-menu dropdown-menu-end p-3 filtros-columnas-panel" style="min-width: 240px;">
+            <p class="small text-muted mb-2 mb-md-3">Elige que datos del producto quieres ver en la tabla.</p>
+            <div class="vstack gap-2">
+                <c:choose>
+                <c:when test="${filtrosModoActual == 'catalogo'}">
+                    <div class="form-check">
+                        <input class="form-check-input filtros-columnas-check" type="checkbox"
+                               data-col="id" id="col-id-${filtrosTablaId}" checked>
+                        <label class="form-check-label" for="col-id-${filtrosTablaId}">ID</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input filtros-columnas-check" type="checkbox"
+                               data-col="nombre" id="col-nombre-${filtrosTablaId}" checked>
+                        <label class="form-check-label" for="col-nombre-${filtrosTablaId}">Nombre del producto</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input filtros-columnas-check" type="checkbox"
+                               data-col="tipo" id="col-tipo-${filtrosTablaId}" checked>
+                        <label class="form-check-label" for="col-tipo-${filtrosTablaId}">Tipo</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input filtros-columnas-check" type="checkbox"
+                               data-col="categoria" id="col-categoria-${filtrosTablaId}" checked>
+                        <label class="form-check-label" for="col-categoria-${filtrosTablaId}">Categoria</label>
+                    </div>
+                    <c:if test="${filtrosLogueado}">
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="existencias" id="col-existencias-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-existencias-${filtrosTablaId}">Existencias</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="precio_venta" id="col-precio-venta-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-precio-venta-${filtrosTablaId}">Precio de venta</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="agregar" id="col-agregar-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-agregar-${filtrosTablaId}">Agregar al carro</label>
+                        </div>
+                    </c:if>
+                    <c:if test="${filtrosEsAdmin}">
+                        <hr class="my-2">
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="precio_compra" id="col-precio-compra-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-precio-compra-${filtrosTablaId}">Precio de compra</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="porcentaje_ganancia" id="col-porcentaje-ganancia-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-porcentaje-ganancia-${filtrosTablaId}">% Ganancia meta</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="margen" id="col-margen-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-margen-${filtrosTablaId}">Margen (venta - compra)</label>
+                        </div>
+                    </c:if>
+                </c:when>
+                <c:otherwise>
+                    <c:if test="${filtrosEsAdmin}">
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="id" id="col-id-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-id-${filtrosTablaId}">ID</label>
+                        </div>
+                    </c:if>
+                    <div class="form-check">
+                        <input class="form-check-input filtros-columnas-check" type="checkbox"
+                               data-col="nombre" id="col-nombre-${filtrosTablaId}" checked>
+                        <label class="form-check-label" for="col-nombre-${filtrosTablaId}">Nombre del producto</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input filtros-columnas-check" type="checkbox"
+                               data-col="tipo" id="col-tipo-${filtrosTablaId}" checked>
+                        <label class="form-check-label" for="col-tipo-${filtrosTablaId}">Tipo</label>
+                    </div>
+                    <c:if test="${filtrosEsAdmin}">
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="categoria" id="col-categoria-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-categoria-${filtrosTablaId}">Categoria</label>
+                        </div>
+                    </c:if>
+                    <div class="form-check">
+                        <input class="form-check-input filtros-columnas-check" type="checkbox"
+                               data-col="existencias" id="col-existencias-${filtrosTablaId}" checked>
+                        <label class="form-check-label" for="col-existencias-${filtrosTablaId}">Existencias</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input filtros-columnas-check" type="checkbox"
+                               data-col="precio_venta" id="col-precio-venta-${filtrosTablaId}" checked>
+                        <label class="form-check-label" for="col-precio-venta-${filtrosTablaId}">Precio de venta</label>
+                    </div>
+                    <c:if test="${filtrosEsAdmin}">
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="precio_compra" id="col-precio-compra-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-precio-compra-${filtrosTablaId}">Precio de compra</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="porcentaje_ganancia" id="col-porcentaje-ganancia-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-porcentaje-ganancia-${filtrosTablaId}">% Ganancia meta</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="margen" id="col-margen-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-margen-${filtrosTablaId}">Margen (venta - compra)</label>
+                        </div>
+                        <hr class="my-2">
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="ajustar" id="col-ajustar-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-ajustar-${filtrosTablaId}">Ajustar stock</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="editar" id="col-editar-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-editar-${filtrosTablaId}">Editar</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filtros-columnas-check" type="checkbox"
+                                   data-col="eliminar" id="col-eliminar-${filtrosTablaId}" checked>
+                            <label class="form-check-label" for="col-eliminar-${filtrosTablaId}">Eliminar</label>
+                        </div>
+                    </c:if>
+                </c:otherwise>
+                </c:choose>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                <small class="filtros-columnas-indicador text-muted">Todas las columnas visibles</small>
+                <button type="button" class="btn btn-link btn-sm p-0 filtros-columnas-restaurar">Mostrar todas</button>
+            </div>
+        </div>
+    </div>
+</div>

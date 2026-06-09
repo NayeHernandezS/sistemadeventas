@@ -100,6 +100,25 @@ public final class MercadoPagoUrls {
         return bases;
     }
 
+    /**
+     * Base para back_urls de Checkout Pro. En local prioriza localhost para conservar la sesion al volver.
+     * APP_BASE_URL (tunel HTTPS) sigue usandose para webhooks via {@link #urlNotificacionOpcional}.
+     */
+    public static String resolverBaseCheckoutRetorno(String appBaseUrl, String baseUrlSolicitud) {
+        if (esHostLocal(baseUrlSolicitud)) {
+            return sinBarraFinal(baseUrlSolicitud.trim());
+        }
+        return resolverBase(appBaseUrl, baseUrlSolicitud);
+    }
+
+    public static boolean esHostLocal(String url) {
+        if (url == null || url.isBlank()) {
+            return false;
+        }
+        String u = url.toLowerCase();
+        return u.contains("://localhost") || u.contains("://127.0.0.1");
+    }
+
     public static String resolverBase(String appBaseUrl, String baseUrlSolicitud) {
         if (appBaseUrl != null && !appBaseUrl.isBlank() && !esPlaceholder(appBaseUrl)) {
             return sinBarraFinal(appBaseUrl.trim());

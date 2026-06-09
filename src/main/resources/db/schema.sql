@@ -51,6 +51,8 @@ CREATE TABLE IF NOT EXISTS productos (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(200) NOT NULL,
     precio INT NOT NULL DEFAULT 0,
+    precio_compra INT NOT NULL DEFAULT 0,
+    porcentaje_ganancia INT NOT NULL DEFAULT 0,
     existencias INT NOT NULL DEFAULT 0,
     sku VARCHAR(50) NULL,
     categoria_id BIGINT NOT NULL,

@@ -6,6 +6,7 @@ import org.nhernandez.webapp.sistemaventas.models.TipoItem;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
 import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
 import org.nhernandez.webapp.sistemaventas.util.ServicioPlantillaUtil;
+import org.nhernandez.webapp.sistemaventas.util.SkuUtil;
 import org.nhernandez.webapp.sistemaventas.util.SugerenciaServicio;
 import org.nhernandez.webapp.sistemaventas.util.TipoNegocioUtil;
 import org.springframework.stereotype.Service;
@@ -86,11 +87,11 @@ public class OnboardingService {
         if (!esServicio) {
             if (sku == null || sku.isBlank()) {
                 errores.put("sku", "El SKU es requerido");
-            } else if (sku.length() > 10) {
-                errores.put("sku", "Maximo 10 caracteres");
+            } else if (sku.length() > SkuUtil.LONGITUD_MAXIMA) {
+                errores.put("sku", "Maximo " + SkuUtil.LONGITUD_MAXIMA + " caracteres");
             }
-        } else if (sku != null && sku.length() > 10) {
-            errores.put("sku", "Maximo 10 caracteres");
+        } else if (sku != null && sku.length() > SkuUtil.LONGITUD_MAXIMA) {
+            errores.put("sku", "Maximo " + SkuUtil.LONGITUD_MAXIMA + " caracteres");
         }
         int precio = parsearEntero(precioStr, 0);
         if (precio <= 0) {

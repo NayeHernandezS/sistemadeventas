@@ -306,3 +306,66 @@ h1, h2, h3, .h1, .h2, .h3 {
     padding: 4px 8px;
     box-sizing: border-box;
 }
+
+/* Escaneo de codigo de barras (catalogo / carro) */
+.escaneo-codigo-wrap {
+    position: relative;
+    z-index: 1;
+    clear: both;
+}
+
+.escaneo-codigo-bar {
+    box-shadow: 0 2px 8px rgba(var(--color-morado-rgb), 0.08);
+}
+
+.catalogo-tabla-wrap {
+    position: relative;
+    z-index: 0;
+    clear: both;
+    margin-top: 0.25rem;
+}
+
+.catalogo-ventas-layout {
+    align-items: flex-start;
+}
+
+.panel-carro-catalogo {
+    position: sticky;
+    top: 1rem;
+    z-index: 20;
+    max-height: calc(100vh - 2rem);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-carro-catalogo .card-body {
+    overflow-y: auto;
+}
+
+.panel-carro-tabla-wrap {
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.panel-carro-nombre {
+    max-width: 8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 991.98px) {
+    .panel-carro-catalogo {
+        position: static;
+        max-height: none;
+    }
+
+    .panel-carro-tabla-wrap {
+        max-height: none;
+    }
+}
+
+.escaneo-codigo-feedback {
+    margin-top: 0.5rem;
+}

@@ -81,10 +81,17 @@
         <div class="alert alert-danger">${sessionScope.mensajeError}</div>
         <c:remove var="mensajeError" scope="session"/>
     </c:if>
+    <c:if test="${not empty sessionScope.mensajeExito}">
+        <div class="alert alert-success">${sessionScope.mensajeExito}</div>
+        <c:remove var="mensajeExito" scope="session"/>
+    </c:if>
     <c:if test="${not empty sessionScope.mensajeTicket}">
         <div class="alert alert-info">${sessionScope.mensajeTicket}</div>
         <c:remove var="mensajeTicket" scope="session"/>
     </c:if>
+
+    <c:set var="escaneoOrigen" value="carro"/>
+    <%@ include file="fragmentos/escaneo-codigo.jspf" %>
 
     <c:choose>
     <c:when test="${empty carro.items}">
@@ -313,5 +320,6 @@
     })();
 </script>
 <script src="${pageContext.request.contextPath}/js/buscador-tabla.js"></script>
+<script src="${pageContext.request.contextPath}/js/escaneo-producto.js"></script>
 </body>
 </html>

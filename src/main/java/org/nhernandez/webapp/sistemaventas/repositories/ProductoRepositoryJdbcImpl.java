@@ -77,6 +77,24 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
     }
 
     @Override
+    public Producto porSkuPorOwner(String sku, String ownerUsername) throws SQLException {
+        if (ownerUsername == null || ownerUsername.isBlank() || sku == null || sku.isBlank()) {
+            return null;
+        }
+        String sql = SELECT_BASE + "WHERE p.owner_username = ? AND TRIM(p.sku) = ? LIMIT 1";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, ownerUsername);
+            stmt.setString(2, sku.trim());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return getProducto(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public void guardar(Producto producto) throws SQLException {
         if (producto.getOwnerUsername() == null || producto.getOwnerUsername().isBlank()) {
             throw new SQLException("owner_username es obligatorio al guardar un producto");
@@ -84,30 +102,32 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
 
         String sql;
         if (producto.getId() != null && producto.getId() > 0) {
-            sql = "UPDATE productos SET nombre=?, precio=?, existencias=?, sku=?, categoria_id=?, tipo_item=? "
+            sql = "UPDATE productos SET nombre=?, precio=?, precio_compra=?, porcentaje_ganancia=?, existencias=?, sku=?, categoria_id=?, tipo_item=? "
                     + "WHERE id=? AND owner_username=?";
         } else {
-            sql = "INSERT INTO productos (nombre, precio, existencias, sku, categoria_id, fecha_registro, owner_username, tipo_item) "
-                    + "VALUES (?,?,?,?,?,?,?,?)";
+            sql = "INSERT INTO productos (nombre, precio, precio_compra, porcentaje_ganancia, existencias, sku, categoria_id, fecha_registro, owner_username, tipo_item) "
+                    + "VALUES (?,?,?,?,?,?,?,?,?,?)";
         }
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, producto.getNombre());
             stmt.setInt(2, producto.getPrecio());
-            stmt.setInt(3, producto.esServicio() ? 0 : producto.getExistencias());
-            stmt.setString(4, producto.getSku());
-            stmt.setLong(5, producto.getCategoria().getId());
+            stmt.setInt(3, Math.max(producto.getPrecioCompra(), 0));
+            stmt.setInt(4, Math.max(producto.getPorcentajeGanancia(), 0));
+            stmt.setInt(5, producto.esServicio() ? 0 : producto.getExistencias());
+            stmt.setString(6, producto.getSku());
+            stmt.setLong(7, producto.getCategoria().getId());
 
             if (producto.getId() != null && producto.getId() > 0) {
-                stmt.setString(6, producto.getTipoItem().name());
-                stmt.setLong(7, producto.getId());
-                stmt.setString(8, producto.getOwnerUsername());
+                stmt.setString(8, producto.getTipoItem().name());
+                stmt.setLong(9, producto.getId());
+                stmt.setString(10, producto.getOwnerUsername());
             } else {
                 LocalDate registro = producto.getFechaRegistro() != null
                         ? producto.getFechaRegistro()
                         : LocalDate.now();
-                stmt.setDate(6, Date.valueOf(registro));
-                stmt.setString(7, producto.getOwnerUsername());
-                stmt.setString(8, producto.getTipoItem().name());
+                stmt.setDate(8, Date.valueOf(registro));
+                stmt.setString(9, producto.getOwnerUsername());
+                stmt.setString(10, producto.getTipoItem().name());
             }
             int filas = stmt.executeUpdate();
             if (filas == 0) {
@@ -224,6 +244,8 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
         p.setId(rs.getLong("id"));
         p.setNombre(rs.getString("nombre"));
         p.setPrecio(rs.getInt("precio"));
+        p.setPrecioCompra(rs.getInt("precio_compra"));
+        p.setPorcentajeGanancia(rs.getInt("porcentaje_ganancia"));
         p.setExistencias(rs.getInt("existencias"));
         p.setSku(rs.getString("sku"));
         p.setFechaRegistro(rs.getDate("fecha_registro").toLocalDate());

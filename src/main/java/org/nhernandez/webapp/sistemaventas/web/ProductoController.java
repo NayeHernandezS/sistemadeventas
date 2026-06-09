@@ -14,6 +14,7 @@ import org.nhernandez.webapp.sistemaventas.services.ProductoService;
 import org.nhernandez.webapp.sistemaventas.services.UsuarioService;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 import org.nhernandez.webapp.sistemaventas.util.ServicioPlantillaUtil;
+import org.nhernandez.webapp.sistemaventas.util.SkuUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
 import org.nhernandez.webapp.sistemaventas.util.TipoNegocioUtil;
 import org.springframework.stereotype.Controller;
@@ -57,9 +58,15 @@ public class ProductoController {
     @GetMapping({"/productos", "/productos.html"})
     public String listarVentas(HttpServletRequest req, Model model) {
         String tenant = TenantUtil.getTenantOwner(req);
+        boolean esAdmin = RolUtil.esAdmin(req);
         List<Producto> productos = service.listarPorOwner(tenant);
+        if (!esAdmin) {
+            ocultarCostosInternos(productos);
+        }
         model.addAttribute("productos", productos);
         model.addAttribute("username", auth.getUsername(req));
+        model.addAttribute("esAdmin", esAdmin);
+        model.addAttribute("logueado", auth.getUsername(req).isPresent());
         agregarAlertasStock(model, productos, tenant);
         return "listar";
     }
@@ -69,6 +76,9 @@ public class ProductoController {
         String tenant = TenantUtil.getTenantOwner(req);
         boolean esAdmin = RolUtil.esAdmin(req);
         List<Producto> productos = service.listarPorOwner(tenant);
+        if (!esAdmin) {
+            ocultarCostosInternos(productos);
+        }
         model.addAttribute("productos", productos);
         model.addAttribute("logueado", auth.getUsername(req).isPresent());
         model.addAttribute("esAdmin", esAdmin);
@@ -138,6 +148,9 @@ public class ProductoController {
         String tenant = TenantUtil.getTenantOwner(req);
         String nombre = req.getParameter("nombre");
         Integer precio = parseInt(req.getParameter("precio"), 0);
+        int precioCompra = parseInt(req.getParameter("precio_compra"), 0);
+        int porcentajeGanancia = parseInt(req.getParameter("porcentaje_ganancia"), 0);
+        boolean calcularPrecioVenta = "on".equals(req.getParameter("calcular_precio_venta"));
         int existencias = parseInt(req.getParameter("existencias"), 0);
         String sku = req.getParameter("sku");
         String fechaStr = req.getParameter("fecha_registro");
@@ -146,15 +159,31 @@ public class ProductoController {
         TipoItem tipoItem = TipoItem.porCodigo(req.getParameter("tipo_item")).orElse(TipoItem.PRODUCTO);
         if (tipoItem == TipoItem.SERVICIO) {
             existencias = 0;
+            precioCompra = 0;
+            porcentajeGanancia = 0;
         }
 
-        Map<String, String> errores = validarProducto(nombre, sku, fechaStr, precio, existencias, categoriaId, tipoItem);
+        if (calcularPrecioVenta && tipoItem != TipoItem.SERVICIO
+                && precioCompra > 0 && porcentajeGanancia > 0) {
+            Producto borrador = new Producto();
+            borrador.setPrecioCompra(precioCompra);
+            borrador.setPorcentajeGanancia(porcentajeGanancia);
+            int precioSugerido = borrador.calcularPrecioVentaPorGanancia();
+            if (precioSugerido > 0) {
+                precio = precioSugerido;
+            }
+        }
+
+        Map<String, String> errores = validarProducto(nombre, sku, fechaStr, precio, precioCompra,
+                porcentajeGanancia, existencias, categoriaId, tipoItem);
         LocalDate fecha = parseFecha(fechaStr);
 
         Producto producto = new Producto();
         producto.setId(id);
         producto.setNombre(nombre);
         producto.setSku(sku != null && !sku.isBlank() ? sku.trim() : null);
+        producto.setPrecioCompra(Math.max(precioCompra, 0));
+        producto.setPorcentajeGanancia(Math.max(porcentajeGanancia, 0));
         producto.setPrecio(precio);
         producto.setExistencias(existencias);
         producto.setFechaRegistro(fecha);
@@ -209,7 +238,8 @@ public class ProductoController {
     }
 
     private Map<String, String> validarProducto(String nombre, String sku, String fechaStr,
-                                                Integer precio, int existencias, Long categoriaId,
+                                                Integer precio, int precioCompra, int porcentajeGanancia,
+                                                int existencias, Long categoriaId,
                                                 TipoItem tipoItem) {
         Map<String, String> errores = new HashMap<>();
         if (nombre == null || nombre.isBlank()) {
@@ -219,17 +249,26 @@ public class ProductoController {
         if (!esServicio) {
             if (sku == null || sku.isBlank()) {
                 errores.put("sku", "el sku es requerido!");
-            } else if (sku.length() > 10) {
-                errores.put("sku", "el sku debe tener max 10 caracteres!");
+            } else if (sku.length() > SkuUtil.LONGITUD_MAXIMA) {
+                errores.put("sku", "el sku / codigo de barras debe tener max " + SkuUtil.LONGITUD_MAXIMA + " caracteres!");
             }
-        } else if (sku != null && sku.length() > 10) {
-            errores.put("sku", "el sku debe tener max 10 caracteres!");
+        } else if (sku != null && sku.length() > SkuUtil.LONGITUD_MAXIMA) {
+            errores.put("sku", "el sku / codigo de barras debe tener max " + SkuUtil.LONGITUD_MAXIMA + " caracteres!");
         }
         if (fechaStr == null || fechaStr.isBlank()) {
             errores.put("fecha_registro", "la fecha es requerida");
         }
         if (precio.equals(0)) {
-            errores.put("precio", "el precio es requerido!");
+            errores.put("precio", "el precio de venta es requerido!");
+        }
+        if (precioCompra < 0) {
+            errores.put("precio_compra", "el precio de compra no puede ser negativo");
+        }
+        if (porcentajeGanancia < 0) {
+            errores.put("porcentaje_ganancia", "el porcentaje de ganancia no puede ser negativo");
+        }
+        if (!esServicio && porcentajeGanancia > 0 && precioCompra <= 0) {
+            errores.put("precio_compra", "indica el precio de compra para usar un porcentaje de ganancia");
         }
         if (!esServicio && existencias < 0) {
             errores.put("existencias", "las existencias no pueden ser negativas");
@@ -257,6 +296,13 @@ public class ProductoController {
         return usuarioService.porUsername(tenant)
                 .map(u -> TipoNegocioUtil.tieneOpcionServicios(u.getTipoNegocio()))
                 .orElse(false);
+    }
+
+    private void ocultarCostosInternos(List<Producto> productos) {
+        for (Producto producto : productos) {
+            producto.setPrecioCompra(0);
+            producto.setPorcentajeGanancia(0);
+        }
     }
 
     private void agregarAlertasStock(Model model, List<Producto> productos, String tenant) {

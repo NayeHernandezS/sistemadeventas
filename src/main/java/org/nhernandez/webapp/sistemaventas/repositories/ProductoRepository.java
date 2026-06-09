@@ -15,6 +15,8 @@ public interface ProductoRepository {
 
     Producto porIdPorOwner(Long id, String ownerUsername) throws SQLException;
 
+    Producto porSkuPorOwner(String sku, String ownerUsername) throws SQLException;
+
     void eliminarPorOwner(Long id, String ownerUsername) throws SQLException;
 
     void agregarExistencias(Long id, String ownerUsername, int cantidad) throws SQLException;

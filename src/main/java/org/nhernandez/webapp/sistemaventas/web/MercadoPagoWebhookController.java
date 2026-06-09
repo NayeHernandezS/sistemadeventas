@@ -32,12 +32,13 @@ public class MercadoPagoWebhookController {
         this.signatureValidator = signatureValidator;
     }
 
-    @GetMapping("/notificaciones")
+    @GetMapping({"/notificaciones", "/notificaciones/", "/notificacion", "/notificacion/"})
     public ResponseEntity<Void> notificacionGet(
             HttpServletRequest request,
             @RequestParam(value = "topic", required = false) String topic,
             @RequestParam(value = "id", required = false) String id,
             @RequestParam(value = "data.id", required = false) String dataIdQuery) {
+        log.info("Webhook MP GET {} query={}", request.getRequestURI(), request.getQueryString());
         String dataId = resolverDataId(id, dataIdQuery, null);
         if (!signatureValidator.esValida(request.getHeader("x-signature"), request.getHeader("x-request-id"), dataId)) {
             return ResponseEntity.status(401).build();
@@ -46,13 +47,14 @@ public class MercadoPagoWebhookController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/notificaciones")
+    @PostMapping({"/notificaciones", "/notificaciones/", "/notificacion", "/notificacion/"})
     public ResponseEntity<Void> notificacionPost(
             HttpServletRequest request,
             @RequestParam(value = "topic", required = false) String topic,
             @RequestParam(value = "id", required = false) String id,
             @RequestParam(value = "data.id", required = false) String dataIdQuery,
             @RequestBody(required = false) JsonNode cuerpo) {
+        log.info("Webhook MP POST {} query={}", request.getRequestURI(), request.getQueryString());
         String dataId = resolverDataId(id, dataIdQuery, cuerpo);
         if (!signatureValidator.esValida(request.getHeader("x-signature"), request.getHeader("x-request-id"), dataId)) {
             return ResponseEntity.status(401).build();

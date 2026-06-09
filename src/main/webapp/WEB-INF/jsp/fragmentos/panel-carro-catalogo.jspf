@@ -1,0 +1,57 @@
+<%-- Panel lateral del carro en el catalogo de ventas. Requiere: carro --%>
+<div id="panel-carro-catalogo" class="panel-carro-catalogo card shadow-sm" data-context-path="${pageContext.request.contextPath}">
+    <div class="card-header py-2 d-flex align-items-center justify-content-between gap-2">
+        <span class="fw-semibold"><i class="bi bi-cart3 me-1"></i>Tu carro</span>
+        <span class="badge bg-primary rounded-pill" data-carro-cantidad>${carro.items.size()}</span>
+    </div>
+    <div class="card-body p-2">
+        <div data-carro-vacio class="text-muted small py-2 ${empty carro.items ? '' : 'd-none'}">
+            Aun no hay productos. Agrega desde el catalogo o escanea un codigo.
+        </div>
+        <form data-carro-form name="formcarro" action="${pageContext.request.contextPath}/carro/actualizar" method="post"
+              class="${empty carro.items ? 'd-none' : ''}">
+            <%@ include file="../csrf.jspf" %>
+            <input type="hidden" name="origen" value="productos">
+            <div class="table-responsive panel-carro-tabla-wrap">
+                <table class="table table-sm table-hover mb-2 align-middle">
+                    <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-center" style="width:4rem;">Cant.</th>
+                        <th class="text-end" style="width:4.5rem;">Importe</th>
+                        <th style="width:2rem;"></th>
+                    </tr>
+                    </thead>
+                    <tbody data-carro-items>
+                    <c:forEach items="${carro.items}" var="item">
+                        <tr data-producto-id="${item.producto.id}">
+                            <td class="panel-carro-nombre" title="${item.producto.nombre}">${item.producto.nombre}</td>
+                            <td class="text-center">
+                                <input type="text" class="form-control form-control-sm text-center px-1"
+                                       size="2" name="cant_${item.producto.id}" value="${item.cantidad}"
+                                       data-item-cantidad aria-label="Cantidad"/>
+                            </td>
+                            <td class="text-end" data-item-importe>${item.importe}</td>
+                            <td class="text-center">
+                                <input type="checkbox" class="form-check-input m-0" value="${item.producto.id}"
+                                       name="deleteProductos" aria-label="Quitar"/>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="2" class="text-end fw-semibold">Total:</td>
+                        <td class="text-end fw-semibold" data-carro-total>${carro.total}</td>
+                        <td></td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm w-100 mb-2">Actualizar carro</button>
+        </form>
+        <a class="btn btn-outline-success btn-sm w-100" href="${pageContext.request.contextPath}/carro/ver">
+            Ir a cobrar / ver carro completo
+        </a>
+    </div>
+</div>

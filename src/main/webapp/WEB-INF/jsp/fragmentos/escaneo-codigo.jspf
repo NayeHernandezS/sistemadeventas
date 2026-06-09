@@ -1,0 +1,32 @@
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<c:if test="${not empty sessionScope.username}">
+<div class="escaneo-codigo-wrap mb-3">
+    <div class="escaneo-codigo-bar border border-primary rounded-3 bg-white p-2 p-md-3">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            <span class="badge bg-primary text-nowrap">
+                <i class="bi bi-upc-scan" aria-hidden="true"></i> Escaneo rapido
+            </span>
+            <span class="small text-muted mb-0">Listo para lector - agrega al carro al instante</span>
+        </div>
+        <form class="escaneo-codigo-form" method="get"
+              action="${pageContext.request.contextPath}/carro/agregar-por-sku"
+              data-api-url="${pageContext.request.contextPath}/carro/api/agregar-por-sku"
+              data-escaneo-origen="${escaneoOrigen}">
+            <input type="hidden" name="origen" value="${escaneoOrigen}">
+            <label class="visually-hidden" for="escaneo-sku-${escaneoOrigen}">Codigo de barras o SKU</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-upc" aria-hidden="true"></i></span>
+                <input type="text" name="sku" id="escaneo-sku-${escaneoOrigen}"
+                       class="form-control escaneo-codigo-input"
+                       maxlength="13" inputmode="numeric" autocomplete="off"
+                       placeholder="Escanea aqui - se agrega solo al carro..."
+                       aria-label="Codigo de barras o SKU">
+            </div>
+            <div class="escaneo-codigo-feedback d-none" role="status" aria-live="polite"></div>
+        </form>
+        <p class="form-text mb-0 mt-2 small">
+            El lector escribe el codigo y Enter (o pausa al terminar). Registra el EAN-13 en el SKU del producto.
+        </p>
+    </div>
+</div>
+</c:if>

@@ -44,6 +44,15 @@ public class ProductoServiceJdbcImpl implements ProductoService {
     }
 
     @Override
+    public Optional<Producto> porSkuPorOwner(String sku, String ownerUsername) {
+        try {
+            return Optional.ofNullable(repository.porSkuPorOwner(sku, ownerUsername));
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e.getCause());
+        }
+    }
+
+    @Override
     public void guardar(Producto producto) {
         if (producto.getId() == null || producto.getId() <= 0) {
             planLimiteService.validarNuevoProducto(producto.getOwnerUsername());

@@ -12,6 +12,8 @@ public interface ProductoService {
 
     Optional<Producto> porIdPorOwner(Long id, String ownerUsername);
 
+    Optional<Producto> porSkuPorOwner(String sku, String ownerUsername);
+
     void guardar(Producto producto);
 
     void eliminarPorOwner(Long id, String ownerUsername);
