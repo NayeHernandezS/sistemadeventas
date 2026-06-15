@@ -9,7 +9,7 @@ SET @col_porcentaje_ganancia = (
 );
 SET @sql_porcentaje_ganancia = IF(@col_porcentaje_ganancia = 0,
     'ALTER TABLE productos ADD COLUMN porcentaje_ganancia INT NOT NULL DEFAULT 0 AFTER precio_compra',
-    'SELECT 1');
+    'SET @flyway_skip = 1');
 PREPARE stmt FROM @sql_porcentaje_ganancia;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
