@@ -219,7 +219,8 @@ ${{uuid.DB_PASSWORD}}${{uuid.MYSQLPASSWORD}}...
 
 1. En **sistemadeventas** → **Variables**, elimina `DB_PASSWORD`, `DB_URL`, `DB_USER` y cualquier variable `MYSQL_*` duplicada.
 2. Vuelve a crear solo las 3 variables del JSON de arriba (pestaña **JSON**, una referencia por variable).
-3. En MySQL ejecuta: `DELETE FROM flyway_schema_history WHERE success = 0;`
+3. En MySQL ejecuta: `DELETE FROM flyway_schema_history WHERE success = 0;`  
+   (Desde junio 2026 la app tambien ejecuta `flyway.repair()` al arrancar en perfil `prod`.)
 4. **Redeploy**.
 
 
