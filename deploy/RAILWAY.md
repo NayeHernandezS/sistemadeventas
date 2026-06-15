@@ -75,6 +75,7 @@ Abre: `https://TU-DOMINIO.up.railway.app/login`
 
 ## Si sigue "Application failed to respond"
 
+
 Revisa los logs del deploy en este orden:
 
 ### 1. Puerto (muy comun)
@@ -147,3 +148,84 @@ Java 21 + Spring + JSP necesita al menos **512 MB** RAM. En plan gratuito, sube 
 ## Soporte
 
 Si tras revisar logs el error persiste, copia las **ultimas 50 lineas** del deploy (donde aparece `ERROR` o `Exception`) para diagnosticar el caso concreto.
+
+---
+
+## Error 502 Bad Gateway
+
+El proxy de Railway responde 502 cuando la app **no termino de arrancar** o **se cayo** al conectar con MySQL.
+
+### Sintoma en logs
+
+```
+Communications link failure
+The driver has not received any packets from the server
+HikariPool-1 - Start completed
+... luego ERROR o el contenedor se reinicia
+```
+
+### Solucion 1 — Vincular MySQL a la app (no solo escribir variables)
+
+1. En el canvas del proyecto, clic en el servicio **MySQL**.
+2. **Connect** / conectar con **sistemadeventas** (o arrastra la flecha entre ambos).
+3. Eso inyecta `MYSQLHOST`, `MYSQLPORT`, etc. de forma correcta.
+
+### Solucion 2 — Comprobar que las variables NO quedaron literales
+
+En **Variables** (vista lista, no raw), `DB_URL` debe verse asi:
+
+```
+jdbc:mysql://mysql.railway.internal:3306/railway?...
+```
+
+**Mal:** si aparece literal `${{MySQL.MYSQLHOST}}` sin sustituir.
+
+En ese caso borra `DB_URL`, `DB_USER`, `DB_PASSWORD` y vuelve a **Add Reference** desde el servicio MySQL.
+
+### Solucion 3 — Orden de arranque
+
+1. Espera a que **MySQL** este **Online** (verde).
+2. Luego **Redeploy** solo de **sistemadeventas**.
+3. En Deploy Logs espera hasta `Started SistemaVentasApplication` (puede tardar 2-4 min la primera vez por Flyway).
+
+### Solucion 4 — Raw Editor (pestaña JSON)
+
+**Importante:** cada variable lleva **una sola** referencia `${{MySQL.*}}`. No concatenes varias ni uses UUIDs del dialogo Connect.
+
+Borra antes cualquier `DB_PASSWORD`, `DB_URL` o `DB_USER` mal formados (valores con varios `${{...}}` pegados).
+
+```json
+{
+  "SPRING_PROFILES_ACTIVE": "prod",
+  "FLYWAY_ENABLED": "true",
+  "DB_URL": "jdbc:mysql://${{MySQL.MYSQLHOST}}:${{MySQL.MYSQLPORT}}/${{MySQL.MYSQLDATABASE}}?serverTimezone=America/Mexico_City&allowPublicKeyRetrieval=true&useSSL=false&connectTimeout=30000",
+  "DB_USER": "${{MySQL.MYSQLUSER}}",
+  "DB_PASSWORD": "${{MySQL.MYSQLPASSWORD}}",
+  "APP_BASE_URL": "https://${{RAILWAY_PUBLIC_DOMAIN}}",
+  "APP_UPLOADS_DIR": "/app/uploads",
+  "JAVA_TOOL_OPTIONS": "-Xmx512m -Xms256m"
+}
+```
+
+**No uses** `db` como host ni `ventas.tudominio.com` en `APP_BASE_URL`.
+
+### Error: PlaceholderResolutionException en spring.datasource.password
+
+Si el log muestra un valor como:
+
+```
+${{uuid.DB_PASSWORD}}${{uuid.MYSQLPASSWORD}}...
+```
+
+1. En **sistemadeventas** → **Variables**, elimina `DB_PASSWORD`, `DB_URL`, `DB_USER` y cualquier variable `MYSQL_*` duplicada.
+2. Vuelve a crear solo las 3 variables del JSON de arriba (pestaña **JSON**, una referencia por variable).
+3. En MySQL ejecuta: `DELETE FROM flyway_schema_history WHERE success = 0;`
+4. **Redeploy**.
+
+
+### Probar cuando este arriba
+
+`https://sistemadeventas-production-5dca.up.railway.app/login`
+
+(Sustituye por tu dominio real en Railway → Settings → Networking.)
+
