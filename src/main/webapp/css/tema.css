@@ -369,3 +369,99 @@ h1, h2, h3, .h1, .h2, .h3 {
 .escaneo-codigo-feedback {
     margin-top: 0.5rem;
 }
+
+/* App movil / PWA */
+body.app-con-nav-movil {
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 992px) {
+    body.app-con-nav-movil {
+        padding-bottom: 0;
+    }
+}
+
+.mobile-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1030;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    gap: 0.25rem;
+    padding: 0.35rem 0.5rem calc(0.35rem + env(safe-area-inset-bottom, 0px));
+    background: var(--color-negro);
+    border-top: 2px solid rgba(var(--color-dorado-rgb), 0.85);
+    box-shadow: 0 -4px 16px rgba(var(--color-negro-rgb), 0.2);
+}
+
+.mobile-bottom-nav__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    padding: 0.35rem 0.25rem;
+    border-radius: 0.75rem;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 0.7rem;
+    line-height: 1.1;
+    min-height: 3rem;
+}
+
+.mobile-bottom-nav__item i {
+    font-size: 1.15rem;
+}
+
+.mobile-bottom-nav__item:hover,
+.mobile-bottom-nav__item:focus {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.mobile-bottom-nav__item.active {
+    color: var(--color-dorado-claro);
+    background: rgba(var(--color-morado-rgb), 0.35);
+}
+
+.pwa-install-banner {
+    position: fixed;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+    z-index: 1040;
+    margin: 0;
+    box-shadow: 0 8px 24px rgba(var(--color-negro-rgb), 0.18);
+}
+
+@media (min-width: 992px) {
+    .pwa-install-banner {
+        left: auto;
+        right: 1rem;
+        bottom: 1rem;
+        max-width: 420px;
+    }
+}
+
+.navbar-app .navbar-toggler:focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--color-dorado-rgb), 0.35);
+}
+
+@media (max-width: 991.98px) {
+    .catalogo-ventas-page .panel-carro-catalogo {
+        position: static;
+        max-height: none;
+    }
+
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .btn-agregar-carro {
+        white-space: nowrap;
+    }
+}

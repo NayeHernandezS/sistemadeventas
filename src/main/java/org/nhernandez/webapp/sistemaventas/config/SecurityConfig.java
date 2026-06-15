@@ -53,7 +53,10 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/logout"),
                                 new AntPathRequestMatcher("/error"),
                                 new AntPathRequestMatcher("/css/**"),
-                                new AntPathRequestMatcher("/img/**")
+                                new AntPathRequestMatcher("/js/**"),
+                                new AntPathRequestMatcher("/img/**"),
+                                new AntPathRequestMatcher("/manifest.webmanifest"),
+                                new AntPathRequestMatcher("/sw.js")
                         ).permitAll()
                         .requestMatchers(
                                 new AntPathRequestMatcher("/plataforma/**")

@@ -15,12 +15,13 @@ COPY --from=build /app/target/sistema-ventas.war app.war
 RUN mkdir -p uploads && chown -R appuser:appuser /app
 
 USER appuser
+ENV PORT=8080
 EXPOSE 8080
 
 ENV SPRING_PROFILES_ACTIVE=prod
 ENV APP_UPLOADS_DIR=/app/uploads
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=3 \
-  CMD curl -fsS http://127.0.0.1:8080/login || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=180s --retries=3 \
+  CMD sh -c 'curl -fsS "http://127.0.0.1:${PORT:-8080}/login" || exit 1'
 
 ENTRYPOINT ["java", "-jar", "app.war"]

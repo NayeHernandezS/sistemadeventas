@@ -1,0 +1,47 @@
+{
+  "name": "Fusion Digital - Ventas",
+  "short_name": "Fusion Ventas",
+  "description": "Sistema de ventas e inventario para tu negocio",
+  "start_url": "/inicio",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f7f4fb",
+  "theme_color": "#3B136B",
+  "lang": "es-MX",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/img/pwa/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/pwa/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nueva venta",
+      "short_name": "Ventas",
+      "url": "/productos",
+      "icons": [{ "src": "/img/pwa/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Carro",
+      "short_name": "Carro",
+      "url": "/carro/ver",
+      "icons": [{ "src": "/img/pwa/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

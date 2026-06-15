@@ -5,12 +5,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <%@ include file="fragmentos/head-pwa.jspf" %>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
     <title>Catalogo de servicios</title>
 </head>
-<body>
+<body class="app-con-nav-movil">
 <%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container py-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -98,5 +99,6 @@
     </c:if>
 </div>
 <script src="${pageContext.request.contextPath}/js/buscador-tabla.js"></script>
+<%@ include file="fragmentos/foot-app.jspf" %>
 </body>
 </html>

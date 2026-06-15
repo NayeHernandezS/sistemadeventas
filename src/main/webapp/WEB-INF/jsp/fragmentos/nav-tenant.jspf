@@ -1,5 +1,7 @@
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
-<nav class="navbar navbar-expand-lg navbar-dark navbar-app shadow-sm py-3 mb-4 no-print">
+<%@ taglib uri="jakarta.tags.functions" prefix="fn" %>
+<c:set var="navUri" value="${pageContext.request.requestURI}"/>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-app shadow-sm py-2 py-lg-3 mb-3 mb-lg-4 no-print">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2" href="${pageContext.request.contextPath}/inicio" title="Inicio">
             <span class="logo-slot logo-slot--nav">
@@ -9,17 +11,38 @@
                 <span class="text-primary">FUSION</span> <span class="text-warning">DIGITAL</span>
             </span>
         </a>
-        <div class="ms-auto d-flex align-items-center gap-2 flex-wrap justify-content-end">
-            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/inicio">
-                <i class="bi bi-house"></i><span class="d-none d-md-inline ms-1">Inicio</span>
-            </a>
-            <span class="text-muted small d-none d-lg-inline">Hola, ${sessionScope.username}</span>
-            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/perfil">
-                Mi perfil
-            </a>
-            <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="${pageContext.request.contextPath}/logout">
-                Salir <i class="bi bi-power"></i>
-            </a>
+        <button class="navbar-toggler border-light" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navTenantMenu" aria-controls="navTenantMenu"
+                aria-expanded="false" aria-label="Abrir menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navTenantMenu">
+            <div class="navbar-nav ms-lg-auto align-items-lg-center gap-lg-2 py-3 py-lg-0">
+                <a class="nav-link text-light px-3 rounded-pill ${fn:contains(navUri, '/inicio') ? 'bg-white bg-opacity-10' : ''}"
+                   href="${pageContext.request.contextPath}/inicio">
+                    <i class="bi bi-house"></i> Inicio
+                </a>
+                <a class="nav-link text-light px-3 rounded-pill ${fn:contains(navUri, '/productos') ? 'bg-white bg-opacity-10' : ''}"
+                   href="${pageContext.request.contextPath}/productos">
+                    <i class="bi bi-bag-plus"></i> Ventas
+                </a>
+                <a class="nav-link text-light px-3 rounded-pill ${fn:contains(navUri, '/carro') ? 'bg-white bg-opacity-10' : ''}"
+                   href="${pageContext.request.contextPath}/carro/ver">
+                    <i class="bi bi-cart3"></i> Carro
+                </a>
+                <a class="nav-link text-light px-3 rounded-pill ${fn:contains(navUri, '/crudprod') ? 'bg-white bg-opacity-10' : ''}"
+                   href="${pageContext.request.contextPath}/crudprod">
+                    <i class="bi bi-box-seam"></i> Stock
+                </a>
+                <span class="nav-link text-muted small d-none d-lg-inline py-lg-0">Hola, ${sessionScope.username}</span>
+                <a class="nav-link text-light px-3 rounded-pill ${fn:contains(navUri, '/perfil') ? 'bg-white bg-opacity-10' : ''}"
+                   href="${pageContext.request.contextPath}/perfil">
+                    Mi perfil
+                </a>
+                <a class="nav-link text-light px-3 rounded-pill" href="${pageContext.request.contextPath}/logout">
+                    Salir <i class="bi bi-power"></i>
+                </a>
+            </div>
         </div>
     </div>
 </nav>

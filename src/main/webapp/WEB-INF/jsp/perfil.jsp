@@ -4,12 +4,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <%@ include file="fragmentos/head-pwa.jspf" %>
     <title>Mi perfil</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
 </head>
-<body class="bg-light">
+<body class="bg-light app-con-nav-movil">
 <%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container my-5" style="max-width: 720px;">
     <h1 class="h3 mb-4">Mi perfil</h1>
@@ -411,5 +412,6 @@
         </div>
     </div>
 </div>
+<%@ include file="fragmentos/foot-app.jspf" %>
 </body>
 </html>

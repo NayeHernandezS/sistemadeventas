@@ -137,7 +137,10 @@ public class SuscripcionFiltro implements Filter {
         return path.endsWith(".css")
                 || path.endsWith(".js")
                 || path.endsWith(".svg")
-                || path.endsWith(".png");
+                || path.endsWith(".png")
+                || path.endsWith(".webmanifest")
+                || path.equals("/manifest.webmanifest")
+                || path.equals("/sw.js");
     }
 
     /**

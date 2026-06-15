@@ -5,13 +5,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <%@ include file="fragmentos/head-pwa.jspf" %>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <title>Crear o editar vendedor</title>
 </head>
-<body>
+<body class="app-con-nav-movil">
 <%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container py-4">
     <h1 class="h3 mb-4">${usuario.id != null && usuario.id > 0 ? 'Editar vendedor' : 'Crear vendedor'}</h1>
@@ -62,5 +63,6 @@
     <input type="hidden" name="id" value="${usuario.id!=null && usuario.id>0? usuario.id: 0}">
 </form>
 </div>
+<%@ include file="fragmentos/foot-app.jspf" %>
 </body>
 </html>

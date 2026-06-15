@@ -4,12 +4,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <%@ include file="fragmentos/head-pwa.jspf" %>
     <title>Devoluciones</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
 </head>
-<body>
+<body class="app-con-nav-movil">
 <%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container my-4">
     <h1 class="h3 mb-3"><i class="bi bi-arrow-return-left"></i> Devoluciones</h1>
@@ -82,5 +83,6 @@
     <a class="btn btn-secondary" href="${pageContext.request.contextPath}/inicio">Inicio</a>
     <a class="btn btn-outline-primary" href="${pageContext.request.contextPath}/tickets">Ver tickets</a>
 </div>
+<%@ include file="fragmentos/foot-app.jspf" %>
 </body>
 </html>

@@ -1,0 +1,27 @@
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn" %>
+<c:set var="navUri" value="${pageContext.request.requestURI}"/>
+<c:if test="${not empty sessionScope.username}">
+<nav class="mobile-bottom-nav d-lg-none no-print" aria-label="Accesos rapidos">
+    <a class="mobile-bottom-nav__item${fn:contains(navUri, '/inicio') ? ' active' : ''}"
+       href="${pageContext.request.contextPath}/inicio">
+        <i class="bi bi-house-door" aria-hidden="true"></i>
+        <span>Inicio</span>
+    </a>
+    <a class="mobile-bottom-nav__item${fn:contains(navUri, '/productos') ? ' active' : ''}"
+       href="${pageContext.request.contextPath}/productos">
+        <i class="bi bi-bag-plus" aria-hidden="true"></i>
+        <span>Ventas</span>
+    </a>
+    <a class="mobile-bottom-nav__item${fn:contains(navUri, '/carro') ? ' active' : ''}"
+       href="${pageContext.request.contextPath}/carro/ver">
+        <i class="bi bi-cart3" aria-hidden="true"></i>
+        <span>Carro</span>
+    </a>
+    <a class="mobile-bottom-nav__item${fn:contains(navUri, '/crudprod') ? ' active' : ''}"
+       href="${pageContext.request.contextPath}/crudprod">
+        <i class="bi bi-box-seam" aria-hidden="true"></i>
+        <span>Stock</span>
+    </a>
+</nav>
+</c:if>

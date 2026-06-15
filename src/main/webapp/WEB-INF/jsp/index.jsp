@@ -4,13 +4,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <%@ include file="fragmentos/head-pwa.jspf" %>
     <title>Panel — FUSION DIGITAL</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/estiloindex.css">
 </head>
-<body>
+<body class="app-con-nav-movil">
 
 <%@ include file="fragmentos/nav-tenant.jspf" %>
 
@@ -231,5 +232,6 @@
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<%@ include file="fragmentos/foot-app.jspf" %>
 </body>
 </html>

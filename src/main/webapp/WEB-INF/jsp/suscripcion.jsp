@@ -5,6 +5,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <%@ include file="fragmentos/head-pwa.jspf" %>
     <title>Planes y suscripcion</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -23,7 +24,7 @@
         }
     </style>
 </head>
-<body class="bg-light">
+<body class="bg-light app-con-nav-movil">
 <%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -346,5 +347,6 @@
         </div>
     </div>
 </div>
+<%@ include file="fragmentos/foot-app.jspf" %>
 </body>
 </html>
