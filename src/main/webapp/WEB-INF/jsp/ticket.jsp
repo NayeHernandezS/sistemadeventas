@@ -36,7 +36,7 @@
                     <%@ include file="fragmentos/logo-tenant.jspf" %>
                 </div>
                 <p class="ticket-recibo__titulo">COMPROBANTE DE VENTA</p>
-                <p class="ticket-recibo__subtitulo">FUSION DIGITAL</p>
+                <p class="ticket-recibo__subtitulo">${nombreNegocio}</p>
             </header>
 
             <div class="ticket-recibo__meta">

@@ -22,6 +22,13 @@ public interface TicketRepository {
 
     List<TicketVenta> listarPorTenant(String tenantOwner) throws SQLException;
 
+    List<TicketVenta> buscarPorTenant(String tenantOwner, String texto, int limite) throws SQLException;
+
+    List<TicketVenta> buscarPorVendedor(String usernameVendedor, String texto, int limite) throws SQLException;
+
+    List<TicketVenta> listarPorTenantYNombreCliente(String tenantOwner, String nombreCliente, int limite)
+            throws SQLException;
+
     TicketVenta porFolioDeTenant(String folio, String tenantOwner) throws SQLException;
 
     TicketVenta porIdDeTenant(Long id, String tenantOwner) throws SQLException;

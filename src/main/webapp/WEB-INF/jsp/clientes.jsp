@@ -55,6 +55,7 @@
                     <th>Correo</th>
                     <th>C.P.</th>
                     <th>Uso CFDI</th>
+                    <th>Compras</th>
                     <c:if test="${esAdmin}">
                         <th></th>
                         <th></th>
@@ -71,6 +72,12 @@
                         <td><c:out value="${empty cl.email ? '—' : cl.email}"/></td>
                         <td><c:out value="${empty cl.codigoPostal ? '—' : cl.codigoPostal}"/></td>
                         <td><c:out value="${empty cl.usoCfdi ? '—' : cl.usoCfdi}"/></td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary"
+                               href="${pageContext.request.contextPath}/clientes/compras?id=${cl.id}">
+                                <i class="bi bi-receipt"></i> Ver compras
+                            </a>
+                        </td>
                         <c:if test="${esAdmin}">
                             <td>
                                 <a class="btn btn-sm btn-success"

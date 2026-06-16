@@ -134,6 +134,74 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
     }
 
     @Override
+    public List<TicketVenta> buscarPorTenant(String tenantOwner, String texto, int limite) throws SQLException {
+        return buscarTickets(
+                "tenant_owner = ? AND (folio LIKE ? OR nombre_cliente LIKE ?)",
+                tenantOwner,
+                texto,
+                limite);
+    }
+
+    @Override
+    public List<TicketVenta> buscarPorVendedor(String usernameVendedor, String texto, int limite) throws SQLException {
+        return buscarTickets(
+                "username_vendedor = ? AND (folio LIKE ? OR nombre_cliente LIKE ?)",
+                usernameVendedor,
+                texto,
+                limite);
+    }
+
+    @Override
+    public List<TicketVenta> listarPorTenantYNombreCliente(String tenantOwner, String nombreCliente, int limite)
+            throws SQLException {
+        int max = limite > 0 ? limite : 20;
+        String patron = "%" + nombreCliente.trim() + "%";
+        String sql = """
+                SELECT %s
+                FROM tickets_venta
+                WHERE tenant_owner = ?
+                  AND nombre_cliente IS NOT NULL
+                  AND TRIM(nombre_cliente) <> ''
+                  AND LOWER(nombre_cliente) LIKE LOWER(?)
+                ORDER BY fecha_venta DESC
+                LIMIT ?
+                """.formatted(COLUMNAS_TICKET);
+        List<TicketVenta> tickets = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, tenantOwner);
+            stmt.setString(2, patron);
+            stmt.setInt(3, max);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    tickets.add(mapTicket(rs));
+                }
+            }
+        }
+        return tickets;
+    }
+
+    private List<TicketVenta> buscarTickets(String condicion, String parametro, String texto, int limite)
+            throws SQLException {
+        int max = limite > 0 ? limite : 200;
+        String patron = "%" + texto.trim() + "%";
+        String sql = "SELECT " + COLUMNAS_TICKET + " FROM tickets_venta WHERE " + condicion
+                + " ORDER BY fecha_venta DESC LIMIT ?";
+        List<TicketVenta> tickets = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, parametro);
+            stmt.setString(2, patron);
+            stmt.setString(3, patron);
+            stmt.setInt(4, max);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    tickets.add(mapTicket(rs));
+                }
+            }
+        }
+        return tickets;
+    }
+
+    @Override
     public TicketVenta porFolioDeTenant(String folio, String tenantOwner) throws SQLException {
         String sql = "select " + COLUMNAS_TICKET + " from tickets_venta "
                 + "where folio = ? and tenant_owner = ?";

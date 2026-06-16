@@ -20,9 +20,33 @@
         </a>
     </div>
 
+    <form class="row g-2 align-items-end mb-3" method="get" action="${pageContext.request.contextPath}/tickets">
+        <div class="col-md-6 col-lg-5">
+            <label class="form-label" for="busquedaTickets">Buscar ticket</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
+                <input type="search" class="form-control" id="busquedaTickets" name="q"
+                       placeholder="Folio o nombre de cliente..." value="${textoBusqueda}"
+                       autocomplete="off">
+                <c:if test="${hayBusqueda}">
+                    <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/tickets"
+                       title="Limpiar busqueda" aria-label="Limpiar busqueda">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </c:if>
+                <button type="submit" class="btn btn-outline-primary">Buscar</button>
+            </div>
+        </div>
+    </form>
+
     <c:choose>
         <c:when test="${empty tickets}">
-            <div class="alert alert-warning">No hay tickets registrados.</div>
+            <div class="alert alert-warning">
+                <c:choose>
+                    <c:when test="${hayBusqueda}">No hay tickets que coincidan con tu busqueda.</c:when>
+                    <c:otherwise>No hay tickets registrados.</c:otherwise>
+                </c:choose>
+            </div>
         </c:when>
         <c:otherwise>
             <div class="table-responsive">
@@ -45,7 +69,11 @@
                             <td>${ticket.fechaVenta}</td>
                             <td>
                                 <c:choose>
-                                    <c:when test="${ticket.tieneNombreCliente}">${ticket.nombreCliente}</c:when>
+                                    <c:when test="${ticket.tieneNombreCliente}">
+                                        <a href="${pageContext.request.contextPath}/tickets?q=${ticket.nombreCliente}">
+                                            ${ticket.nombreCliente}
+                                        </a>
+                                    </c:when>
                                     <c:otherwise><span class="text-muted">—</span></c:otherwise>
                                 </c:choose>
                             </td>

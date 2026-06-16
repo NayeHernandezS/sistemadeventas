@@ -3,9 +3,11 @@ package org.nhernandez.webapp.sistemaventas.web;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.nhernandez.webapp.sistemaventas.models.Cliente;
+import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 import org.nhernandez.webapp.sistemaventas.services.ClienteService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
+import org.nhernandez.webapp.sistemaventas.services.TicketConsultaService;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
 import org.springframework.stereotype.Controller;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -23,10 +26,14 @@ public class ClienteController {
 
     private final ClienteService service;
     private final LoginService auth;
+    private final TicketConsultaService ticketConsultaService;
 
-    public ClienteController(ClienteService service, LoginService auth) {
+    public ClienteController(ClienteService service,
+                             LoginService auth,
+                             TicketConsultaService ticketConsultaService) {
         this.service = service;
         this.auth = auth;
+        this.ticketConsultaService = ticketConsultaService;
     }
 
     @GetMapping("/clientes")
@@ -36,6 +43,33 @@ public class ClienteController {
         model.addAttribute("username", auth.getUsername(req));
         model.addAttribute("esAdmin", RolUtil.esAdmin(req));
         return "clientes";
+    }
+
+    @GetMapping("/clientes/compras")
+    public String compras(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
+        Optional<String> usernameOpt = auth.getUsername(req);
+        if (usernameOpt.isEmpty()) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Debe iniciar sesion.");
+            return null;
+        }
+        String tenant = TenantUtil.getTenantOwner(req);
+        long id = parseLong(req.getParameter("id"), 0L);
+        if (id <= 0) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Indica el cliente a consultar.");
+            return null;
+        }
+        Optional<Cliente> clienteOpt = service.porId(tenant, id);
+        if (clienteOpt.isEmpty()) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Cliente no encontrado.");
+            return null;
+        }
+        Cliente cliente = clienteOpt.get();
+        List<TicketVenta> tickets = ticketConsultaService.historialPorNombreCliente(tenant, cliente.getNombre(), 20);
+        model.addAttribute("cliente", cliente);
+        model.addAttribute("tickets", tickets);
+        model.addAttribute("esAdmin", RolUtil.esAdmin(req));
+        model.addAttribute("username", usernameOpt.get());
+        return "clienteCompras";
     }
 
     @GetMapping("/clientes/form")

@@ -3,6 +3,7 @@ package org.nhernandez.webapp.sistemaventas.web;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.nhernandez.webapp.sistemaventas.models.CierreCajaDia;
+import org.nhernandez.webapp.sistemaventas.models.DatosFiscalesNegocio;
 import org.nhernandez.webapp.sistemaventas.models.Factura;
 import org.nhernandez.webapp.sistemaventas.models.ReporteVentas;
 import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
@@ -11,9 +12,11 @@ import org.nhernandez.webapp.sistemaventas.repositories.TicketRepository;
 import org.nhernandez.webapp.sistemaventas.services.CfdiTimbradoService;
 import org.nhernandez.webapp.sistemaventas.services.CierreCajaService;
 import org.nhernandez.webapp.sistemaventas.services.ClienteService;
+import org.nhernandez.webapp.sistemaventas.services.DatosFiscalesNegocioService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ReporteService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
+import org.nhernandez.webapp.sistemaventas.services.TicketConsultaService;
 import org.nhernandez.webapp.sistemaventas.util.CierreCajaCsvExporter;
 import org.nhernandez.webapp.sistemaventas.util.FacturaDatosUtil;
 import org.nhernandez.webapp.sistemaventas.util.FacturaPdfExporter;
@@ -48,6 +51,8 @@ public class TicketReporteController {
     private final FacturaPdfExporter facturaPdfExporter;
     private final CfdiTimbradoService cfdiTimbradoService;
     private final ClienteService clienteService;
+    private final TicketConsultaService ticketConsultaService;
+    private final DatosFiscalesNegocioService datosFiscalesNegocioService;
 
     public TicketReporteController(TicketRepository ticketRepository,
                                    FacturaRepository facturaRepository,
@@ -58,7 +63,9 @@ public class TicketReporteController {
                                    CierreCajaCsvExporter cierreCajaCsvExporter,
                                    FacturaPdfExporter facturaPdfExporter,
                                    CfdiTimbradoService cfdiTimbradoService,
-                                   ClienteService clienteService) {
+                                   ClienteService clienteService,
+                                   TicketConsultaService ticketConsultaService,
+                                   DatosFiscalesNegocioService datosFiscalesNegocioService) {
         this.ticketRepository = ticketRepository;
         this.facturaRepository = facturaRepository;
         this.loginService = loginService;
@@ -69,6 +76,8 @@ public class TicketReporteController {
         this.facturaPdfExporter = facturaPdfExporter;
         this.cfdiTimbradoService = cfdiTimbradoService;
         this.clienteService = clienteService;
+        this.ticketConsultaService = ticketConsultaService;
+        this.datosFiscalesNegocioService = datosFiscalesNegocioService;
     }
 
     @GetMapping("/tickets")
@@ -79,10 +88,12 @@ public class TicketReporteController {
             return null;
         }
         String tenant = TenantUtil.getTenantOwner(req);
-        List<TicketVenta> tickets = RolUtil.esAdmin(req)
-                ? ticketRepository.listarPorTenant(tenant)
-                : ticketRepository.listarPorVendedor(usernameOpt.get());
+        String textoBusqueda = req.getParameter("q");
+        Optional<String> vendedor = RolUtil.esAdmin(req) ? Optional.empty() : usernameOpt;
+        List<TicketVenta> tickets = ticketConsultaService.listar(tenant, vendedor, textoBusqueda);
         model.addAttribute("tickets", tickets);
+        model.addAttribute("textoBusqueda", textoBusqueda != null ? textoBusqueda.trim() : "");
+        model.addAttribute("hayBusqueda", textoBusqueda != null && !textoBusqueda.isBlank());
         return "tickets";
     }
 
@@ -114,6 +125,7 @@ public class TicketReporteController {
         model.addAttribute("ticket", ticket);
         model.addAttribute("factura", factura);
         model.addAttribute("tieneFactura", factura != null);
+        model.addAttribute("nombreNegocio", resolverNombreNegocio(tenant));
 
         Object mensaje = req.getSession().getAttribute("mensajeTicket");
         if (mensaje != null) {
@@ -464,5 +476,12 @@ public class TicketReporteController {
         } catch (DateTimeParseException e) {
             return null;
         }
+    }
+
+    private String resolverNombreNegocio(String tenant) {
+        return datosFiscalesNegocioService.consultar(tenant)
+                .map(DatosFiscalesNegocio::getRazonSocial)
+                .filter(razon -> razon != null && !razon.isBlank())
+                .orElse(tenant);
     }
 }
