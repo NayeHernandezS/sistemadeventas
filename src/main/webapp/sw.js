@@ -1,7 +1,7 @@
 /* Service worker basico: cache de estaticos para uso tipo app instalada. */
 'use strict';
 
-var CACHE_VERSION = 'fusion-ventas-v2';
+var CACHE_VERSION = 'fusion-ventas-v3';
 var PRECACHE = [
     '/css/tema.css',
     '/css/estiloindex.css',
