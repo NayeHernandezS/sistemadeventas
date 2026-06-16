@@ -135,7 +135,7 @@
         <c:forEach items="${productos}" var="p">
             <tr data-fila-busqueda="1"
                 data-buscar="${p.nombre} ${p.sku} ${p.categoria.nombre} ${p.id} ${p.tipoItem.etiqueta}"
-                class="${p.esServicio ? '' : (p.estaAgotado ? 'table-danger' : (p.esStockBajoUmbral(stockMinimo) ? 'table-warning' : ''))}">
+                class="${p.claseFilaInventario(stockMinimo)}">
                 <c:if test="${esAdmin}">
                     <td data-col="id">${p.id}</td>
                 </c:if>

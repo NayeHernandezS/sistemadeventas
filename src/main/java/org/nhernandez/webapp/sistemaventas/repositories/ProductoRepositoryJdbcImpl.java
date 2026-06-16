@@ -263,7 +263,8 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
 
     private static String leerUnidadMedida(ResultSet rs) throws SQLException {
         try {
-            return rs.getString("unidad_medida");
+            String unidad = rs.getString("unidad_medida");
+            return unidad != null && !unidad.isBlank() ? unidad : "pza";
         } catch (SQLException e) {
             return "pza";
         }

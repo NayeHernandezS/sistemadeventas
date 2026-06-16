@@ -164,11 +164,29 @@ public class Producto implements Serializable {
         return esProducto() && existencias <= 0;
     }
 
+    /** Expuesto para EL/JSP ({@code ${p.estaAgotado}}). */
+    public boolean isEstaAgotado() {
+        return estaAgotado();
+    }
+
     public boolean esStockBajoUmbral(int umbral) {
         if (!esProducto() || existencias <= 0 || umbral <= 0) {
             return false;
         }
         return existencias <= UnidadMedidaUtil.umbralAUnidadBase(umbral, getUnidadMedida());
+    }
+
+    public String claseFilaInventario(int umbral) {
+        if (esServicio()) {
+            return "";
+        }
+        if (estaAgotado()) {
+            return "table-danger";
+        }
+        if (esStockBajoUmbral(umbral)) {
+            return "table-warning";
+        }
+        return "";
     }
 
     /** Margen en pesos: precio de venta menos precio de compra. */
