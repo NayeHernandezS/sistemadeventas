@@ -76,6 +76,7 @@ public class SoporteController {
         String tenant = TenantUtil.getTenantOwner(req);
         model.addAttribute("soporteEmail", SoporteConfigUtil.email());
         model.addAttribute("soporteWhatsapp", SoporteConfigUtil.whatsapp());
+        model.addAttribute("soporteWhatsappUrl", SoporteConfigUtil.whatsappEnlace());
         model.addAttribute("soporteHorario", SoporteConfigUtil.horario());
         model.addAttribute("historial", soporteService.historialTenant(tenant));
         if (emailForm != null) {

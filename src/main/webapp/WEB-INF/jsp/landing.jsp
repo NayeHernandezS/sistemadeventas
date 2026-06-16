@@ -186,11 +186,28 @@
                 <a href="${pageContext.request.contextPath}/registro/terminos" class="me-3">Terminos</a>
                 <a href="${pageContext.request.contextPath}/registro/privacidad" class="me-3">Privacidad</a>
                 <a href="mailto:${soporteEmail}">${soporteEmail}</a>
+                <c:if test="${not empty soporteWhatsappUrl}">
+                    <span class="mx-2">·</span>
+                    <a href="${soporteWhatsappUrl}" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-whatsapp"></i> WhatsApp
+                    </a>
+                </c:if>
             </div>
         </div>
         <p class="small text-center mt-3 mb-0">&copy; 2026 FUSION DIGITAL. Cada cuenta gestiona su propio negocio.</p>
     </div>
 </footer>
+
+<c:if test="${not empty soporteWhatsappUrl}">
+    <a href="${soporteWhatsappUrl}"
+       class="landing-whatsapp-fab"
+       target="_blank"
+       rel="noopener noreferrer"
+       title="WhatsApp soporte"
+       aria-label="Contactar por WhatsApp">
+        <i class="bi bi-whatsapp" aria-hidden="true"></i>
+    </a>
+</c:if>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

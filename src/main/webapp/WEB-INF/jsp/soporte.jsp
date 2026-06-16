@@ -29,8 +29,11 @@
             <p class="mb-1"><i class="bi bi-envelope"></i>
                 <a href="mailto:${soporteEmail}">${soporteEmail}</a>
             </p>
-            <c:if test="${not empty soporteWhatsapp}">
-                <p class="mb-1"><i class="bi bi-whatsapp text-success"></i> ${soporteWhatsapp}</p>
+            <c:if test="${not empty soporteWhatsappUrl}">
+                <p class="mb-1">
+                    <i class="bi bi-whatsapp text-success"></i>
+                    <a href="${soporteWhatsappUrl}" target="_blank" rel="noopener noreferrer">${soporteWhatsapp}</a>
+                </p>
             </c:if>
             <p class="mb-0 text-muted small"><i class="bi bi-clock"></i> ${soporteHorario}</p>
         </div>
