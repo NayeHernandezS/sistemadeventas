@@ -203,11 +203,11 @@
 <p>${applicationScope.mensaje}</p>
 <p>${requestScope.mensaje}</p>
 </div>
+<%@ include file="fragmentos/foot-app.jspf" %>
 <script src="${pageContext.request.contextPath}/js/catalogo-carro.js"></script>
 <script src="${pageContext.request.contextPath}/js/buscador-tabla.js"></script>
 <script src="${pageContext.request.contextPath}/js/filtros-columnas-tabla.js"></script>
 <script src="${pageContext.request.contextPath}/js/escaneo-producto.js"></script>
-<%@ include file="fragmentos/foot-app.jspf" %>
 <script src="${pageContext.request.contextPath}/js/aviso-bienvenida.js"></script>
 </body>
 </html>

@@ -329,6 +329,15 @@ h1, h2, h3, .h1, .h2, .h3 {
     align-items: flex-start;
 }
 
+.filtros-columnas-wrap {
+    position: relative;
+    z-index: 30;
+}
+
+.filtros-columnas-wrap .dropdown-menu {
+    z-index: 1050;
+}
+
 .panel-carro-catalogo {
     position: sticky;
     top: 1rem;
