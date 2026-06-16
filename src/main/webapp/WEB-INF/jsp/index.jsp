@@ -61,8 +61,29 @@
             ${cantidadConAlerta} producto(s) requieren atencion
             (<c:if test="${cantidadAgotados > 0}">${cantidadAgotados} agotado(s)</c:if><c:if test="${cantidadAgotados > 0 && cantidadStockBajo > 0}">, </c:if><c:if test="${cantidadStockBajo > 0}">${cantidadStockBajo} stock bajo</c:if>).
             Umbral: ${stockMinimo} uds.
-            <a href="${pageContext.request.contextPath}/crudprod" class="alert-link">Ver inventario</a>
+            <a href="${pageContext.request.contextPath}/inventario/comprar-hoy" class="alert-link">Ver lista comprar hoy</a>
         </div>
+        <c:if test="${not empty listaCompraPreview && listaCompraPreview.totalProductos > 0}">
+        <div class="card border-0 shadow-sm mt-3 mx-auto text-start" style="max-width: 520px;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0"><i class="bi bi-cart-check"></i> Comprar hoy</h6>
+                    <a href="${pageContext.request.contextPath}/inventario/comprar-hoy" class="small">Ver todos (${listaCompraPreview.totalProductos})</a>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <c:forEach items="${listaCompraPreview.productos}" var="p">
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <span>
+                                <c:if test="${p.agotado}"><span class="badge bg-danger me-1">Agotado</span></c:if>
+                                ${p.nombre}
+                            </span>
+                            <span class="text-muted small">+${p.cantidadSugerida} uds.</span>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </div>
+        </div>
+        </c:if>
         </c:if>
         </c:if>
     </div>
@@ -143,6 +164,13 @@
             <div class="card h-100 menu-card p-4">
                 <div class="icon-circle"><i class="bi bi-cart-plus"></i></div>
                 <a href="${pageContext.request.contextPath}/productos" class="menu-link stretched-link">Modulo de ventas</a>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg-3">
+            <div class="card h-100 menu-card p-4 border-start border-warning border-3">
+                <div class="icon-circle"><i class="bi bi-cart-check"></i></div>
+                <a href="${pageContext.request.contextPath}/inventario/comprar-hoy" class="menu-link stretched-link">Comprar hoy</a>
             </div>
         </div>
 

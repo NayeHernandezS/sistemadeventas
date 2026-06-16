@@ -3,13 +3,16 @@ package org.nhernandez.webapp.sistemaventas.web;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
+import org.nhernandez.webapp.sistemaventas.models.ListaCompraHoy;
 import org.nhernandez.webapp.sistemaventas.models.MovimientoInventario;
 import org.nhernandez.webapp.sistemaventas.models.Producto;
 import org.nhernandez.webapp.sistemaventas.models.TipoMovimientoInventario;
 import org.nhernandez.webapp.sistemaventas.services.InventarioMovimientoService;
+import org.nhernandez.webapp.sistemaventas.services.ListaCompraService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ProductoService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
+import org.nhernandez.webapp.sistemaventas.util.ListaCompraCsvExporter;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
 import org.springframework.stereotype.Controller;
@@ -34,14 +37,51 @@ public class InventarioController {
 
     private final ProductoService productoService;
     private final InventarioMovimientoService inventarioMovimientoService;
+    private final ListaCompraService listaCompraService;
+    private final ListaCompraCsvExporter listaCompraCsvExporter;
     private final LoginService loginService;
 
     public InventarioController(@ProductoServicePrincipal ProductoService productoService,
                                 InventarioMovimientoService inventarioMovimientoService,
+                                ListaCompraService listaCompraService,
+                                ListaCompraCsvExporter listaCompraCsvExporter,
                                 LoginService loginService) {
         this.productoService = productoService;
         this.inventarioMovimientoService = inventarioMovimientoService;
+        this.listaCompraService = listaCompraService;
+        this.listaCompraCsvExporter = listaCompraCsvExporter;
         this.loginService = loginService;
+    }
+
+    @GetMapping("/comprar-hoy")
+    public String comprarHoy(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
+        if (loginService.getUsername(req).isEmpty()) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Debe iniciar sesion para consultar la lista de compra.");
+            return null;
+        }
+        String tenant = TenantUtil.getTenantOwner(req);
+        ListaCompraHoy lista = listaCompraService.generar(tenant);
+        model.addAttribute("lista", lista);
+        model.addAttribute("esAdmin", RolUtil.esAdmin(req));
+        return "comprarHoy";
+    }
+
+    @GetMapping("/comprar-hoy/export")
+    public void exportarComprarHoy(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (loginService.getUsername(req).isEmpty()) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Debe iniciar sesion para exportar la lista de compra.");
+            return;
+        }
+        String tenant = TenantUtil.getTenantOwner(req);
+        ListaCompraHoy lista = listaCompraService.generar(tenant);
+        byte[] csv = listaCompraCsvExporter.exportar(lista);
+        String nombre = "comprar-hoy-" + lista.getFecha().replace("-", "") + ".csv";
+        resp.setContentType("text/csv; charset=UTF-8");
+        resp.setCharacterEncoding("UTF-8");
+        resp.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + "\"");
+        resp.setContentLength(csv.length);
+        resp.getOutputStream().write(csv);
+        resp.getOutputStream().flush();
     }
 
     @GetMapping("/movimientos")

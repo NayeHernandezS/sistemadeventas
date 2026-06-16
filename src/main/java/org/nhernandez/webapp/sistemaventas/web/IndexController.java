@@ -3,6 +3,7 @@ package org.nhernandez.webapp.sistemaventas.web;
 import jakarta.servlet.http.HttpServletRequest;
 import org.nhernandez.webapp.sistemaventas.configs.ProductoServicePrincipal;
 import org.nhernandez.webapp.sistemaventas.services.InventarioAlertaService;
+import org.nhernandez.webapp.sistemaventas.services.ListaCompraService;
 import org.nhernandez.webapp.sistemaventas.services.OnboardingService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.PanelNegocioService;
@@ -23,6 +24,7 @@ public class IndexController {
     private final PlanLimiteService planLimiteService;
     private final ProductoService productoService;
     private final InventarioAlertaService inventarioAlertaService;
+    private final ListaCompraService listaCompraService;
     private final SuscripcionAvisoService suscripcionAvisoService;
     private final PanelNegocioService panelNegocioService;
     private final LoginService loginService;
@@ -32,6 +34,7 @@ public class IndexController {
     public IndexController(PlanLimiteService planLimiteService,
                            @ProductoServicePrincipal ProductoService productoService,
                            InventarioAlertaService inventarioAlertaService,
+                           ListaCompraService listaCompraService,
                            SuscripcionAvisoService suscripcionAvisoService,
                            PanelNegocioService panelNegocioService,
                            LoginService loginService,
@@ -40,6 +43,7 @@ public class IndexController {
         this.planLimiteService = planLimiteService;
         this.productoService = productoService;
         this.inventarioAlertaService = inventarioAlertaService;
+        this.listaCompraService = listaCompraService;
         this.suscripcionAvisoService = suscripcionAvisoService;
         this.panelNegocioService = panelNegocioService;
         this.loginService = loginService;
@@ -78,6 +82,7 @@ public class IndexController {
                 model.addAttribute("cantidadConAlerta", conAlerta);
                 model.addAttribute("cantidadAgotados", inventarioAlertaService.contarAgotados(productos));
                 model.addAttribute("cantidadStockBajo", inventarioAlertaService.contarStockBajo(productos, tenant));
+                model.addAttribute("listaCompraPreview", listaCompraService.generar(tenant, 5));
             }
 
             loginService.getUsername(req).ifPresent(user ->

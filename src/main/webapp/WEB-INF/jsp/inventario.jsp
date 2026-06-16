@@ -56,6 +56,7 @@
             <c:if test="${cantidadStockBajo > 0}">
                 ${cantidadStockBajo} con stock bajo
             </c:if>
+            · <a href="${pageContext.request.contextPath}/inventario/comprar-hoy" class="alert-link">Lista comprar hoy</a>
         </div>
     </c:if>
 
@@ -66,10 +67,19 @@
     </c:if>
 
     <c:if test="${logueado}">
-        <div class="mb-3">
+        <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
             <a class="btn btn-secondary" href="${pageContext.request.contextPath}/inicio">Volver</a>
+            <div class="btn-group" role="group" aria-label="Filtro de inventario">
+                <a class="btn btn-sm ${soloAlerta ? 'btn-outline-secondary' : 'btn-primary'}"
+                   href="${pageContext.request.contextPath}/crudprod">Todos</a>
+                <a class="btn btn-sm ${soloAlerta ? 'btn-warning' : 'btn-outline-warning'}"
+                   href="${pageContext.request.contextPath}/crudprod?alerta=1">Solo con alerta</a>
+            </div>
+            <a class="btn btn-sm btn-outline-success" href="${pageContext.request.contextPath}/inventario/comprar-hoy">
+                <i class="bi bi-cart-check"></i> Comprar hoy
+            </a>
             <c:if test="${esAdmin}">
-                <a class="btn btn-primary ms-2" href="${pageContext.request.contextPath}/productos/form">Crear producto o servicio</a>
+                <a class="btn btn-primary ms-auto ms-md-0" href="${pageContext.request.contextPath}/productos/form">Crear producto o servicio</a>
                 <c:if test="${mostrarOpcionServicios}">
                     <a class="btn btn-outline-info ms-2" href="${pageContext.request.contextPath}/productos/servicios">
                         <i class="bi bi-scissors"></i> Catalogo de servicios

@@ -30,6 +30,7 @@ import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class ProductoController {
@@ -75,11 +76,19 @@ public class ProductoController {
     public String inventario(HttpServletRequest req, Model model) {
         String tenant = TenantUtil.getTenantOwner(req);
         boolean esAdmin = RolUtil.esAdmin(req);
+        boolean soloAlerta = "1".equals(req.getParameter("alerta"));
         List<Producto> productos = service.listarPorOwner(tenant);
+        if (soloAlerta) {
+            int umbral = inventarioAlertaService.getStockMinimo(tenant);
+            productos = productos.stream()
+                    .filter(p -> inventarioAlertaService.requiereAlerta(p, umbral))
+                    .collect(Collectors.toList());
+        }
         if (!esAdmin) {
             ocultarCostosInternos(productos);
         }
         model.addAttribute("productos", productos);
+        model.addAttribute("soloAlerta", soloAlerta);
         model.addAttribute("logueado", auth.getUsername(req).isPresent());
         model.addAttribute("esAdmin", esAdmin);
         model.addAttribute("soloLectura", !esAdmin);
