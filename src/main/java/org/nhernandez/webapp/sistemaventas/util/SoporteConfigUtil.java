@@ -1,5 +1,8 @@
 package org.nhernandez.webapp.sistemaventas.util;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import org.nhernandez.webapp.sistemaventas.config.AppEnvironmentHolder;
 
 public final class SoporteConfigUtil {
@@ -15,10 +18,24 @@ public final class SoporteConfigUtil {
         return prop("soporte.whatsapp", "");
     }
 
+    public static String whatsappMensaje() {
+        return prop("soporte.whatsapp-mensaje",
+                "Hola, me interesa FUSION DIGITAL (sistema de ventas). ¿Podrían darme más información?");
+    }
+
     /** Enlace wa.me listo para botones; vacio si no hay numero configurado. */
     public static String whatsappEnlace() {
         String digits = whatsappDigitos();
-        return digits.isEmpty() ? "" : "https://wa.me/" + digits;
+        if (digits.isEmpty()) {
+            return "";
+        }
+        String url = "https://wa.me/" + digits;
+        String mensaje = whatsappMensaje();
+        if (!mensaje.isBlank()) {
+            String encoded = URLEncoder.encode(mensaje.trim(), StandardCharsets.UTF_8).replace("+", "%20");
+            url += "?text=" + encoded;
+        }
+        return url;
     }
 
     public static String whatsappDigitos() {
