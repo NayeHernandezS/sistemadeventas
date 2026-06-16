@@ -2,8 +2,10 @@ package org.nhernandez.webapp.sistemaventas.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 import org.nhernandez.webapp.sistemaventas.models.TipoItem;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
+import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.OnboardingService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
@@ -22,9 +24,11 @@ import java.util.Map;
 public class OnboardingController {
 
     private final OnboardingService onboardingService;
+    private final LoginService loginService;
 
-    public OnboardingController(OnboardingService onboardingService) {
+    public OnboardingController(OnboardingService onboardingService, LoginService loginService) {
         this.onboardingService = onboardingService;
+        this.loginService = loginService;
     }
 
     @GetMapping
@@ -44,10 +48,28 @@ public class OnboardingController {
         if (tenant == null) {
             return null;
         }
+        if (onboardingService.puedeSaltarPasoProducto(tenant)
+                && !"1".equals(req.getParameter("agregar"))) {
+            resp.sendRedirect(req.getContextPath() + "/onboarding/venta");
+            return null;
+        }
         cargarContexto(tenant, model);
         model.addAttribute("paso", 2);
         aplicarValoresFormulario(model, null);
         return "onboarding";
+    }
+
+    @GetMapping("/producto/saltar")
+    public String saltarProducto(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String tenant = requiereAdminConOnboarding(req, resp);
+        if (tenant == null) {
+            return null;
+        }
+        if (!onboardingService.puedeSaltarPasoProducto(tenant)) {
+            resp.sendRedirect(req.getContextPath() + "/onboarding/producto");
+            return null;
+        }
+        return "redirect:/onboarding/venta";
     }
 
     @PostMapping("/producto")
@@ -93,7 +115,7 @@ public class OnboardingController {
                     : Integer.parseInt(existencias.trim());
             onboardingService.guardarPrimerItem(
                     tenant, tipoItem, nombre, sku, precioInt, existenciasInt, categoriaId);
-            return "redirect:/onboarding/facturacion";
+            return "redirect:/onboarding/venta";
         } catch (ServiceJdbcException e) {
             model.addAttribute("errores", Map.of("general", e.getMessage()));
             aplicarValoresFormulario(model, Map.of(
@@ -110,15 +132,61 @@ public class OnboardingController {
         }
     }
 
-    @GetMapping("/facturacion")
-    public String facturacion(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
+    @GetMapping("/venta")
+    public String ventaPractica(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
         String tenant = requiereAdminConOnboarding(req, resp);
         if (tenant == null) {
             return null;
         }
+        if (!onboardingService.puedeSaltarPasoProducto(tenant)) {
+            resp.sendRedirect(req.getContextPath() + "/onboarding/producto");
+            return null;
+        }
+        if (onboardingService.tienePrimeraVenta(tenant)) {
+            return "redirect:/onboarding/listo";
+        }
         cargarContexto(tenant, model);
         model.addAttribute("paso", 3);
+        model.addAttribute("productosVenta", onboardingService.productosParaVentaPractica(tenant));
         return "onboarding";
+    }
+
+    @PostMapping("/venta")
+    public String registrarVentaPractica(HttpServletRequest req, Model model, HttpServletResponse resp)
+            throws IOException {
+        String tenant = requiereAdminConOnboarding(req, resp);
+        if (tenant == null) {
+            return null;
+        }
+        String username = loginService.getUsername(req).orElse("");
+        long productoId;
+        try {
+            productoId = Long.parseLong(req.getParameter("productoId"));
+        } catch (NumberFormatException e) {
+            productoId = 0L;
+        }
+        if (productoId <= 0) {
+            req.getSession().setAttribute("mensajeError", "Selecciona un producto para practicar la venta.");
+            return "redirect:/onboarding/venta";
+        }
+        try {
+            TicketVenta ticket = onboardingService.registrarVentaPractica(tenant, username, productoId);
+            req.getSession().setAttribute("mensajeTicket",
+                    "Tu negocio ya puede cobrar. Primera venta registrada: ticket " + ticket.getFolio() + ".");
+            return "redirect:/tickets/ver?id=" + ticket.getId() + "&onboarding=primeraVenta";
+        } catch (ServiceJdbcException e) {
+            model.addAttribute("errores", Map.of("general", e.getMessage()));
+            cargarContexto(tenant, model);
+            model.addAttribute("paso", 3);
+            model.addAttribute("productosVenta", onboardingService.productosParaVentaPractica(tenant));
+            return "onboarding";
+        }
+    }
+
+    @GetMapping("/facturacion")
+    public String facturacion(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.sendRedirect(req.getContextPath() + "/onboarding/listo");
+        return null;
     }
 
     @GetMapping("/listo")
@@ -127,8 +195,13 @@ public class OnboardingController {
         if (tenant == null) {
             return null;
         }
+        if (!onboardingService.tienePrimeraVenta(tenant)) {
+            resp.sendRedirect(req.getContextPath() + "/onboarding/venta");
+            return null;
+        }
         cargarContexto(tenant, model);
         model.addAttribute("paso", 4);
+        model.addAttribute("primeraVentaHecha", true);
         return "onboarding";
     }
 
@@ -182,7 +255,14 @@ public class OnboardingController {
         } else {
             model.addAttribute("tipoNegocioEtiqueta", "General");
         }
+        model.addAttribute("tipoNegocio", tipoNegocio);
+        model.addAttribute("importaCatalogoProductos", onboardingService.importaCatalogoProductos(tipoNegocio));
+        model.addAttribute("predominanServicios", onboardingService.predominanServicios(tipoNegocio));
+        model.addAttribute("puedeSaltarPasoProducto", onboardingService.puedeSaltarPasoProducto(tenant));
+        model.addAttribute("totalProductos", onboardingService.estadoActivacion(tenant).getTotalProductos());
         model.addAttribute("categorias", onboardingService.categorias(tenant));
+        model.addAttribute("tiposItem", TipoItem.values());
+        model.addAttribute("sugerenciasServicio", onboardingService.sugerenciasServicio(tipoNegocio));
         model.addAttribute("tenant", tenant);
     }
 

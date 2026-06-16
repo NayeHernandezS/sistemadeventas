@@ -75,12 +75,24 @@
                             Dudas: <a href="${pageContext.request.contextPath}/soporte">Soporte</a>.
                         </p>
                         <div class="d-flex flex-wrap gap-2 mt-3">
-                            <a href="${pageContext.request.contextPath}/onboarding/producto" class="btn btn-primary">
-                                <c:choose>
-                                    <c:when test="${predominanServicios}">Siguiente: revisar o agregar servicio</c:when>
-                                    <c:otherwise>Siguiente: primer articulo del catalogo</c:otherwise>
-                                </c:choose>
-                            </a>
+                            <c:choose>
+                                <c:when test="${puedeSaltarPasoProducto}">
+                                    <a href="${pageContext.request.contextPath}/onboarding/venta" class="btn btn-primary">
+                                        Siguiente: practicar primera venta
+                                    </a>
+                                    <a href="${pageContext.request.contextPath}/onboarding/producto?agregar=1" class="btn btn-outline-primary">
+                                        Agregar otro articulo
+                                    </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="${pageContext.request.contextPath}/onboarding/producto" class="btn btn-primary">
+                                        <c:choose>
+                                            <c:when test="${predominanServicios}">Siguiente: agregar servicio</c:when>
+                                            <c:otherwise>Siguiente: primer articulo</c:otherwise>
+                                        </c:choose>
+                                    </a>
+                                </c:otherwise>
+                            </c:choose>
                             <form method="post" action="${pageContext.request.contextPath}/onboarding/omitir" class="d-inline">
                                 <%@ include file="csrf.jspf" %>
                                 <button type="submit" class="btn btn-outline-secondary">Omitir por ahora</button>
@@ -89,9 +101,15 @@
                     </c:if>
 
                     <c:if test="${paso == 2}">
-                        <h1 class="h3 mb-3"><i class="bi bi-grid"></i> Tu primer articulo del catalogo</h1>
+                        <h1 class="h3 mb-3"><i class="bi bi-grid"></i> Tu catalogo</h1>
+                        <c:if test="${puedeSaltarPasoProducto}">
+                            <div class="alert alert-success py-2">
+                                Ya tienes <strong>${totalProductos}</strong> articulo(s) en el catalogo
+                                <c:if test="${importaCatalogoProductos}"> (plantilla del rubro cargada)</c:if>.
+                            </div>
+                        </c:if>
                         <p class="text-muted">
-                            Registra un <strong>producto</strong> (con stock) o un <strong>servicio</strong> (sin inventario) para probar una venta.
+                            Agrega un <strong>producto</strong> (con stock) o un <strong>servicio</strong> (sin inventario) para probar una venta.
                         </p>
 
                         <c:if test="${not empty errores.general}">
@@ -173,15 +191,67 @@
 
                             <div class="col-12 d-flex flex-wrap gap-2">
                                 <button type="submit" class="btn btn-primary">Guardar y continuar</button>
+                                <c:if test="${puedeSaltarPasoProducto}">
+                                    <a href="${pageContext.request.contextPath}/onboarding/producto/saltar" class="btn btn-outline-primary">
+                                        Continuar sin agregar otro
+                                    </a>
+                                </c:if>
                                 <a href="${pageContext.request.contextPath}/onboarding" class="btn btn-outline-secondary">Atras</a>
                             </div>
                         </form>
                     </c:if>
 
                     <c:if test="${paso == 3}">
-                        <h1 class="h3 mb-3"><i class="bi bi-receipt text-primary"></i> Facturacion (opcional)</h1>
+                        <h1 class="h3 mb-3"><i class="bi bi-cart-check text-primary"></i> Tu primera venta</h1>
+                        <p class="text-muted mb-4">
+                            Elige un articulo y registra una venta de prueba. Veras el ticket como en el mostrador real.
+                        </p>
+
+                        <c:if test="${not empty errores.general}">
+                            <div class="alert alert-danger">${errores.general}</div>
+                        </c:if>
+
+                        <c:choose>
+                            <c:when test="${empty productosVenta}">
+                                <div class="alert alert-warning">
+                                    No hay articulos con precio en tu catalogo.
+                                    <a href="${pageContext.request.contextPath}/onboarding/producto">Agrega uno primero</a>.
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="list-group mb-4">
+                                    <c:forEach items="${productosVenta}" var="p">
+                                        <form method="post" action="${pageContext.request.contextPath}/onboarding/venta"
+                                              class="list-group-item list-group-item-action d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                            <%@ include file="csrf.jspf" %>
+                                            <input type="hidden" name="productoId" value="${p.id}">
+                                            <div>
+                                                <strong>${p.nombre}</strong>
+                                                <span class="text-muted small ms-2">
+                                                    <c:if test="${p.esServicio}">Servicio</c:if>
+                                                    <c:if test="${!p.esServicio}">${p.existencias} en stock</c:if>
+                                                </span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="fw-semibold">$${p.precio}</span>
+                                                <button type="submit" class="btn btn-sm btn-primary">Cobrar 1 unidad</button>
+                                            </div>
+                                        </form>
+                                    </c:forEach>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
+
+                        <a href="${pageContext.request.contextPath}/onboarding/producto?agregar=1" class="btn btn-outline-secondary btn-sm">
+                            Agregar otro articulo
+                        </a>
+                    </c:if>
+
+                    <c:if test="${paso == 4}">
+                        <h1 class="h3 mb-3 text-success"><i class="bi bi-check-circle"></i> Tu negocio ya puede cobrar</h1>
                         <p class="text-muted">
-                            Puedes vender sin esto. Si tus clientes piden factura, sigue esta guia cuando quieras.
+                            Registraste tu primera venta. Desde aqui puedes seguir cobrando en
+                            <strong>Modulo de ventas</strong> o revisar el ticket en <strong>Mis tickets</strong>.
                         </p>
 
                         <div class="accordion mb-4" id="tutorialFacturacion">
@@ -237,26 +307,14 @@
                         </div>
 
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="${pageContext.request.contextPath}/perfil" class="btn btn-primary" target="_blank" rel="noopener">
-                                Abrir Mi perfil
-                            </a>
-                            <a href="${pageContext.request.contextPath}/onboarding/listo" class="btn btn-outline-primary">
-                                Continuar sin configurar ahora
-                            </a>
-                        </div>
-                    </c:if>
-
-                    <c:if test="${paso == 4}">
-                        <h1 class="h3 mb-3 text-success"><i class="bi bi-check-circle"></i> Listo para vender</h1>
-                        <p class="text-muted">
-                            Ya tienes categorias y al menos un articulo en el catalogo. El siguiente paso es registrar tu primera venta en mostrador.
-                        </p>
-                        <div class="d-flex flex-wrap gap-2">
                             <form method="post" action="${pageContext.request.contextPath}/onboarding/completar">
                                 <%@ include file="csrf.jspf" %>
-                                <button type="submit" class="btn btn-primary btn-lg">Ir a ventas</button>
+                                <button type="submit" class="btn btn-primary btn-lg">Ir al panel</button>
                             </form>
-                            <a href="${pageContext.request.contextPath}/crudprod" class="btn btn-outline-primary">Ver catalogo</a>
+                            <a href="${pageContext.request.contextPath}/productos" class="btn btn-outline-primary">Ir a ventas</a>
+                            <a href="${pageContext.request.contextPath}/perfil" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">
+                                Configurar facturacion
+                            </a>
                         </div>
                     </c:if>
 

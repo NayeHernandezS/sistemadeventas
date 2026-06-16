@@ -67,6 +67,11 @@ public class IndexController {
                 model.addAttribute("mensajeExito",
                         "Configuracion inicial completada. Cuando quieras facturar, completa los datos fiscales en Mi perfil.");
             }
+            var activacion = onboardingService.estadoActivacion(tenant);
+            model.addAttribute("activacionNegocio", activacion);
+            if (!activacion.isActivacionCompleta()) {
+                model.addAttribute("mostrarChecklistActivacion", true);
+            }
             var plan = planLimiteService.planActivo(tenant);
             model.addAttribute("planNombre", plan.getNombre());
             model.addAttribute("vendedoresUsados", planLimiteService.contarVendedores(tenant));

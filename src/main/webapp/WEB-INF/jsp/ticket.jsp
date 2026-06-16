@@ -21,6 +21,12 @@
     <c:if test="${not empty mensajeExito}">
         <div class="alert alert-success no-print mx-auto ticket-page">${mensajeExito}</div>
     </c:if>
+    <c:if test="${param.onboarding eq 'primeraVenta'}">
+        <div class="alert alert-primary no-print mx-auto ticket-page text-center">
+            <strong>Tu negocio ya puede cobrar.</strong>
+            <a href="${pageContext.request.contextPath}/onboarding/listo" class="alert-link ms-1">Continuar configuracion</a>
+        </div>
+    </c:if>
 
     <div class="ticket-page">
         <article class="ticket-recibo" id="ticket-recibo">

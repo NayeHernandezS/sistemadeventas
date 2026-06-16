@@ -88,6 +88,53 @@
         </c:if>
     </div>
 
+    <c:if test="${sessionScope.rol eq 'ADMIN' && mostrarChecklistActivacion}">
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-sm border-start border-primary border-4">
+                <div class="card-body text-start">
+                    <h5 class="mb-3"><i class="bi bi-list-check"></i> Activa tu negocio</h5>
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            Cuenta creada
+                        </li>
+                        <li class="mb-2">
+                            <c:choose>
+                                <c:when test="${activacionNegocio.catalogoListo}">
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                    Catalogo listo (${activacionNegocio.totalProductos} articulos)
+                                </c:when>
+                                <c:otherwise>
+                                    <i class="bi bi-circle text-muted"></i>
+                                    Agrega productos al catalogo
+                                </c:otherwise>
+                            </c:choose>
+                        </li>
+                        <li class="mb-0">
+                            <c:choose>
+                                <c:when test="${activacionNegocio.primeraVentaRegistrada}">
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                    Primera venta registrada
+                                </c:when>
+                                <c:otherwise>
+                                    <i class="bi bi-circle text-primary"></i>
+                                    <strong>Pendiente:</strong> registra tu primera venta
+                                </c:otherwise>
+                            </c:choose>
+                        </li>
+                    </ul>
+                    <c:if test="${not activacionNegocio.primeraVentaRegistrada}">
+                    <a href="${pageContext.request.contextPath}/productos" class="btn btn-primary btn-sm">
+                        <i class="bi bi-cart-plus"></i> Ir a cobrar
+                    </a>
+                    </c:if>
+                </div>
+            </div>
+        </div>
+    </div>
+    </c:if>
+
     <c:if test="${sessionScope.rol eq 'ADMIN' && not empty panelNegocio}">
     <div class="row g-3 mb-4 justify-content-center">
         <div class="col-lg-10">

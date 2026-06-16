@@ -219,6 +219,20 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
         return ranking;
     }
 
+    @Override
+    public int contarActivosPorTenant(String tenantOwner) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM tickets_venta WHERE tenant_owner = ? AND estado = 'ACTIVO'";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, tenantOwner);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
     private void descontarInventario(TicketVenta ticket) throws SQLException {
         if (ticket.getItems() == null || ticket.getItems().isEmpty()) {
             return;

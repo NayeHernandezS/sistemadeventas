@@ -32,4 +32,6 @@ public interface TicketRepository {
                                                            LocalDateTime inicio,
                                                            LocalDateTime finExclusivo,
                                                            int limite) throws SQLException;
+
+    int contarActivosPorTenant(String tenantOwner) throws SQLException;
 }
