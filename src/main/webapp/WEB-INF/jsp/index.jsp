@@ -175,6 +175,13 @@
         </div>
 
         <div class="col-md-4 col-lg-3">
+            <div class="card h-100 menu-card p-4 border-start border-success border-3">
+                <div class="icon-circle"><i class="bi bi-cash-coin"></i></div>
+                <a href="${pageContext.request.contextPath}/reportes/cierre" class="menu-link stretched-link">Cierre del día</a>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg-3">
             <div class="card h-100 menu-card p-4">
                 <div class="icon-circle"><i class="bi bi-person-vcard"></i></div>
                 <a href="${pageContext.request.contextPath}/clientes" class="menu-link stretched-link">Clientes</a>

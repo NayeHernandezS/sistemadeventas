@@ -13,7 +13,12 @@
 <body class="app-con-nav-movil">
 <%@ include file="fragmentos/nav-tenant.jspf" %>
 <div class="container my-4">
-    <h1 class="mb-4">Reporte de Ventas</h1>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <h1 class="mb-0">Reporte de Ventas</h1>
+        <a class="btn btn-outline-success btn-sm" href="${pageContext.request.contextPath}/reportes/cierre">
+            <i class="bi bi-cash-coin"></i> Cierre del día
+        </a>
+    </div>
     <p class="text-muted small">Los totales <strong>netos</strong> restan las devoluciones registradas por ticket.</p>
 
     <form class="row g-3 mb-4" method="get" action="${pageContext.request.contextPath}/reportes">

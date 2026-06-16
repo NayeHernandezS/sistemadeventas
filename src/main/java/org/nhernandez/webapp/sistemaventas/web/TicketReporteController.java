@@ -2,16 +2,19 @@ package org.nhernandez.webapp.sistemaventas.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.nhernandez.webapp.sistemaventas.models.CierreCajaDia;
 import org.nhernandez.webapp.sistemaventas.models.Factura;
 import org.nhernandez.webapp.sistemaventas.models.ReporteVentas;
 import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 import org.nhernandez.webapp.sistemaventas.repositories.FacturaRepository;
 import org.nhernandez.webapp.sistemaventas.repositories.TicketRepository;
 import org.nhernandez.webapp.sistemaventas.services.CfdiTimbradoService;
+import org.nhernandez.webapp.sistemaventas.services.CierreCajaService;
 import org.nhernandez.webapp.sistemaventas.services.ClienteService;
 import org.nhernandez.webapp.sistemaventas.services.LoginService;
 import org.nhernandez.webapp.sistemaventas.services.ReporteService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
+import org.nhernandez.webapp.sistemaventas.util.CierreCajaCsvExporter;
 import org.nhernandez.webapp.sistemaventas.util.FacturaDatosUtil;
 import org.nhernandez.webapp.sistemaventas.util.FacturaPdfExporter;
 import org.nhernandez.webapp.sistemaventas.util.ReporteCsvExporter;
@@ -39,7 +42,9 @@ public class TicketReporteController {
     private final FacturaRepository facturaRepository;
     private final LoginService loginService;
     private final ReporteService reporteService;
+    private final CierreCajaService cierreCajaService;
     private final ReporteCsvExporter reporteCsvExporter;
+    private final CierreCajaCsvExporter cierreCajaCsvExporter;
     private final FacturaPdfExporter facturaPdfExporter;
     private final CfdiTimbradoService cfdiTimbradoService;
     private final ClienteService clienteService;
@@ -48,7 +53,9 @@ public class TicketReporteController {
                                    FacturaRepository facturaRepository,
                                    LoginService loginService,
                                    ReporteService reporteService,
+                                   CierreCajaService cierreCajaService,
                                    ReporteCsvExporter reporteCsvExporter,
+                                   CierreCajaCsvExporter cierreCajaCsvExporter,
                                    FacturaPdfExporter facturaPdfExporter,
                                    CfdiTimbradoService cfdiTimbradoService,
                                    ClienteService clienteService) {
@@ -56,7 +63,9 @@ public class TicketReporteController {
         this.facturaRepository = facturaRepository;
         this.loginService = loginService;
         this.reporteService = reporteService;
+        this.cierreCajaService = cierreCajaService;
         this.reporteCsvExporter = reporteCsvExporter;
+        this.cierreCajaCsvExporter = cierreCajaCsvExporter;
         this.facturaPdfExporter = facturaPdfExporter;
         this.cfdiTimbradoService = cfdiTimbradoService;
         this.clienteService = clienteService;
@@ -347,6 +356,33 @@ public class TicketReporteController {
         return "reportes";
     }
 
+    @GetMapping("/reportes/cierre")
+    public String cierreCaja(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
+        Optional<CierreCajaDia> cierreOpt = generarCierreAutenticado(req, resp);
+        if (cierreOpt.isEmpty()) {
+            return null;
+        }
+        model.addAttribute("cierre", cierreOpt.get());
+        return "cierreCaja";
+    }
+
+    @GetMapping("/reportes/cierre/export")
+    public void exportarCierreCaja(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        Optional<CierreCajaDia> cierreOpt = generarCierreAutenticado(req, resp);
+        if (cierreOpt.isEmpty()) {
+            return;
+        }
+        CierreCajaDia cierre = cierreOpt.get();
+        byte[] csv = cierreCajaCsvExporter.exportar(cierre);
+        String nombre = "cierre-caja-" + cierre.getFecha().replace("-", "") + ".csv";
+        resp.setContentType("text/csv; charset=UTF-8");
+        resp.setCharacterEncoding("UTF-8");
+        resp.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + "\"");
+        resp.setContentLength(csv.length);
+        resp.getOutputStream().write(csv);
+        resp.getOutputStream().flush();
+    }
+
     @GetMapping("/reportes/export")
     public void exportarReportes(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Optional<ReporteVentas> reporteOpt = generarReporteAutenticado(req, resp);
@@ -400,6 +436,23 @@ public class TicketReporteController {
                 parseFecha(req.getParameter("fechaFin"))
         );
         return Optional.of(reporte);
+    }
+
+    private Optional<CierreCajaDia> generarCierreAutenticado(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        Optional<String> usernameOpt = loginService.getUsername(req);
+        if (usernameOpt.isEmpty()) {
+            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Debe iniciar sesión para consultar el cierre.");
+            return Optional.empty();
+        }
+        String tenant = TenantUtil.getTenantOwner(req);
+        LocalDate fecha = parseFecha(req.getParameter("fecha"));
+        CierreCajaDia cierre = cierreCajaService.generar(
+                tenant,
+                usernameOpt.get(),
+                RolUtil.esAdmin(req),
+                fecha);
+        return Optional.of(cierre);
     }
 
     private LocalDate parseFecha(String fechaTexto) {
