@@ -20,66 +20,71 @@ public class PreferenciasTenantRepositoryJdbcImpl implements PreferenciasTenantR
 
     @Override
     public PreferenciasTenant porTenant(String tenantUsername) throws SQLException {
-        String sql = """
-                SELECT tenant_username, stock_minimo, onboarding_completado, logo_filename
-                FROM preferencias_tenant
-                WHERE tenant_username = ?
-                """;
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, tenantUsername);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapPreferencias(rs);
+        try {
+            return consultarPreferencias(tenantUsername, true, true);
+        } catch (SQLException e) {
+            if (columnaAusente(e, "onboarding_completado")) {
+                try {
+                    return consultarPreferencias(tenantUsername, false, true);
+                } catch (SQLException e2) {
+                    if (columnaAusente(e2, "logo_filename")) {
+                        return consultarPreferencias(tenantUsername, false, false);
+                    }
+                    throw e2;
                 }
             }
-        } catch (SQLException e) {
-            if (columnaOnboardingAusente(e)) {
-                return porTenantSinOnboarding(tenantUsername);
+            if (columnaAusente(e, "logo_filename")) {
+                return consultarPreferencias(tenantUsername, true, false);
             }
             throw e;
         }
-        return null;
     }
 
-    private PreferenciasTenant porTenantSinOnboarding(String tenantUsername) throws SQLException {
-        String sql = "SELECT tenant_username, stock_minimo, logo_filename FROM preferencias_tenant WHERE tenant_username = ?";
+    private PreferenciasTenant consultarPreferencias(String tenantUsername,
+                                                     boolean incluirOnboarding,
+                                                     boolean incluirLogo) throws SQLException {
+        String sql = """
+                SELECT tenant_username, stock_minimo%s%s
+                FROM preferencias_tenant
+                WHERE tenant_username = ?
+                """.formatted(
+                incluirOnboarding ? ", onboarding_completado" : "",
+                incluirLogo ? ", logo_filename" : ""
+        );
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, tenantUsername);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    PreferenciasTenant pref = mapPreferenciasBasico(rs);
-                    pref.setOnboardingCompletado(false);
-                    return pref;
+                    return mapPreferencias(rs, incluirOnboarding, incluirLogo);
                 }
             }
         }
         return null;
     }
 
-    private static PreferenciasTenant mapPreferencias(ResultSet rs) throws SQLException {
-        PreferenciasTenant pref = mapPreferenciasBasico(rs);
-        try {
-            pref.setOnboardingCompletado(rs.getBoolean("onboarding_completado"));
-        } catch (SQLException ignored) {
-            pref.setOnboardingCompletado(false);
-        }
-        return pref;
-    }
-
-    private static PreferenciasTenant mapPreferenciasBasico(ResultSet rs) throws SQLException {
+    private static PreferenciasTenant mapPreferencias(ResultSet rs,
+                                                      boolean incluirOnboarding,
+                                                      boolean incluirLogo) throws SQLException {
         PreferenciasTenant pref = new PreferenciasTenant();
         pref.setTenantUsername(rs.getString("tenant_username"));
         int stock = rs.getInt("stock_minimo");
         if (!rs.wasNull()) {
             pref.setStockMinimo(stock);
         }
-        pref.setLogoFilename(rs.getString("logo_filename"));
+        if (incluirOnboarding) {
+            pref.setOnboardingCompletado(rs.getBoolean("onboarding_completado"));
+        } else {
+            pref.setOnboardingCompletado(false);
+        }
+        if (incluirLogo) {
+            pref.setLogoFilename(rs.getString("logo_filename"));
+        }
         return pref;
     }
 
-    private static boolean columnaOnboardingAusente(SQLException e) {
+    private static boolean columnaAusente(SQLException e, String columna) {
         String msg = e.getMessage();
-        return msg != null && msg.contains("onboarding_completado");
+        return msg != null && msg.contains("Unknown column") && msg.contains(columna);
     }
 
     @Override
@@ -111,6 +116,11 @@ public class PreferenciasTenantRepositoryJdbcImpl implements PreferenciasTenantR
             stmt.setString(1, tenantUsername);
             stmt.setString(2, logoFilename);
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            if (columnaAusente(e, "logo_filename")) {
+                return;
+            }
+            throw e;
         }
     }
 
@@ -120,6 +130,11 @@ public class PreferenciasTenantRepositoryJdbcImpl implements PreferenciasTenantR
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, tenantUsername);
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            if (columnaAusente(e, "logo_filename")) {
+                return;
+            }
+            throw e;
         }
     }
 
@@ -134,7 +149,7 @@ public class PreferenciasTenantRepositoryJdbcImpl implements PreferenciasTenantR
             stmt.setString(1, tenantUsername);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            if (columnaOnboardingAusente(e)) {
+            if (columnaAusente(e, "onboarding_completado")) {
                 String fallback = """
                         INSERT INTO preferencias_tenant (tenant_username)
                         VALUES (?)
@@ -161,7 +176,7 @@ public class PreferenciasTenantRepositoryJdbcImpl implements PreferenciasTenantR
             stmt.setString(1, tenantUsername);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            if (columnaOnboardingAusente(e)) {
+            if (columnaAusente(e, "onboarding_completado")) {
                 iniciarOnboarding(tenantUsername);
                 return;
             }

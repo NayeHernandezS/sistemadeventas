@@ -10,7 +10,7 @@ SET @col_exists = (
 
 SET @sql = IF(@col_exists = 0,
     'ALTER TABLE preferencias_tenant ADD COLUMN logo_filename VARCHAR(255) NULL AFTER stock_minimo',
-    'SELECT 1');
+    'SET @flyway_skip = 1');
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;

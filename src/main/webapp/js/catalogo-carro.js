@@ -12,7 +12,7 @@
         }
         contenedor.className = 'alert alert-' + tipo + ' alert-dismissible fade show py-2 small mb-3';
         contenedor.innerHTML = mensaje +
-            '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>';
+            '<button type="button" class="btn-close" aria-label="Cerrar"></button>';
         contenedor.classList.remove('d-none');
     }
 

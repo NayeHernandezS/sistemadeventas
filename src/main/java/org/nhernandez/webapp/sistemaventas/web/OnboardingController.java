@@ -138,7 +138,13 @@ public class OnboardingController {
             return null;
         }
         String tenant = TenantUtil.getTenantOwner(req);
-        onboardingService.completar(tenant);
+        try {
+            onboardingService.completar(tenant);
+        } catch (ServiceJdbcException e) {
+            req.getSession().setAttribute("mensajeError",
+                    "No se pudo completar la configuracion inicial. Intenta de nuevo o agrega un producto.");
+            return "redirect:/inicio";
+        }
         return "redirect:/inicio";
     }
 

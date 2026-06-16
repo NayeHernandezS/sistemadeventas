@@ -26,9 +26,13 @@ public class TenantModelAdvice {
         if (JdbcConnectionHolder.get() == null) {
             return;
         }
-        if (tenantLogoService.tieneLogo(tenant)) {
-            model.addAttribute("tenantTieneLogo", Boolean.TRUE);
-            model.addAttribute("tenantLogoUrl", tenantLogoService.urlLogo(req.getContextPath()));
+        try {
+            if (tenantLogoService.tieneLogo(tenant)) {
+                model.addAttribute("tenantTieneLogo", Boolean.TRUE);
+                model.addAttribute("tenantLogoUrl", tenantLogoService.urlLogo(req.getContextPath()));
+            }
+        } catch (RuntimeException ignored) {
+            // Logo opcional: no bloquear la pagina si falla la consulta de preferencias
         }
     }
 }

@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tema.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <title>Listado de productos</title>
 </head>
 <body class="app-con-nav-movil">
@@ -27,21 +26,21 @@
 <c:if test="${not empty sessionScope.mensajeError}">
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         ${sessionScope.mensajeError}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close" aria-label="Cerrar"></button>
     </div>
     <c:remove var="mensajeError" scope="session"/>
 </c:if>
 <c:if test="${not empty sessionScope.mensajeExito}">
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         ${sessionScope.mensajeExito}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close" aria-label="Cerrar"></button>
     </div>
     <c:remove var="mensajeExito" scope="session"/>
 </c:if>
 <c:if test="${not empty sessionScope.username}">
     <div id="aviso-bienvenida" class="alert alert-info alert-dismissible fade show d-none" role="alert" data-username="${sessionScope.username}">
         Hola ${sessionScope.username}, bienvenido!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close" aria-label="Cerrar"></button>
     </div>
 </c:if>
 
@@ -205,11 +204,11 @@
 <p>${applicationScope.mensaje}</p>
 <p>${requestScope.mensaje}</p>
 </div>
-<script src="${pageContext.request.contextPath}/js/aviso-bienvenida.js"></script>
 <script src="${pageContext.request.contextPath}/js/catalogo-carro.js"></script>
 <script src="${pageContext.request.contextPath}/js/buscador-tabla.js"></script>
 <script src="${pageContext.request.contextPath}/js/filtros-columnas-tabla.js"></script>
 <script src="${pageContext.request.contextPath}/js/escaneo-producto.js"></script>
 <%@ include file="fragmentos/foot-app.jspf" %>
+<script src="${pageContext.request.contextPath}/js/aviso-bienvenida.js"></script>
 </body>
 </html>
