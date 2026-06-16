@@ -1,15 +1,18 @@
 /* Service worker basico: cache de estaticos para uso tipo app instalada. */
 'use strict';
 
-var CACHE_VERSION = 'fusion-ventas-v3';
+var CACHE_VERSION = 'fusion-ventas-v4';
 var PRECACHE = [
     '/css/tema.css',
     '/css/estiloindex.css',
+    '/css/estilologin.css',
     '/img/pwa/icon-192.png',
     '/img/pwa/icon-512.png',
     '/img/pwa/apple-touch-icon.png',
     '/img/pwa/favicon-32.png',
-    '/manifest.webmanifest'
+    '/img/logo.png',
+    '/manifest.webmanifest',
+    '/offline.html'
 ];
 
 self.addEventListener('install', function (event) {
@@ -49,11 +52,21 @@ self.addEventListener('fetch', function (event) {
         return;
     }
 
+    if (request.mode === 'navigate') {
+        event.respondWith(
+            fetch(request).catch(function () {
+                return caches.match('/offline.html');
+            })
+        );
+        return;
+    }
+
     var path = url.pathname;
     var esEstatico = path.startsWith('/css/')
         || path.startsWith('/js/')
         || path.startsWith('/img/')
-        || path === '/manifest.webmanifest';
+        || path === '/manifest.webmanifest'
+        || path === '/offline.html';
 
     if (!esEstatico) {
         return;

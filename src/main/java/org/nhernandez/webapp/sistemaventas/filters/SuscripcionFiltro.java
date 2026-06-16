@@ -140,7 +140,8 @@ public class SuscripcionFiltro implements Filter {
                 || path.endsWith(".png")
                 || path.endsWith(".webmanifest")
                 || path.equals("/manifest.webmanifest")
-                || path.equals("/sw.js");
+                || path.equals("/sw.js")
+                || path.equals("/offline.html");
     }
 
     /**
