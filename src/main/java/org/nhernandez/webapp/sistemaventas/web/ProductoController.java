@@ -17,6 +17,7 @@ import org.nhernandez.webapp.sistemaventas.util.ServicioPlantillaUtil;
 import org.nhernandez.webapp.sistemaventas.util.SkuUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
 import org.nhernandez.webapp.sistemaventas.util.TipoNegocioUtil;
+import org.nhernandez.webapp.sistemaventas.util.UnidadMedidaUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -170,7 +172,9 @@ public class ProductoController {
         int precioCompra = parseInt(req.getParameter("precio_compra"), 0);
         int porcentajeGanancia = parseInt(req.getParameter("porcentaje_ganancia"), 0);
         boolean calcularPrecioVenta = "on".equals(req.getParameter("calcular_precio_venta"));
-        int existencias = parseInt(req.getParameter("existencias"), 0);
+        int existencias = parseExistenciasBase(req.getParameter("existencias_cantidad"),
+                req.getParameter("unidad_medida"));
+        String unidadMedida = UnidadMedidaUtil.normalizar(req.getParameter("unidad_medida"));
         String sku = req.getParameter("sku");
         String fechaStr = req.getParameter("fecha_registro");
         Long categoriaId = parseLong(req.getParameter("categoria"), 0L);
@@ -178,6 +182,7 @@ public class ProductoController {
         TipoItem tipoItem = TipoItem.porCodigo(req.getParameter("tipo_item")).orElse(TipoItem.PRODUCTO);
         if (tipoItem == TipoItem.SERVICIO) {
             existencias = 0;
+            unidadMedida = "pza";
             precioCompra = 0;
             porcentajeGanancia = 0;
         }
@@ -205,6 +210,7 @@ public class ProductoController {
         producto.setPorcentajeGanancia(Math.max(porcentajeGanancia, 0));
         producto.setPrecio(precio);
         producto.setExistencias(existencias);
+        producto.setUnidadMedida(unidadMedida);
         producto.setFechaRegistro(fecha);
         producto.setOwnerUsername(tenant);
         producto.setTipoItem(tipoItem);
@@ -309,6 +315,8 @@ public class ProductoController {
         model.addAttribute("tipoNegocio", tipoNegocio);
         model.addAttribute("tipoNegocioEtiqueta", TipoNegocioUtil.etiqueta(tipoNegocio));
         model.addAttribute("sugerenciasServicio", ServicioPlantillaUtil.sugerenciasParaRubro(tipoNegocio));
+        model.addAttribute("esRestaurante", TipoNegocioUtil.esRestaurante(tipoNegocio));
+        model.addAttribute("unidadesMedida", UnidadMedidaUtil.UNIDADES);
     }
 
     private boolean negocioConServicios(String tenant) {
@@ -329,6 +337,17 @@ public class ProductoController {
         model.addAttribute("cantidadAgotados", inventarioAlertaService.contarAgotados(productos));
         model.addAttribute("cantidadStockBajo", inventarioAlertaService.contarStockBajo(productos, tenant));
         model.addAttribute("cantidadConAlerta", inventarioAlertaService.contarConAlerta(productos, tenant));
+    }
+
+    private int parseExistenciasBase(String cantidadTexto, String unidad) {
+        if (cantidadTexto == null || cantidadTexto.isBlank()) {
+            return 0;
+        }
+        try {
+            return UnidadMedidaUtil.aUnidadBase(new BigDecimal(cantidadTexto.trim()), unidad);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     private long parseLong(String value, long defaultValue) {

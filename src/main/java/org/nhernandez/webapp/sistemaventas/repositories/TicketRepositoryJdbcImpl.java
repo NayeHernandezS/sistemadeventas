@@ -9,6 +9,7 @@ import org.nhernandez.webapp.sistemaventas.models.ResumenVentasVendedor;
 import org.nhernandez.webapp.sistemaventas.models.Producto;
 import org.nhernandez.webapp.sistemaventas.models.TicketItem;
 import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
+import org.nhernandez.webapp.sistemaventas.services.InventarioRecetaService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,6 +34,9 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
 
     @Autowired
     private ProductoRepository productoRepository;
+
+    @Autowired
+    private InventarioRecetaService inventarioRecetaService;
 
     @Override
     public void guardar(TicketVenta ticket) throws SQLException {
@@ -302,24 +306,7 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
     }
 
     private void descontarInventario(TicketVenta ticket) throws SQLException {
-        if (ticket.getItems() == null || ticket.getItems().isEmpty()) {
-            return;
-        }
-        String tenantOwner = ticket.getTenantOwner();
-        if (tenantOwner == null || tenantOwner.isBlank()) {
-            throw new SQLException("tenant_owner es obligatorio para descontar inventario");
-        }
-        for (TicketItem item : ticket.getItems()) {
-            Producto producto = productoRepository.porIdPorOwner(item.getProductoId(), tenantOwner);
-            if (producto == null) {
-                throw new SQLException("Producto no encontrado id=" + item.getProductoId());
-            }
-            if (producto.esServicio()) {
-                continue;
-            }
-            productoRepository.descontarExistencias(
-                    item.getProductoId(), tenantOwner, item.getCantidad());
-        }
+        inventarioRecetaService.descontarPorTicket(ticket);
     }
 
     private void insertarTicket(TicketVenta ticket) throws SQLException {

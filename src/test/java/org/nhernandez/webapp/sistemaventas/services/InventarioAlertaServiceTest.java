@@ -57,6 +57,15 @@ class InventarioAlertaServiceTest {
         assertFalse(inventarioAlertaService.esAgotado(servicio));
     }
 
+    @Test
+    void esStockBajo_conKgConvierteUmbral() {
+        Producto jitomate = producto(4000);
+        jitomate.setUnidadMedida("kg");
+
+        assertTrue(inventarioAlertaService.esStockBajo(jitomate, 5));
+        assertFalse(inventarioAlertaService.esStockBajo(jitomate, 3));
+    }
+
     private Producto producto(int existencias) {
         Producto p = new Producto();
         p.setExistencias(existencias);

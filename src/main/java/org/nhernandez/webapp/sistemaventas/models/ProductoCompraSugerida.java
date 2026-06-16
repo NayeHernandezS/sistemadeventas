@@ -12,8 +12,11 @@ public class ProductoCompraSugerida implements Serializable {
     private String categoria;
     private int existencias;
     private int stockMinimo;
+    private String unidadMedida = "pza";
+    private String existenciasTexto;
     private String nivelAlerta;
     private int cantidadSugerida;
+    private String cantidadSugeridaTexto;
     private int unidadesVendidas7d;
     private int precioCompra;
     private int costoEstimadoReposicion;
@@ -70,6 +73,22 @@ public class ProductoCompraSugerida implements Serializable {
         this.stockMinimo = stockMinimo;
     }
 
+    public String getUnidadMedida() {
+        return unidadMedida;
+    }
+
+    public void setUnidadMedida(String unidadMedida) {
+        this.unidadMedida = unidadMedida;
+    }
+
+    public String getExistenciasTexto() {
+        return existenciasTexto;
+    }
+
+    public void setExistenciasTexto(String existenciasTexto) {
+        this.existenciasTexto = existenciasTexto;
+    }
+
     public String getNivelAlerta() {
         return nivelAlerta;
     }
@@ -84,6 +103,14 @@ public class ProductoCompraSugerida implements Serializable {
 
     public void setCantidadSugerida(int cantidadSugerida) {
         this.cantidadSugerida = cantidadSugerida;
+    }
+
+    public String getCantidadSugeridaTexto() {
+        return cantidadSugeridaTexto;
+    }
+
+    public void setCantidadSugeridaTexto(String cantidadSugeridaTexto) {
+        this.cantidadSugeridaTexto = cantidadSugeridaTexto;
     }
 
     public int getUnidadesVendidas7d() {

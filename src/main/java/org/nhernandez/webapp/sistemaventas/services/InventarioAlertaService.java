@@ -1,6 +1,7 @@
 package org.nhernandez.webapp.sistemaventas.services;
 
 import org.nhernandez.webapp.sistemaventas.models.Producto;
+import org.nhernandez.webapp.sistemaventas.util.UnidadMedidaUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -39,10 +40,15 @@ public class InventarioAlertaService {
     }
 
     public boolean esStockBajo(Producto producto, int umbral) {
-        return producto != null
-                && producto.esProducto()
-                && producto.getExistencias() > 0
-                && producto.getExistencias() <= umbral;
+        if (producto == null || !producto.esProducto() || umbral <= 0) {
+            return false;
+        }
+        int existencias = producto.getExistencias();
+        if (existencias <= 0) {
+            return false;
+        }
+        int umbralBase = UnidadMedidaUtil.umbralAUnidadBase(umbral, producto.getUnidadMedida());
+        return existencias <= umbralBase;
     }
 
     public boolean requiereAlerta(Producto producto) {

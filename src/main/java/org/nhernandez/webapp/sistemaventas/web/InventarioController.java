@@ -15,6 +15,7 @@ import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
 import org.nhernandez.webapp.sistemaventas.util.ListaCompraCsvExporter;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
+import org.nhernandez.webapp.sistemaventas.util.UnidadMedidaUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -128,7 +130,7 @@ public class InventarioController {
         String username = loginService.getUsername(req).orElse("");
         long productoId = parseLong(req.getParameter("productoId"), 0L);
         String tipoStr = req.getParameter("tipo");
-        int cantidad = parseInt(req.getParameter("cantidad"), -1);
+        String cantidadTexto = req.getParameter("cantidad");
         String motivo = req.getParameter("motivo");
 
         Map<String, String> errores = new HashMap<>();
@@ -146,12 +148,19 @@ public class InventarioController {
 
         if (errores.isEmpty() && tipo != null) {
             try {
-                inventarioMovimientoService.aplicarMovimiento(
-                        tenant, username, productoId, tipo, cantidad, motivo);
-                req.getSession().setAttribute("mensajeExito",
-                        "Movimiento registrado. Nuevas existencias: "
-                                + existenciasTrasMovimiento(productoOpt.get(), tipo, cantidad));
-                return "redirect:/crudprod";
+                Producto producto = productoOpt.get();
+                BigDecimal cantidadDecimal = parseDecimal(cantidadTexto);
+                if (cantidadDecimal == null || cantidadDecimal.compareTo(BigDecimal.ZERO) < 0) {
+                    errores.put("general", "Indica una cantidad valida.");
+                } else {
+                    int cantidadBase = UnidadMedidaUtil.aUnidadBase(cantidadDecimal, producto.getUnidadMedida());
+                    inventarioMovimientoService.aplicarMovimiento(
+                            tenant, username, productoId, tipo, cantidadBase, motivo);
+                    req.getSession().setAttribute("mensajeExito",
+                            "Movimiento registrado. Nuevas existencias: "
+                                    + existenciasTrasMovimiento(producto, tipo, cantidadBase));
+                    return "redirect:/crudprod";
+                }
             } catch (ServiceJdbcException e) {
                 errores.put("general", e.getMessage());
             }
@@ -161,18 +170,30 @@ public class InventarioController {
         model.addAttribute("producto", productoOpt.get());
         model.addAttribute("tiposMovimiento", Arrays.asList(TipoMovimientoInventario.values()));
         model.addAttribute("tipoSeleccionado", tipoStr);
-        model.addAttribute("cantidadIngresada", cantidad >= 0 ? cantidad : "");
+        model.addAttribute("cantidadIngresada", cantidadTexto != null ? cantidadTexto : "");
         model.addAttribute("motivoIngresado", motivo);
         return "inventarioAjuste";
     }
 
-    private static int existenciasTrasMovimiento(Producto producto, TipoMovimientoInventario tipo, int cantidad) {
+    private static String existenciasTrasMovimiento(Producto producto, TipoMovimientoInventario tipo, int cantidadBase) {
         int antes = producto.getExistencias();
-        return switch (tipo) {
-            case ENTRADA -> antes + cantidad;
-            case SALIDA -> antes - cantidad;
-            case AJUSTE -> cantidad;
+        int despues = switch (tipo) {
+            case ENTRADA -> antes + cantidadBase;
+            case SALIDA -> antes - cantidadBase;
+            case AJUSTE -> cantidadBase;
         };
+        return UnidadMedidaUtil.formatear(despues, producto.getUnidadMedida());
+    }
+
+    private BigDecimal parseDecimal(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return new BigDecimal(value.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private long parseLong(String value, long defaultValue) {

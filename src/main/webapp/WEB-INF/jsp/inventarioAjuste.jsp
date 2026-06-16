@@ -17,7 +17,7 @@
     <h1 class="mb-3">Ajuste de inventario</h1>
 
     <p class="text-muted">
-        Producto: <strong>${producto.nombre}</strong> · Existencias actuales: <strong>${producto.existencias}</strong>
+        Producto: <strong>${producto.nombre}</strong> · Existencias actuales: <strong>${producto.existenciasFormateadas}</strong>
     </p>
 
     <c:if test="${errores != null && not empty errores.general}">
@@ -43,12 +43,13 @@
 
         <div class="mb-3">
             <label class="form-label" for="cantidad" id="labelCantidad">Cantidad</label>
-            <input type="number" class="form-control" name="cantidad" id="cantidad" min="0" required
+            <input type="number" class="form-control" name="cantidad" id="cantidad" min="0" step="0.001" required
                    value="${cantidadIngresada}">
             <div class="form-text" id="ayudaCantidad">
-                <strong>Entrada:</strong> unidades a sumar.
-                <strong>Salida:</strong> unidades a restar (merma, uso interno).
-                <strong>Ajuste:</strong> cantidad final deseada en inventario.
+                Cantidades en <strong>${producto.unidadMedida}</strong>.
+                <strong>Entrada:</strong> suma al stock.
+                <strong>Salida:</strong> resta (merma, uso interno).
+                <strong>Ajuste:</strong> fija el total despues del conteo.
             </div>
         </div>
 

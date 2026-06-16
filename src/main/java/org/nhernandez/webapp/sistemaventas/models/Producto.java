@@ -1,5 +1,7 @@
 package org.nhernandez.webapp.sistemaventas.models;
 
+import org.nhernandez.webapp.sistemaventas.util.UnidadMedidaUtil;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -13,6 +15,7 @@ public class Producto implements Serializable {
     private int precioCompra;
     private int porcentajeGanancia;
     private int existencias;
+    private String unidadMedida = "pza";
     private String sku;
     private LocalDate fechaRegistro;
     private String ownerUsername;
@@ -86,6 +89,24 @@ public class Producto implements Serializable {
         this.existencias = existencias;
     }
 
+    public String getUnidadMedida() {
+        return unidadMedida != null ? unidadMedida : "pza";
+    }
+
+    public void setUnidadMedida(String unidadMedida) {
+        this.unidadMedida = UnidadMedidaUtil.normalizar(unidadMedida);
+    }
+
+    public String getExistenciasFormateadas() {
+        return UnidadMedidaUtil.formatear(existencias, getUnidadMedida());
+    }
+
+    public String getExistenciasCantidadDisplay() {
+        return UnidadMedidaUtil.desdeUnidadBase(existencias, getUnidadMedida())
+                .stripTrailingZeros()
+                .toPlainString();
+    }
+
     public Categoria getCategoria() {
         return categoria;
     }
@@ -137,6 +158,17 @@ public class Producto implements Serializable {
 
     public boolean esProducto() {
         return !esServicio();
+    }
+
+    public boolean estaAgotado() {
+        return esProducto() && existencias <= 0;
+    }
+
+    public boolean esStockBajoUmbral(int umbral) {
+        if (!esProducto() || existencias <= 0 || umbral <= 0) {
+            return false;
+        }
+        return existencias <= UnidadMedidaUtil.umbralAUnidadBase(umbral, getUnidadMedida());
     }
 
     /** Margen en pesos: precio de venta menos precio de compra. */

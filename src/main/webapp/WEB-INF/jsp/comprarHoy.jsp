@@ -17,7 +17,7 @@
         <div>
             <h1 class="mb-1">Comprar hoy</h1>
             <p class="text-muted small mb-0">
-                Productos agotados o con stock bajo (umbral: ${lista.stockMinimo} uds.).
+                Insumos agotados o con stock bajo (umbral: ${lista.stockMinimo} en la unidad de cada producto).
                 La cantidad sugerida lleva el inventario al doble del umbral.
             </p>
         </div>
@@ -95,7 +95,7 @@
                             <td>${p.nombre}</td>
                             <td><code class="small">${empty p.sku ? '—' : p.sku}</code></td>
                             <td>${empty p.categoria ? '—' : p.categoria}</td>
-                            <td class="text-end">${p.existencias}</td>
+                            <td class="text-end">${p.existenciasTexto}</td>
                             <td>
                                 <c:choose>
                                     <c:when test="${p.agotado}">
@@ -106,7 +106,7 @@
                                     </c:otherwise>
                                 </c:choose>
                             </td>
-                            <td class="text-end fw-semibold">${p.cantidadSugerida}</td>
+                            <td class="text-end fw-semibold">${p.cantidadSugeridaTexto}</td>
                             <td class="text-end">${p.unidadesVendidas7d}</td>
                             <c:if test="${esAdmin}">
                             <td class="text-end">

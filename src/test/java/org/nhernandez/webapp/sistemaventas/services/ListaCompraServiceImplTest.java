@@ -35,6 +35,9 @@ class ListaCompraServiceImplTest {
     @Mock
     private TicketRepository ticketRepository;
 
+    @Mock
+    private UsuarioService usuarioService;
+
     @InjectMocks
     private ListaCompraServiceImpl listaCompraService;
 
@@ -42,6 +45,8 @@ class ListaCompraServiceImplTest {
     void generar_ordenaAgotadosPrimeroYCantidadSugerida() throws SQLException {
         Producto agotado = producto(1L, "Refresco", 0, 12);
         Producto bajo = producto(2L, "Galletas", 3, 8);
+
+        when(usuarioService.porUsername("tienda1")).thenReturn(java.util.Optional.empty());
 
         when(inventarioAlertaService.getStockMinimo("tienda1")).thenReturn(5);
         when(productoService.listarPorOwner("tienda1")).thenReturn(List.of(bajo, agotado));
@@ -73,6 +78,7 @@ class ListaCompraServiceImplTest {
         Producto p1 = producto(1L, "A", 0, 10);
         Producto p2 = producto(2L, "B", 1, 10);
 
+        when(usuarioService.porUsername("tienda1")).thenReturn(java.util.Optional.empty());
         when(inventarioAlertaService.getStockMinimo("tienda1")).thenReturn(5);
         when(productoService.listarPorOwner("tienda1")).thenReturn(List.of(p1, p2));
         when(inventarioAlertaService.requiereAlerta(p1, 5)).thenReturn(true);

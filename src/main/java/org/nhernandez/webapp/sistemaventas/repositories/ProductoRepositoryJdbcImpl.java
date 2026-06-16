@@ -102,11 +102,11 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
 
         String sql;
         if (producto.getId() != null && producto.getId() > 0) {
-            sql = "UPDATE productos SET nombre=?, precio=?, precio_compra=?, porcentaje_ganancia=?, existencias=?, sku=?, categoria_id=?, tipo_item=? "
+            sql = "UPDATE productos SET nombre=?, precio=?, precio_compra=?, porcentaje_ganancia=?, existencias=?, unidad_medida=?, sku=?, categoria_id=?, tipo_item=? "
                     + "WHERE id=? AND owner_username=?";
         } else {
-            sql = "INSERT INTO productos (nombre, precio, precio_compra, porcentaje_ganancia, existencias, sku, categoria_id, fecha_registro, owner_username, tipo_item) "
-                    + "VALUES (?,?,?,?,?,?,?,?,?,?)";
+            sql = "INSERT INTO productos (nombre, precio, precio_compra, porcentaje_ganancia, existencias, unidad_medida, sku, categoria_id, fecha_registro, owner_username, tipo_item) "
+                    + "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
         }
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, producto.getNombre());
@@ -114,20 +114,21 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
             stmt.setInt(3, Math.max(producto.getPrecioCompra(), 0));
             stmt.setInt(4, Math.max(producto.getPorcentajeGanancia(), 0));
             stmt.setInt(5, producto.esServicio() ? 0 : producto.getExistencias());
-            stmt.setString(6, producto.getSku());
-            stmt.setLong(7, producto.getCategoria().getId());
+            stmt.setString(6, producto.getUnidadMedida());
+            stmt.setString(7, producto.getSku());
+            stmt.setLong(8, producto.getCategoria().getId());
 
             if (producto.getId() != null && producto.getId() > 0) {
-                stmt.setString(8, producto.getTipoItem().name());
-                stmt.setLong(9, producto.getId());
-                stmt.setString(10, producto.getOwnerUsername());
+                stmt.setString(9, producto.getTipoItem().name());
+                stmt.setLong(10, producto.getId());
+                stmt.setString(11, producto.getOwnerUsername());
             } else {
                 LocalDate registro = producto.getFechaRegistro() != null
                         ? producto.getFechaRegistro()
                         : LocalDate.now();
-                stmt.setDate(8, Date.valueOf(registro));
-                stmt.setString(9, producto.getOwnerUsername());
-                stmt.setString(10, producto.getTipoItem().name());
+                stmt.setDate(9, Date.valueOf(registro));
+                stmt.setString(10, producto.getOwnerUsername());
+                stmt.setString(11, producto.getTipoItem().name());
             }
             int filas = stmt.executeUpdate();
             if (filas == 0) {
@@ -247,6 +248,7 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
         p.setPrecioCompra(leerEnteroOpcional(rs, "precio_compra"));
         p.setPorcentajeGanancia(leerEnteroOpcional(rs, "porcentaje_ganancia"));
         p.setExistencias(rs.getInt("existencias"));
+        p.setUnidadMedida(leerUnidadMedida(rs));
         p.setSku(rs.getString("sku"));
         Date fecha = rs.getDate("fecha_registro");
         p.setFechaRegistro(fecha != null ? fecha.toLocalDate() : LocalDate.now());
@@ -257,6 +259,14 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
         c.setNombre(rs.getString("categoria"));
         p.setCategoria(c);
         return p;
+    }
+
+    private static String leerUnidadMedida(ResultSet rs) throws SQLException {
+        try {
+            return rs.getString("unidad_medida");
+        } catch (SQLException e) {
+            return "pza";
+        }
     }
 
     private static int leerEnteroOpcional(ResultSet rs, String columna) throws SQLException {

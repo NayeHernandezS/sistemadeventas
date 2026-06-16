@@ -77,7 +77,7 @@
                                 <c:if test="${p.agotado}"><span class="badge bg-danger me-1">Agotado</span></c:if>
                                 ${p.nombre}
                             </span>
-                            <span class="text-muted small">+${p.cantidadSugerida} uds.</span>
+                            <span class="text-muted small">+${p.cantidadSugeridaTexto}</span>
                         </li>
                     </c:forEach>
                 </ul>

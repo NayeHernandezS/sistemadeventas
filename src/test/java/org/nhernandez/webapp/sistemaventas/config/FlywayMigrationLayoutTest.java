@@ -21,8 +21,8 @@ class FlywayMigrationLayoutTest {
         long count = Files.list(dir)
                 .filter(p -> VERSIONED.matcher(p.getFileName().toString()).matches())
                 .count();
-        assertEquals(38, count, "Se esperan V1..V38 en db/migration");
+        assertEquals(39, count, "Se esperan V1..V39 en db/migration");
         assertTrue(Files.exists(dir.resolve("V1__initial_schema.sql")));
-        assertTrue(Files.exists(dir.resolve("V38__ticket_nombre_cliente.sql")));
+        assertTrue(Files.exists(dir.resolve("V39__producto_unidad_medida.sql")));
     }
 }

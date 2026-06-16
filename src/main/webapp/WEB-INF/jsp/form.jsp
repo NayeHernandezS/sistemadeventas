@@ -102,13 +102,25 @@
         </div>
     </div>
 
-    <div class="col-md-4" id="existencias-group">
-        <label for="existencias" class="form-label">Existencias</label>
-        <input type="number" name="existencias" id="existencias" min="0" class="form-control"
-               value="${producto.existencias >= 0 ? producto.existencias : 0}">
+    <div class="col-md-3" id="existencias-group">
+        <label for="existencias_cantidad" class="form-label">Existencias</label>
+        <input type="number" name="existencias_cantidad" id="existencias_cantidad" min="0" step="0.001"
+               class="form-control" value="${producto.existenciasCantidadDisplay}">
         <c:if test="${errores != null && not empty errores.existencias}">
             <div class="text-danger small">${errores.existencias}</div>
         </c:if>
+    </div>
+
+    <div class="col-md-3" id="unidad-medida-group">
+        <label for="unidad_medida" class="form-label">Unidad</label>
+        <select name="unidad_medida" id="unidad_medida" class="form-select">
+            <c:forEach items="${unidadesMedida}" var="u">
+                <option value="${u}" ${producto.unidadMedida eq u ? 'selected' : ''}>${u}</option>
+            </c:forEach>
+        </select>
+        <div class="form-text" id="unidad-medida-ayuda">
+            <c:if test="${esRestaurante}">En insumos usa kg, g o pza segun compres en el mercado.</c:if>
+        </div>
     </div>
 
     <div class="col-md-4" id="sku-group">
@@ -167,7 +179,8 @@
     var precioCompraGroup = document.getElementById('precio-compra-group');
     var porcentajeGananciaGroup = document.getElementById('porcentaje-ganancia-group');
     var calcularPrecioGroup = document.getElementById('calcular-precio-group');
-    var existencias = document.getElementById('existencias');
+    var existenciasCantidad = document.getElementById('existencias_cantidad');
+    var unidadMedidaGroup = document.getElementById('unidad-medida-group');
     var precio = document.getElementById('precio');
     var precioCompra = document.getElementById('precio_compra');
     var porcentajeGanancia = document.getElementById('porcentaje_ganancia');
@@ -231,12 +244,13 @@
     function actualizarTipoItem() {
         var esServicio = tipo.value === 'SERVICIO';
         existenciasGroup.style.display = esServicio ? 'none' : '';
+        unidadMedidaGroup.style.display = esServicio ? 'none' : '';
         precioCompraGroup.style.display = esServicio ? 'none' : '';
         porcentajeGananciaGroup.style.display = esServicio ? 'none' : '';
         calcularPrecioGroup.style.display = esServicio ? 'none' : '';
         tipoServicioGroup.style.display = esServicio ? '' : 'none';
         if (esServicio) {
-            existencias.value = '0';
+            existenciasCantidad.value = '0';
         } else {
             actualizarPrecioSugerido();
         }

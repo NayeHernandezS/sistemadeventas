@@ -19,14 +19,14 @@ public class ListaCompraCsvExporter {
         sb.append("Productos,").append(lista.getTotalProductos()).append('\n');
         sb.append("Unidades sugeridas,").append(lista.getTotalUnidadesSugeridas()).append('\n');
         sb.append('\n');
-        sb.append("Producto,SKU,Categoria,Existencias,Alerta,Comprar (uds),Vendidas 7d,Precio compra,Costo estimado\n");
+        sb.append("Producto,SKU,Categoria,Existencias,Alerta,Comprar,Vendidas 7d,Precio compra,Costo estimado\n");
         for (ProductoCompraSugerida p : lista.getProductos()) {
             sb.append(ReporteCsvExporter.escapar(p.getNombre())).append(',');
             sb.append(ReporteCsvExporter.escapar(p.getSku())).append(',');
             sb.append(ReporteCsvExporter.escapar(p.getCategoria())).append(',');
-            sb.append(p.getExistencias()).append(',');
+            sb.append(ReporteCsvExporter.escapar(p.getExistenciasTexto())).append(',');
             sb.append(ReporteCsvExporter.escapar(etiquetaAlerta(p))).append(',');
-            sb.append(p.getCantidadSugerida()).append(',');
+            sb.append(ReporteCsvExporter.escapar(p.getCantidadSugeridaTexto())).append(',');
             sb.append(p.getUnidadesVendidas7d()).append(',');
             sb.append(p.getPrecioCompra()).append(',');
             sb.append(p.getCostoEstimadoReposicion()).append('\n');

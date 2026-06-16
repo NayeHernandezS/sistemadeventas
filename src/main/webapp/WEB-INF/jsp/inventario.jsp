@@ -135,7 +135,7 @@
         <c:forEach items="${productos}" var="p">
             <tr data-fila-busqueda="1"
                 data-buscar="${p.nombre} ${p.sku} ${p.categoria.nombre} ${p.id} ${p.tipoItem.etiqueta}"
-                class="${p.esServicio ? '' : (p.existencias == 0 ? 'table-danger' : (p.existencias <= stockMinimo ? 'table-warning' : ''))}">
+                class="${p.esServicio ? '' : (p.estaAgotado ? 'table-danger' : (p.esStockBajoUmbral(stockMinimo) ? 'table-warning' : ''))}">
                 <c:if test="${esAdmin}">
                     <td data-col="id">${p.id}</td>
                 </c:if>
@@ -159,11 +159,11 @@
                             <span class="text-muted">N/A</span>
                         </c:when>
                         <c:otherwise>
-                            ${p.existencias}
-                            <c:if test="${p.existencias == 0}">
+                            ${p.existenciasFormateadas}
+                            <c:if test="${p.estaAgotado}">
                                 <span class="badge bg-danger ms-1">Agotado</span>
                             </c:if>
-                            <c:if test="${p.existencias > 0 && p.existencias <= stockMinimo}">
+                            <c:if test="${p.esStockBajoUmbral(stockMinimo)}">
                                 <span class="badge bg-warning text-dark ms-1">Stock bajo</span>
                             </c:if>
                         </c:otherwise>

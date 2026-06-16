@@ -5,7 +5,6 @@ import org.nhernandez.webapp.sistemaventas.models.ItemCarro;
 import org.nhernandez.webapp.sistemaventas.models.Producto;
 import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 import org.nhernandez.webapp.sistemaventas.repositories.FacturaRepository;
-import org.nhernandez.webapp.sistemaventas.repositories.ProductoRepository;
 import org.nhernandez.webapp.sistemaventas.repositories.TicketRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,19 +14,19 @@ import java.util.List;
 @Service
 public class VentaServiceImpl implements VentaService {
 
-    private final ProductoRepository productoRepository;
     private final TicketRepository ticketRepository;
     private final FacturaRepository facturaRepository;
     private final CfdiTimbradoService cfdiTimbradoService;
+    private final InventarioRecetaService inventarioRecetaService;
 
-    public VentaServiceImpl(ProductoRepository productoRepository,
-                              TicketRepository ticketRepository,
+    public VentaServiceImpl(TicketRepository ticketRepository,
                               FacturaRepository facturaRepository,
-                              CfdiTimbradoService cfdiTimbradoService) {
-        this.productoRepository = productoRepository;
+                              CfdiTimbradoService cfdiTimbradoService,
+                              InventarioRecetaService inventarioRecetaService) {
         this.ticketRepository = ticketRepository;
         this.facturaRepository = facturaRepository;
         this.cfdiTimbradoService = cfdiTimbradoService;
+        this.inventarioRecetaService = inventarioRecetaService;
     }
 
     @Override
@@ -35,34 +34,14 @@ public class VentaServiceImpl implements VentaService {
         if (cantidadRequerida <= 0) {
             throw new ServiceJdbcException("La cantidad debe ser al menos 1", null);
         }
-        try {
-            Producto producto = productoRepository.porIdPorOwner(productoId, tenantOwner);
-            if (producto == null) {
-                throw new ServiceJdbcException("Producto no encontrado", null);
-            }
-            if (producto.esServicio()) {
-                return;
-            }
-            if (producto.getExistencias() < cantidadRequerida) {
-                throw new ServiceJdbcException(
-                        "Stock insuficiente para \"" + producto.getNombre()
-                                + "\": disponibles " + producto.getExistencias()
-                                + ", solicitadas " + cantidadRequerida,
-                        null);
-            }
-        } catch (SQLException e) {
-            throw new ServiceJdbcException(e.getMessage(), e);
-        }
+        Producto producto = new Producto();
+        producto.setId(productoId);
+        inventarioRecetaService.validarStockCarrito(tenantOwner, List.of(new ItemCarro(cantidadRequerida, producto)));
     }
 
     @Override
     public void validarStockCarrito(String tenantOwner, List<ItemCarro> items) {
-        if (items == null || items.isEmpty()) {
-            return;
-        }
-        for (ItemCarro item : items) {
-            validarStock(tenantOwner, item.getProducto().getId(), item.getCantidad());
-        }
+        inventarioRecetaService.validarStockCarrito(tenantOwner, items);
     }
 
     @Override

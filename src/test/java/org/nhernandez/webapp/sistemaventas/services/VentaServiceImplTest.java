@@ -12,7 +12,6 @@ import org.nhernandez.webapp.sistemaventas.models.TipoItem;
 import org.nhernandez.webapp.sistemaventas.models.TicketItem;
 import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 import org.nhernandez.webapp.sistemaventas.repositories.FacturaRepository;
-import org.nhernandez.webapp.sistemaventas.repositories.ProductoRepository;
 import org.nhernandez.webapp.sistemaventas.repositories.TicketRepository;
 
 import java.sql.SQLException;
@@ -24,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -33,9 +33,6 @@ import static org.mockito.Mockito.when;
 class VentaServiceImplTest {
 
     @Mock
-    private ProductoRepository productoRepository;
-
-    @Mock
     private TicketRepository ticketRepository;
 
     @Mock
@@ -43,6 +40,9 @@ class VentaServiceImplTest {
 
     @Mock
     private CfdiTimbradoService cfdiTimbradoService;
+
+    @Mock
+    private InventarioRecetaService inventarioRecetaService;
 
     @InjectMocks
     private VentaServiceImpl ventaService;
@@ -59,9 +59,11 @@ class VentaServiceImplTest {
     }
 
     @Test
-    void validarStock_rechazaCuandoNoHayExistencias() throws SQLException {
-        producto.setExistencias(2);
-        when(productoRepository.porIdPorOwner(1L, "tienda1")).thenReturn(producto);
+    void validarStock_rechazaCuandoNoHayExistencias() {
+        Producto ref = new Producto();
+        ref.setId(1L);
+        org.mockito.Mockito.doThrow(new ServiceJdbcException("Stock insuficiente", null))
+                .when(inventarioRecetaService).validarStockCarrito(eq("tienda1"), any());
 
         ServiceJdbcException ex = assertThrows(ServiceJdbcException.class,
                 () -> ventaService.validarStock("tienda1", 1L, 5));
@@ -70,19 +72,13 @@ class VentaServiceImplTest {
     }
 
     @Test
-    void validarStock_ignoraServicios() throws SQLException {
-        producto.setTipoItem(TipoItem.SERVICIO);
-        producto.setExistencias(0);
-        when(productoRepository.porIdPorOwner(1L, "tienda1")).thenReturn(producto);
-
+    void validarStock_ignoraServicios() {
         ventaService.validarStock("tienda1", 1L, 10);
-
-        verify(productoRepository).porIdPorOwner(1L, "tienda1");
+        verify(inventarioRecetaService).validarStockCarrito(eq("tienda1"), any());
     }
 
     @Test
     void registrarVenta_guardaTicketYFactura() throws SQLException {
-        when(productoRepository.porIdPorOwner(1L, "tienda1")).thenReturn(producto);
         doAnswer(inv -> {
             TicketVenta t = inv.getArgument(0);
             t.setId(99L);
@@ -103,7 +99,6 @@ class VentaServiceImplTest {
 
     @Test
     void registrarVenta_facturaConClienteId() throws SQLException {
-        when(productoRepository.porIdPorOwner(1L, "tienda1")).thenReturn(producto);
         doAnswer(inv -> {
             TicketVenta t = inv.getArgument(0);
             t.setId(88L);
@@ -124,7 +119,6 @@ class VentaServiceImplTest {
 
     @Test
     void registrarVenta_sinFacturaNoLlamaFacturaRepository() throws SQLException {
-        when(productoRepository.porIdPorOwner(1L, "tienda1")).thenReturn(producto);
         doAnswer(inv -> {
             TicketVenta t = inv.getArgument(0);
             t.setId(50L);
