@@ -59,7 +59,8 @@ public class IndexController {
                 return "redirect:/onboarding";
             }
             if ("ok".equals(req.getParameter("onboarding"))) {
-                model.addAttribute("mensajeExito", "Configuracion inicial completada. Ya puedes operar tu negocio.");
+                model.addAttribute("mensajeExito",
+                        "Configuracion inicial completada. Cuando quieras facturar, completa los datos fiscales en Mi perfil.");
             }
             var plan = planLimiteService.planActivo(tenant);
             model.addAttribute("planNombre", plan.getNombre());

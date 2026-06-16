@@ -27,7 +27,9 @@
                 <span class="mx-2 text-muted">—</span>
                 <span class="step ${paso >= 2 ? (paso == 2 ? 'active' : 'done') : 'pending'}">2</span>
                 <span class="mx-2 text-muted">—</span>
-                <span class="step ${paso >= 3 ? 'active' : 'pending'}">3</span>
+                <span class="step ${paso >= 3 ? (paso == 3 ? 'active' : 'done') : 'pending'}">3</span>
+                <span class="mx-2 text-muted">—</span>
+                <span class="step ${paso >= 4 ? 'active' : 'pending'}">4</span>
             </div>
 
             <div class="card shadow border-0">
@@ -177,6 +179,74 @@
                     </c:if>
 
                     <c:if test="${paso == 3}">
+                        <h1 class="h3 mb-3"><i class="bi bi-receipt text-primary"></i> Facturacion (opcional)</h1>
+                        <p class="text-muted">
+                            Puedes vender sin esto. Si tus clientes piden factura, sigue esta guia cuando quieras.
+                        </p>
+
+                        <div class="accordion mb-4" id="tutorialFacturacion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#pasoFiscal" aria-expanded="true">
+                                        1. Datos fiscales de tu negocio (PDF y CFDI)
+                                    </button>
+                                </h2>
+                                <div id="pasoFiscal" class="accordion-collapse collapse show" data-bs-parent="#tutorialFacturacion">
+                                    <div class="accordion-body small">
+                                        <p class="mb-2">En <strong>Mi perfil</strong> guarda el RFC, razon social, codigo postal y regimen fiscal
+                                            <strong>de tu negocio</strong> (los de tu constancia del SAT).</p>
+                                        <p class="mb-0 text-muted">Con solo esto ya puedes emitir comprobante PDF al cobrar.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#pasoFacturama">
+                                        2. CFDI timbrado ante el SAT (opcional)
+                                    </button>
+                                </h2>
+                                <div id="pasoFacturama" class="accordion-collapse collapse" data-bs-parent="#tutorialFacturacion">
+                                    <div class="accordion-body small">
+                                        <ol class="mb-0 ps-3">
+                                            <li class="mb-2">Crea cuenta en
+                                                <a href="https://apisandbox.facturama.mx/" target="_blank" rel="noopener">Facturama sandbox</a>
+                                                (pruebas) o produccion.</li>
+                                            <li class="mb-2">Completa el wizard y sube el <strong>CSD</strong> de tu RFC en el panel de Facturama.</li>
+                                            <li class="mb-2">En <strong>Mi perfil → Timbrado CFDI</strong> pega usuario y contraseña API y activa timbrado.</li>
+                                            <li>Al cobrar, marca factura e indica RFC y codigo postal del cliente.</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#pasoClientes">
+                                        3. Clientes frecuentes (recomendado)
+                                    </button>
+                                </h2>
+                                <div id="pasoClientes" class="accordion-collapse collapse" data-bs-parent="#tutorialFacturacion">
+                                    <div class="accordion-body small">
+                                        En <strong>Clientes</strong> registra RFC, razon social y uso CFDI.
+                                        Al cobrar, al elegir un cliente se precargan sus datos fiscales.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="${pageContext.request.contextPath}/perfil" class="btn btn-primary" target="_blank" rel="noopener">
+                                Abrir Mi perfil
+                            </a>
+                            <a href="${pageContext.request.contextPath}/onboarding/listo" class="btn btn-outline-primary">
+                                Continuar sin configurar ahora
+                            </a>
+                        </div>
+                    </c:if>
+
+                    <c:if test="${paso == 4}">
                         <h1 class="h3 mb-3 text-success"><i class="bi bi-check-circle"></i> Listo para vender</h1>
                         <p class="text-muted">
                             Ya tienes categorias y al menos un articulo en el catalogo. El siguiente paso es registrar tu primera venta en mostrador.
@@ -243,5 +313,6 @@
 })();
 </script>
 </c:if>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

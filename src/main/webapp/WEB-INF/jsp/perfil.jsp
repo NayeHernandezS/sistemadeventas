@@ -330,6 +330,14 @@
         <div class="card shadow-sm mb-4">
             <div class="card-header">Datos fiscales por defecto</div>
             <div class="card-body">
+                <details class="mb-3 border rounded p-3 bg-light">
+                    <summary class="fw-semibold" style="cursor:pointer">Guia rapida de facturacion</summary>
+                    <div class="small text-muted mt-2">
+                        <p><strong>Solo PDF (sin SAT):</strong> llena RFC, razon social, C.P. y regimen de tu negocio abajo y cobra con factura en el carro.</p>
+                        <p class="mb-2"><strong>CFDI timbrado:</strong> ademas conecta tu Facturama en la seccion de abajo (cuenta propia + CSD en su panel).</p>
+                        <p class="mb-0">Los datos del <em>cliente</em> (RFC receptor) se capturan al cobrar o desde el catalogo <a href="${pageContext.request.contextPath}/clientes">Clientes</a>.</p>
+                    </div>
+                </details>
                 <p class="small text-muted">
                     Se precargan en el carrito al facturar una venta. Puedes modificarlos en cada ticket.
                 </p>

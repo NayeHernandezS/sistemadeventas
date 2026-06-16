@@ -93,7 +93,7 @@ public class OnboardingController {
                     : Integer.parseInt(existencias.trim());
             onboardingService.guardarPrimerItem(
                     tenant, tipoItem, nombre, sku, precioInt, existenciasInt, categoriaId);
-            return "redirect:/onboarding/listo";
+            return "redirect:/onboarding/facturacion";
         } catch (ServiceJdbcException e) {
             model.addAttribute("errores", Map.of("general", e.getMessage()));
             aplicarValoresFormulario(model, Map.of(
@@ -110,6 +110,17 @@ public class OnboardingController {
         }
     }
 
+    @GetMapping("/facturacion")
+    public String facturacion(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
+        String tenant = requiereAdminConOnboarding(req, resp);
+        if (tenant == null) {
+            return null;
+        }
+        cargarContexto(tenant, model);
+        model.addAttribute("paso", 3);
+        return "onboarding";
+    }
+
     @GetMapping("/listo")
     public String listo(HttpServletRequest req, Model model, HttpServletResponse resp) throws IOException {
         String tenant = requiereAdminConOnboarding(req, resp);
@@ -117,7 +128,7 @@ public class OnboardingController {
             return null;
         }
         cargarContexto(tenant, model);
-        model.addAttribute("paso", 3);
+        model.addAttribute("paso", 4);
         return "onboarding";
     }
 
