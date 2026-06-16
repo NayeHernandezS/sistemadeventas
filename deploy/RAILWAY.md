@@ -115,6 +115,58 @@ Java 21 + Spring + JSP necesita al menos **512 MB** RAM. En plan gratuito, sube 
 
 ---
 
+## Paso 5 — Configurar correo (SMTP)
+
+Los correos sirven para:
+
+- Avisos de vencimiento de suscripcion (job diario 08:00, Mexico)
+- Recuperacion de contraseña (`/recuperar`)
+- Prueba desde `/plataforma` (SUPER_ADMIN)
+
+### Variables en el servicio app (Railway)
+
+| Variable | Ejemplo Gmail | Obligatorio |
+|----------|---------------|-------------|
+| `SMTP_HOST` | `smtp.gmail.com` | Si |
+| `SMTP_PORT` | `587` | Si |
+| `SMTP_USER` | `tu@gmail.com` | Casi siempre |
+| `SMTP_PASSWORD` | contraseña de aplicacion (16 caracteres) | Si |
+| `SMTP_AUTH` | `true` | Si |
+| `SMTP_STARTTLS` | `true` | Si (Gmail) |
+| `SMTP_SSL` | `false` | Si (Gmail) |
+| `MAIL_FROM` | mismo que `SMTP_USER` en Gmail | Si |
+| `APP_BASE_URL` | `https://tu-app.up.railway.app` | Si (enlaces en correos) |
+
+### Gmail / Google Workspace
+
+1. Activa verificacion en 2 pasos en la cuenta Google.
+2. Cuenta Google → Seguridad → **Contraseñas de aplicaciones** → genera una para "Correo".
+3. Usa esa contraseña (sin espacios) en `SMTP_PASSWORD`.
+4. `MAIL_FROM` debe ser el mismo correo que `SMTP_USER`.
+
+### SendGrid (alternativa)
+
+```
+SMTP_HOST=smtp.sendgrid.net
+SMTP_PORT=587
+SMTP_USER=apikey
+SMTP_PASSWORD=SG.tu_api_key_de_sendgrid
+MAIL_FROM=noreply@tudominio.com
+```
+
+El dominio en `MAIL_FROM` debe estar verificado en SendGrid.
+
+### Verificar en la app
+
+1. Redeploy tras guardar variables.
+2. Inicia sesion como **SUPER_ADMIN** → `/plataforma`.
+3. En **Correos de suscripcion** → escribe tu email → **Enviar prueba**.
+4. Si llega el correo, pulsa **Enviar avisos ahora** para probar avisos reales (solo tenants con vencimiento en 7/3/1/0 dias o ayer).
+
+Sin `SMTP_HOST`, la app funciona igual; los avisos solo se ven en pantalla y la recuperacion de contraseña muestra el enlace en la pagina.
+
+---
+
 ## Variables opcionales (despues del primer arranque)
 
 | Variable | Para que |

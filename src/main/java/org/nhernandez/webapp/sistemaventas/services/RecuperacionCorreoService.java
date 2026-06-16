@@ -3,6 +3,7 @@ package org.nhernandez.webapp.sistemaventas.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,35 @@ public class RecuperacionCorreoService {
         return Optional.empty();
     }
 
+    /**
+     * Envio de prueba desde panel plataforma. Devuelve error descriptivo si falla SMTP.
+     */
+    public Optional<ResultadoEnvioCorreo> enviarPrueba(String destino) {
+        if (!correoHabilitado()) {
+            return Optional.of(ResultadoEnvioCorreo.error(
+                    "SMTP no configurado. Completa SMTP_HOST, credenciales y MAIL_FROM."));
+        }
+        SimpleMailMessage mensaje = new SimpleMailMessage();
+        mensaje.setFrom(mailFrom);
+        mensaje.setTo(destino);
+        mensaje.setSubject("Prueba de correo - " + appNombre);
+        mensaje.setText("""
+                Este es un correo de prueba de %s.
+
+                Si lo recibes, SMTP esta configurado correctamente.
+                Los avisos de suscripcion y la recuperacion de contraseña usaran el mismo servidor.
+                """.formatted(appNombre));
+        try {
+            mailSender.ifPresent(sender -> sender.send(mensaje));
+            log.info("Correo de prueba enviado a {}", destino);
+            return Optional.of(ResultadoEnvioCorreo.ok());
+        } catch (MailException e) {
+            log.error("Fallo envio de correo de prueba a {}: {}", destino, e.getMessage());
+            return Optional.of(ResultadoEnvioCorreo.error(
+                    "No se pudo enviar: " + mensajeErrorAmigable(e)));
+        }
+    }
+
     public boolean correoHabilitado() {
         return mailHost != null && !mailHost.isBlank() && mailSender.isPresent();
     }
@@ -67,6 +97,24 @@ public class RecuperacionCorreoService {
         mensaje.setTo(destino);
         mensaje.setSubject(asunto);
         mensaje.setText(cuerpo);
-        mailSender.ifPresent(sender -> sender.send(mensaje));
+        try {
+            mailSender.ifPresent(sender -> sender.send(mensaje));
+        } catch (MailException e) {
+            log.error("Fallo envio de correo a {} ({}): {}", destino, asunto, e.getMessage());
+        }
+    }
+
+    private static String mensajeErrorAmigable(MailException e) {
+        String msg = e.getMessage();
+        if (msg == null) {
+            return "error de conexion SMTP";
+        }
+        if (msg.contains("Authentication failed") || msg.contains("535")) {
+            return "autenticacion rechazada (revisa SMTP_USER y SMTP_PASSWORD; en Gmail usa contraseña de aplicacion)";
+        }
+        if (msg.contains("Could not connect")) {
+            return "no se pudo conectar al servidor (revisa SMTP_HOST y SMTP_PORT)";
+        }
+        return msg.length() > 200 ? msg.substring(0, 200) + "…" : msg;
     }
 }

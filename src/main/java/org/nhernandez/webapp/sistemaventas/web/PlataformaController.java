@@ -4,6 +4,7 @@ import org.nhernandez.webapp.sistemaventas.models.ClienteCuenta;
 import org.nhernandez.webapp.sistemaventas.models.PlanSuscripcion;
 import org.nhernandez.webapp.sistemaventas.services.MercadoPagoProduccionService;
 import org.nhernandez.webapp.sistemaventas.services.PagoSuscripcionExpiracionService;
+import org.nhernandez.webapp.sistemaventas.services.CorreoProduccionService;
 import org.nhernandez.webapp.sistemaventas.services.SuscripcionVencimientoCorreoService;
 import org.nhernandez.webapp.sistemaventas.services.PlataformaService;
 import org.nhernandez.webapp.sistemaventas.services.ServiceJdbcException;
@@ -28,27 +29,25 @@ public class PlataformaController {
     private final PagoSuscripcionExpiracionService expiracionService;
     private final MercadoPagoProduccionService mercadoPagoProduccionService;
     private final SuscripcionVencimientoCorreoService suscripcionVencimientoCorreoService;
+    private final CorreoProduccionService correoProduccionService;
 
     public PlataformaController(PlataformaService plataformaService,
                                 SoporteService soporteService,
                                 PagoSuscripcionExpiracionService expiracionService,
                                 MercadoPagoProduccionService mercadoPagoProduccionService,
-                                SuscripcionVencimientoCorreoService suscripcionVencimientoCorreoService) {
+                                SuscripcionVencimientoCorreoService suscripcionVencimientoCorreoService,
+                                CorreoProduccionService correoProduccionService) {
         this.plataformaService = plataformaService;
         this.soporteService = soporteService;
         this.expiracionService = expiracionService;
         this.mercadoPagoProduccionService = mercadoPagoProduccionService;
         this.suscripcionVencimientoCorreoService = suscripcionVencimientoCorreoService;
+        this.correoProduccionService = correoProduccionService;
     }
 
     @GetMapping
     public String inicio(Model model) {
-        model.addAttribute("totalClientes", plataformaService.listarClientes().size());
-        model.addAttribute("pagosPendientes", plataformaService.pagosPendientesGlobales().size());
-        model.addAttribute("pagosExpirados", plataformaService.pagosExpiradosGlobales().size());
-        model.addAttribute("soporteAbiertas", soporteService.listarAbiertasPlataforma().size());
-        model.addAttribute("mercadoPagoEstado", mercadoPagoProduccionService.evaluar());
-        model.addAttribute("correoSuscripcionHabilitado", suscripcionVencimientoCorreoService.correoHabilitado());
+        cargarResumenPlataforma(model);
         return "plataforma/inicio";
     }
 
@@ -235,20 +234,38 @@ public class PlataformaController {
     public String enviarAvisosSuscripcion(Model model) {
         if (!suscripcionVencimientoCorreoService.correoHabilitado()) {
             model.addAttribute("mensajeError",
-                    "SMTP no configurado. Completa SMTP_HOST y credenciales en .env.");
+                    "SMTP no configurado. Completa SMTP_HOST y credenciales en Railway.");
         } else {
             int enviados = suscripcionVencimientoCorreoService.procesarAvisosManual();
             model.addAttribute("mensajeExito",
                     "Proceso de avisos ejecutado. Correos nuevos enviados: " + enviados
                             + " (los ya enviados para este vencimiento se omiten).");
         }
+        cargarResumenPlataforma(model);
+        return "plataforma/inicio";
+    }
+
+    @PostMapping("/correos/probar")
+    public String probarCorreo(@RequestParam("emailPrueba") String emailPrueba, Model model) {
+        String resultado = correoProduccionService.enviarCorreoPrueba(emailPrueba);
+        if (resultado.startsWith("Correo de prueba enviado")) {
+            model.addAttribute("mensajeExito", resultado);
+        } else {
+            model.addAttribute("mensajeError", resultado);
+        }
+        model.addAttribute("emailPrueba", emailPrueba != null ? emailPrueba.trim() : "");
+        cargarResumenPlataforma(model);
+        return "plataforma/inicio";
+    }
+
+    private void cargarResumenPlataforma(Model model) {
         model.addAttribute("totalClientes", plataformaService.listarClientes().size());
         model.addAttribute("pagosPendientes", plataformaService.pagosPendientesGlobales().size());
         model.addAttribute("pagosExpirados", plataformaService.pagosExpiradosGlobales().size());
         model.addAttribute("soporteAbiertas", soporteService.listarAbiertasPlataforma().size());
         model.addAttribute("mercadoPagoEstado", mercadoPagoProduccionService.evaluar());
+        model.addAttribute("correoEstado", correoProduccionService.evaluar());
         model.addAttribute("correoSuscripcionHabilitado", suscripcionVencimientoCorreoService.correoHabilitado());
-        return "plataforma/inicio";
     }
 
     private void cargarVistaPagos(Model model) {
