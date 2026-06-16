@@ -115,6 +115,9 @@ public class RecuperacionCorreoService {
         if (msg.contains("Could not connect")) {
             return "no se pudo conectar al servidor (revisa SMTP_HOST y SMTP_PORT)";
         }
+        if (msg.contains("timed out") || msg.contains("Timed out")) {
+            return "tiempo de espera agotado al conectar con SMTP (revisa credenciales y puerto 587)";
+        }
         return msg.length() > 200 ? msg.substring(0, 200) + "…" : msg;
     }
 }

@@ -26,6 +26,7 @@ class CorreoProduccionServiceTest {
     @BeforeEach
     void setUp() {
         service = new CorreoProduccionService(correoService);
+        ReflectionTestUtils.setField(service, "envioTimeoutSegundos", 12);
     }
 
     @Test

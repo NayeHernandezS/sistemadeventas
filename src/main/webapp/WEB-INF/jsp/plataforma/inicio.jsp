@@ -127,7 +127,7 @@
                                maxlength="150" placeholder="tu@correo.com" value="${emailPrueba}" required
                                ${not correoEstado.smtpConfigurado ? 'disabled' : ''}>
                     </div>
-                    <button type="submit" class="btn btn-outline-secondary btn-sm"
+                    <button type="submit" class="btn btn-outline-secondary btn-sm" id="btnEnviarPrueba"
                             ${not correoEstado.smtpConfigurado ? 'disabled' : ''}>
                         Enviar prueba
                     </button>
@@ -161,5 +161,16 @@
         En <strong>Pagos</strong> puedes expirar solicitudes vencidas (job diario a las 03:30).
     </div>
 </div>
+<script>
+(function () {
+    const form = document.querySelector('form[action*="correos/probar"]');
+    const btn = document.getElementById('btnEnviarPrueba');
+    if (!form || !btn) return;
+    form.addEventListener('submit', function () {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Enviando…';
+    });
+})();
+</script>
 </body>
 </html>

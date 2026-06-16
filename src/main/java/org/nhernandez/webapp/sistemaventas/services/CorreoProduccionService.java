@@ -6,9 +6,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Service
 public class CorreoProduccionService {
+
+    private static final ExecutorService CORREO_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     private final RecuperacionCorreoService correoService;
 
@@ -26,6 +35,9 @@ public class CorreoProduccionService {
 
     @Value("${app.base-url:}")
     private String appBaseUrl;
+
+    @Value("${smtp.envio.timeout-segundos:12}")
+    private int envioTimeoutSegundos;
 
     public CorreoProduccionService(RecuperacionCorreoService correoService) {
         this.correoService = correoService;
@@ -77,10 +89,25 @@ public class CorreoProduccionService {
         if (!email.contains("@") || email.length() > 150) {
             return "Correo de destino no valido.";
         }
-        return correoService.enviarPrueba(email)
-                .filter(r -> !r.exito())
-                .map(ResultadoEnvioCorreo::mensaje)
-                .orElse("Correo de prueba enviado a " + email + ". Revisa bandeja y spam.");
+        Future<Optional<ResultadoEnvioCorreo>> futuro =
+                CORREO_EXECUTOR.submit(() -> correoService.enviarPrueba(email));
+        try {
+            Optional<ResultadoEnvioCorreo> resultado = futuro.get(envioTimeoutSegundos, TimeUnit.SECONDS);
+            return resultado
+                    .filter(r -> !r.exito())
+                    .map(ResultadoEnvioCorreo::mensaje)
+                    .orElse("Correo de prueba enviado a " + email + ". Revisa bandeja y spam.");
+        } catch (TimeoutException e) {
+            futuro.cancel(true);
+            return "Tiempo agotado (" + envioTimeoutSegundos + " s) al conectar con SMTP. "
+                    + "En Gmail usa contraseña de aplicacion en SMTP_PASSWORD (no tu clave normal).";
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            futuro.cancel(true);
+            return "Envio interrumpido. Intenta de nuevo.";
+        } catch (ExecutionException e) {
+            return "Error al enviar: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+        }
     }
 
     private String baseUrlEfectiva() {
