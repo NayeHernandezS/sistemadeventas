@@ -244,11 +244,12 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
         p.setId(rs.getLong("id"));
         p.setNombre(rs.getString("nombre"));
         p.setPrecio(rs.getInt("precio"));
-        p.setPrecioCompra(rs.getInt("precio_compra"));
-        p.setPorcentajeGanancia(rs.getInt("porcentaje_ganancia"));
+        p.setPrecioCompra(leerEnteroOpcional(rs, "precio_compra"));
+        p.setPorcentajeGanancia(leerEnteroOpcional(rs, "porcentaje_ganancia"));
         p.setExistencias(rs.getInt("existencias"));
         p.setSku(rs.getString("sku"));
-        p.setFechaRegistro(rs.getDate("fecha_registro").toLocalDate());
+        Date fecha = rs.getDate("fecha_registro");
+        p.setFechaRegistro(fecha != null ? fecha.toLocalDate() : LocalDate.now());
         p.setOwnerUsername(rs.getString("owner_username"));
         p.setTipoItem(leerTipoItem(rs));
         Categoria c = new Categoria();
@@ -256,6 +257,14 @@ public class ProductoRepositoryJdbcImpl implements ProductoRepository {
         c.setNombre(rs.getString("categoria"));
         p.setCategoria(c);
         return p;
+    }
+
+    private static int leerEnteroOpcional(ResultSet rs, String columna) throws SQLException {
+        try {
+            return rs.getInt(columna);
+        } catch (SQLException e) {
+            return 0;
+        }
     }
 
     private TipoItem leerTipoItem(ResultSet rs) throws SQLException {

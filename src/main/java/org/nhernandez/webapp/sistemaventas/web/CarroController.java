@@ -75,24 +75,29 @@ public class CarroController {
 
     @GetMapping("/agregar")
     public String agregar(HttpServletRequest req) {
-        long id = parseLongParam(req.getParameter("id"), 0L);
-        if (id <= 0) {
-            req.getSession().setAttribute("mensajeError", "Producto no valido.");
+        try {
+            long id = parseLongParam(req.getParameter("id"), 0L);
+            if (id <= 0) {
+                req.getSession().setAttribute("mensajeError", "Producto no valido.");
+                return redirigirTrasEscaneo(req.getParameter("origen"));
+            }
+            String tenant = TenantUtil.getTenantOwner(req);
+            Optional<Producto> producto = productoService.porIdPorOwner(id, tenant);
+            if (producto.isEmpty()) {
+                req.getSession().setAttribute("mensajeError", "Producto no encontrado.");
+                return redirigirTrasEscaneo(req.getParameter("origen"));
+            }
+            ResultadoEscaneoCarro resultado = agregarProductoAlCarro(req, producto.get());
+            if (resultado.ok()) {
+                req.getSession().setAttribute("mensajeExito", resultado.mensaje());
+            } else {
+                req.getSession().setAttribute("mensajeError", resultado.mensaje());
+            }
+            return redirigirTrasEscaneo(req.getParameter("origen"));
+        } catch (ServiceJdbcException e) {
+            req.getSession().setAttribute("mensajeError", e.getMessage());
             return redirigirTrasEscaneo(req.getParameter("origen"));
         }
-        String tenant = TenantUtil.getTenantOwner(req);
-        Optional<Producto> producto = productoService.porIdPorOwner(id, tenant);
-        if (producto.isEmpty()) {
-            req.getSession().setAttribute("mensajeError", "Producto no encontrado.");
-            return redirigirTrasEscaneo(req.getParameter("origen"));
-        }
-        ResultadoEscaneoCarro resultado = agregarProductoAlCarro(req, producto.get());
-        if (resultado.ok()) {
-            req.getSession().setAttribute("mensajeExito", resultado.mensaje());
-        } else {
-            req.getSession().setAttribute("mensajeError", resultado.mensaje());
-        }
-        return redirigirTrasEscaneo(req.getParameter("origen"));
     }
 
     @GetMapping("/api/agregar")
@@ -100,16 +105,20 @@ public class CarroController {
     public EscaneoCarroRespuesta agregarApi(HttpServletRequest req,
                                             @RequestParam long id,
                                             @RequestParam(required = false) String origen) {
-        if (id <= 0) {
-            return respuestaCarro(false, "Producto no valido.", null);
+        try {
+            if (id <= 0) {
+                return respuestaCarro(false, "Producto no valido.", null);
+            }
+            String tenant = TenantUtil.getTenantOwner(req);
+            Optional<Producto> producto = productoService.porIdPorOwner(id, tenant);
+            if (producto.isEmpty()) {
+                return respuestaCarro(false, "Producto no encontrado.", null);
+            }
+            ResultadoEscaneoCarro resultado = agregarProductoAlCarro(req, producto.get());
+            return respuestaCarro(resultado.ok(), resultado.mensaje(), producto.get());
+        } catch (ServiceJdbcException e) {
+            return respuestaCarro(false, e.getMessage(), null);
         }
-        String tenant = TenantUtil.getTenantOwner(req);
-        Optional<Producto> producto = productoService.porIdPorOwner(id, tenant);
-        if (producto.isEmpty()) {
-            return respuestaCarro(false, "Producto no encontrado.", null);
-        }
-        ResultadoEscaneoCarro resultado = agregarProductoAlCarro(req, producto.get());
-        return respuestaCarro(resultado.ok(), resultado.mensaje(), producto.get());
     }
 
     @GetMapping("/agregar-por-sku")

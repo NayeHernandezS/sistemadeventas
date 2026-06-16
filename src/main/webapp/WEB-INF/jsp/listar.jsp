@@ -175,11 +175,10 @@
                 <td data-col="agregar">
                     <c:choose>
                         <c:when test="${p.esServicio || p.existencias > 0}">
-                            <a class="btn btn-sm btn-primary btn-agregar-carro"
-                               href="${pageContext.request.contextPath}/carro/agregar?id=${p.id}&origen=productos"
-                               data-producto-id="${p.id}"
-                               data-producto-nombre="${fn:escapeXml(p.nombre)}"
-                               data-producto-precio="${p.precio}">Agregar</a>
+                            <button type="button" class="btn btn-sm btn-primary btn-agregar-carro"
+                                    data-producto-id="${p.id}"
+                                    data-producto-nombre="${fn:escapeXml(p.nombre)}"
+                                    data-producto-precio="${p.precio}">Agregar</button>
                         </c:when>
                         <c:otherwise>
                             <span class="text-muted small">Sin stock</span>

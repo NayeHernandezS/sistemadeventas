@@ -169,13 +169,14 @@
         }
 
         document.addEventListener('click', function (event) {
-            var enlace = event.target.closest('.btn-agregar-carro');
-            if (!enlace) {
+            var boton = event.target.closest('.btn-agregar-carro');
+            if (!boton) {
                 return;
             }
             event.preventDefault();
-            agregarPorApi(enlace);
-        });
+            event.stopPropagation();
+            agregarPorApi(boton);
+        }, true);
     }
 
     if (document.readyState === 'loading') {
