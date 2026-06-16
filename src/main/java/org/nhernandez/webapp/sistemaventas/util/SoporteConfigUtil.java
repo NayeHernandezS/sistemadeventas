@@ -21,7 +21,7 @@ public final class SoporteConfigUtil {
 
     public static String whatsappMensaje() {
         return prop("soporte.whatsapp-mensaje",
-                "Hola, me interesa FUSION DIGITAL (sistema de ventas). ¿Podrían darme más información?");
+                "Hola, me interesa FUSION DIGITAL (sistema de ventas). Quiero mas informacion.");
     }
 
     /** Enlace wa.me listo para botones; vacio si no hay numero configurado. */
