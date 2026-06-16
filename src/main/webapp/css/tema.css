@@ -332,10 +332,48 @@ h1, h2, h3, .h1, .h2, .h3 {
 .filtros-columnas-wrap {
     position: relative;
     z-index: 30;
+    max-width: 100%;
 }
 
-.filtros-columnas-wrap .dropdown-menu {
-    z-index: 1050;
+.filtros-columnas-details {
+    display: inline-block;
+    max-width: 100%;
+}
+
+.filtros-columnas-details summary {
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filtros-columnas-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.filtros-columnas-details summary::marker {
+    content: '';
+}
+
+.filtros-columnas-details summary::after {
+    content: '';
+    display: inline-block;
+    margin-left: 0.45em;
+    border: solid currentColor;
+    border-width: 0 2px 2px 0;
+    padding: 3px;
+    transform: rotate(45deg);
+    vertical-align: 0.12em;
+    opacity: 0.75;
+}
+
+.filtros-columnas-details[open] summary::after {
+    transform: rotate(-135deg);
+    vertical-align: 0;
+}
+
+.filtros-columnas-panel {
+    min-width: min(100%, 280px);
+    max-width: 100%;
 }
 
 .panel-carro-catalogo {

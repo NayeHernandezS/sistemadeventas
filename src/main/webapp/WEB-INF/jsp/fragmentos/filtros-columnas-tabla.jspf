@@ -3,12 +3,11 @@
 <div class="filtros-columnas-wrap" data-tabla-id="${filtrosTablaId}"
      data-usuario="${empty sessionScope.username ? 'anon' : sessionScope.username}"
      data-tenant="${empty sessionScope.tenantOwner ? 'local' : sessionScope.tenantOwner}">
-    <div class="dropdown">
-        <button type="button" class="btn btn-outline-secondary dropdown-toggle filtros-columnas-toggle"
-                data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+    <details class="filtros-columnas-details">
+        <summary class="btn btn-outline-secondary filtros-columnas-toggle">
             <i class="bi bi-funnel" aria-hidden="true"></i> Filtros de columnas
-        </button>
-        <div class="dropdown-menu dropdown-menu-end p-3 filtros-columnas-panel" style="min-width: 240px;">
+        </summary>
+        <div class="filtros-columnas-panel card card-body border mt-2 shadow-sm">
             <p class="small text-muted mb-2 mb-md-3">Elige que datos del producto quieres ver en la tabla.</p>
             <div class="vstack gap-2">
                 <c:choose>
@@ -145,5 +144,5 @@
                 <button type="button" class="btn btn-link btn-sm p-0 filtros-columnas-restaurar">Mostrar todas</button>
             </div>
         </div>
-    </div>
+    </details>
 </div>
