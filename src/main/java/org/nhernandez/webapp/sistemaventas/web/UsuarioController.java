@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -39,6 +40,7 @@ public class UsuarioController {
         }
         String tenant = TenantUtil.getTenantOwner(req);
         model.addAttribute("usuarios", service.listarVendedoresDelTenant(tenant));
+        model.addAttribute("formatoAcceso", DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         model.addAttribute("username", auth.getUsername(req));
         Object title = req.getAttribute("title");
         model.addAttribute("title", (title != null ? title : "") + ": Listado de usuarios");

@@ -30,4 +30,6 @@ public interface UsuarioService {
     void actualizarEmail(String username, String emailNuevo);
 
     void actualizarTipoNegocio(String username, String tipoNegocio);
+
+    void registrarUltimoAcceso(String username);
 }

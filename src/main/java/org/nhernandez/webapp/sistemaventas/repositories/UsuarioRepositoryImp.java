@@ -155,12 +155,14 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
     @Override
     public List<ClienteCuenta> listarCuentasCliente() throws SQLException {
         String sql = """
-                SELECT u.id, u.username, u.email, u.tipo_negocio,
+                SELECT u.id, u.username, u.email, u.tipo_negocio, u.ultimo_acceso,
                        s.fecha_fin, s.en_periodo_prueba, s.estado AS estado_suscripcion,
                        s.plan_codigo,
                        (SELECT COUNT(*) FROM usuarios v
                         WHERE v.admin_owner = u.username
-                          AND UPPER(v.rol) = 'VENDEDOR') AS cantidad_vendedores
+                          AND UPPER(v.rol) = 'VENDEDOR') AS cantidad_vendedores,
+                       (SELECT MAX(ua.ultimo_acceso) FROM usuarios ua
+                        WHERE ua.username = u.username OR ua.admin_owner = u.username) AS ultimo_acceso_negocio
                 FROM usuarios u
                 LEFT JOIN suscripciones s ON s.username = u.username
                 WHERE UPPER(u.rol) = ?
@@ -200,11 +202,40 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
                     if (c.getPlanCodigo() == null || c.getPlanCodigo().isBlank()) {
                         c.setPlanCodigo("EMPRENDEDOR");
                     }
+                    leerUltimoAcceso(rs, c);
                     lista.add(c);
                 }
             }
         }
         return lista;
+    }
+
+    @Override
+    public void registrarUltimoAcceso(String username) throws SQLException {
+        if (username == null || username.isBlank()) {
+            return;
+        }
+        String sql = "UPDATE usuarios SET ultimo_acceso = ? WHERE username = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            stmt.setString(2, username.trim());
+            stmt.executeUpdate();
+        }
+    }
+
+    private static void leerUltimoAcceso(ResultSet rs, ClienteCuenta c) throws SQLException {
+        try {
+            Timestamp acceso = rs.getTimestamp("ultimo_acceso");
+            if (acceso != null) {
+                c.setUltimoAcceso(acceso.toLocalDateTime());
+            }
+            Timestamp accesoNegocio = rs.getTimestamp("ultimo_acceso_negocio");
+            if (accesoNegocio != null) {
+                c.setUltimoAccesoNegocio(accesoNegocio.toLocalDateTime());
+            }
+        } catch (SQLException ignored) {
+            // columna ultimo_acceso opcional si no se ejecuto migracion
+        }
     }
 
     @Override
@@ -247,6 +278,14 @@ public class UsuarioRepositoryImp implements UsuarioReposository {
             usuario.setAceptacionLegalVersion(rs.getString("aceptacion_legal_version"));
         } catch (SQLException ignored) {
             // columnas legales opcionales
+        }
+        try {
+            Timestamp ultimoAcceso = rs.getTimestamp("ultimo_acceso");
+            if (ultimoAcceso != null) {
+                usuario.setUltimoAcceso(ultimoAcceso.toLocalDateTime());
+            }
+        } catch (SQLException ignored) {
+            // columna ultimo_acceso opcional
         }
         return usuario;
     }

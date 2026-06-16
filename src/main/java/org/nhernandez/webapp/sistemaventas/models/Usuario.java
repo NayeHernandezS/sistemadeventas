@@ -1,5 +1,6 @@
 package org.nhernandez.webapp.sistemaventas.models;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Usuario {
@@ -13,6 +14,7 @@ public class Usuario {
     private String tipoNegocio;
     private LocalDateTime aceptacionLegalEn;
     private String aceptacionLegalVersion;
+    private LocalDateTime ultimoAcceso;
 
     public Long getId() {
         return id;
@@ -84,5 +86,17 @@ public class Usuario {
 
     public void setAceptacionLegalVersion(String aceptacionLegalVersion) {
         this.aceptacionLegalVersion = aceptacionLegalVersion;
+    }
+
+    public LocalDateTime getUltimoAcceso() {
+        return ultimoAcceso;
+    }
+
+    public void setUltimoAcceso(LocalDateTime ultimoAcceso) {
+        this.ultimoAcceso = ultimoAcceso;
+    }
+
+    public boolean ultimoAccesoEsHoy() {
+        return ultimoAcceso != null && ultimoAcceso.toLocalDate().equals(LocalDate.now());
     }
 }

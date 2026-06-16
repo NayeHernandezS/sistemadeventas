@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     admin_owner VARCHAR(100) NULL,
     tipo_negocio VARCHAR(50) NULL,
     aceptacion_legal_en DATETIME NULL,
-    aceptacion_legal_version VARCHAR(20) NULL
+    aceptacion_legal_version VARCHAR(20) NULL,
+    ultimo_acceso DATETIME NULL
 );
 
 CREATE TABLE IF NOT EXISTS categorias (

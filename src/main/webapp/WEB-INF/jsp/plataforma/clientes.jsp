@@ -35,6 +35,7 @@
                     <th>Plan</th>
                     <th>Vendedores</th>
                     <th>Vence</th>
+                    <th>Ultimo acceso</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -63,6 +64,17 @@
                                     ${c.fechaFinSuscripcion.format(formatoFecha)}
                                 </c:when>
                                 <c:otherwise><span class="text-danger">Sin suscripcion</span></c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${c.ultimoAccesoNegocio != null}">
+                                    ${c.ultimoAccesoNegocio.format(formatoFecha)}
+                                    <c:if test="${c.ultimoAccesoNegocioEsHoy()}">
+                                        <span class="badge bg-success ms-1">Hoy</span>
+                                    </c:if>
+                                </c:when>
+                                <c:otherwise><span class="text-muted">Sin acceso</span></c:otherwise>
                             </c:choose>
                         </td>
                         <td>

@@ -46,6 +46,19 @@
                     <dt class="col-sm-4">Tipo de negocio</dt>
                     <dd class="col-sm-8">${tipoNegocioEtiqueta}</dd>
                 </c:if>
+
+                <dt class="col-sm-4">Ultimo acceso</dt>
+                <dd class="col-sm-8">
+                    <c:choose>
+                        <c:when test="${ultimoAcceso != null}">
+                            ${ultimoAcceso.format(formatoAcceso)}
+                            <c:if test="${usuario.ultimoAccesoEsHoy()}">
+                                <span class="badge bg-success ms-1">Hoy</span>
+                            </c:if>
+                        </c:when>
+                        <c:otherwise><span class="text-muted">Sin registro (cierra sesion y vuelve a entrar)</span></c:otherwise>
+                    </c:choose>
+                </dd>
             </dl>
         </div>
     </div>
@@ -77,6 +90,62 @@
                              aria-valuenow="${porcentajeProductos}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </c:if>
+
+    <c:if test="${esAdmin}">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Equipo — ultimo acceso</span>
+                <a href="${pageContext.request.contextPath}/usuarios" class="btn btn-sm btn-outline-primary">Gestionar vendedores</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Ultimo acceso</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><strong>${username}</strong> <span class="badge bg-primary">Tu</span></td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${ultimoAcceso != null}">
+                                        ${ultimoAcceso.format(formatoAcceso)}
+                                        <c:if test="${usuario.ultimoAccesoEsHoy()}">
+                                            <span class="badge bg-success ms-1">Hoy</span>
+                                        </c:if>
+                                    </c:when>
+                                    <c:otherwise><span class="text-muted">—</span></c:otherwise>
+                                </c:choose>
+                            </td>
+                        </tr>
+                        <c:forEach var="v" items="${equipoAccesos}">
+                            <tr>
+                                <td>${v.username}</td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${v.ultimoAcceso != null}">
+                                            ${v.ultimoAcceso.format(formatoAcceso)}
+                                            <c:if test="${v.ultimoAccesoEsHoy()}">
+                                                <span class="badge bg-success ms-1">Hoy</span>
+                                            </c:if>
+                                        </c:when>
+                                        <c:otherwise><span class="text-muted">Nunca</span></c:otherwise>
+                                    </c:choose>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+                <c:if test="${empty equipoAccesos}">
+                    <p class="text-muted small px-3 pb-3 mb-0">Aun no tienes vendedores. Cuando entren al sistema, veras su ultimo acceso aqui.</p>
+                </c:if>
             </div>
         </div>
     </c:if>

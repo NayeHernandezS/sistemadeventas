@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.nhernandez.webapp.sistemaventas.models.Usuario;
 import org.nhernandez.webapp.sistemaventas.services.OnboardingService;
 import org.nhernandez.webapp.sistemaventas.services.SuscripcionService;
+import org.nhernandez.webapp.sistemaventas.services.UsuarioService;
 import org.nhernandez.webapp.sistemaventas.util.PlataformaUtil;
 import org.nhernandez.webapp.sistemaventas.util.RolUtil;
 import org.nhernandez.webapp.sistemaventas.util.TenantUtil;
@@ -21,11 +22,14 @@ public class TenantAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final SuscripcionService suscripcionService;
     private final OnboardingService onboardingService;
+    private final UsuarioService usuarioService;
 
     public TenantAuthenticationSuccessHandler(SuscripcionService suscripcionService,
-                                                OnboardingService onboardingService) {
+                                                OnboardingService onboardingService,
+                                                UsuarioService usuarioService) {
         this.suscripcionService = suscripcionService;
         this.onboardingService = onboardingService;
+        this.usuarioService = usuarioService;
         setDefaultTargetUrl("/inicio");
         setAlwaysUseDefaultTargetUrl(true);
     }
@@ -49,6 +53,7 @@ public class TenantAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         TenantUtil.inicializarSesion(request.getSession(), usuario);
+        usuarioService.registrarUltimoAcceso(usuario.getUsername());
 
         if (PlataformaUtil.esOperadorPlataforma(usuario)) {
             getRedirectStrategy().sendRedirect(request, response, request.getContextPath() + "/plataforma");

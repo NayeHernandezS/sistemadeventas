@@ -23,4 +23,6 @@ public interface UsuarioReposository {
     Usuario porIdDeTenant(Long id, String adminOwner) throws SQLException;
 
     List<ClienteCuenta> listarCuentasCliente() throws SQLException;
+
+    void registrarUltimoAcceso(String username) throws SQLException;
 }

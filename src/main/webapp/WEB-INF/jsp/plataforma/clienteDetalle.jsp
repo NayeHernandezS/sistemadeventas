@@ -43,6 +43,27 @@
                         <dd class="col-sm-7">${planNombre} (${cliente.planCodigo})</dd>
                         <dt class="col-sm-5">Vendedores</dt>
                         <dd class="col-sm-7">${cliente.cantidadVendedores}</dd>
+                        <dt class="col-sm-5">Ultimo acceso (negocio)</dt>
+                        <dd class="col-sm-7">
+                            <c:choose>
+                                <c:when test="${cliente.ultimoAccesoNegocio != null}">
+                                    ${cliente.ultimoAccesoNegocio.format(formatoFecha)}
+                                    <c:if test="${cliente.ultimoAccesoNegocioEsHoy()}">
+                                        <span class="badge bg-success ms-1">Hoy</span>
+                                    </c:if>
+                                </c:when>
+                                <c:otherwise><span class="text-muted">Sin registro</span></c:otherwise>
+                            </c:choose>
+                        </dd>
+                        <dt class="col-sm-5">Ultimo acceso (admin)</dt>
+                        <dd class="col-sm-7">
+                            <c:choose>
+                                <c:when test="${cliente.ultimoAcceso != null}">
+                                    ${cliente.ultimoAcceso.format(formatoFecha)}
+                                </c:when>
+                                <c:otherwise><span class="text-muted">Sin registro</span></c:otherwise>
+                            </c:choose>
+                        </dd>
                         <dt class="col-sm-5">Vence</dt>
                         <dd class="col-sm-7">
                             <c:choose>

@@ -266,4 +266,16 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new ServiceJdbcException(e.getMessage(), e.getCause());
         }
     }
+
+    @Override
+    public void registrarUltimoAcceso(String username) {
+        if (username == null || username.isBlank()) {
+            return;
+        }
+        try {
+            usuarioReposository.registrarUltimoAcceso(username);
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
+        }
+    }
 }

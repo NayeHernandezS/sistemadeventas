@@ -322,6 +322,8 @@ public class PerfilController {
             if (u.getAdminOwner() != null && !u.getAdminOwner().isBlank()) {
                 model.addAttribute("adminOwner", u.getAdminOwner());
             }
+            model.addAttribute("ultimoAcceso", u.getUltimoAcceso());
+            model.addAttribute("formatoAcceso", FORMATO);
         });
 
         model.addAttribute("tiposNegocio", TipoNegocioUtil.opciones());
@@ -341,6 +343,7 @@ public class PerfilController {
                 model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoService.disponible(tenant));
                 model.addAttribute("cfdiFacturamaPropio", cfdiTimbradoService.usaCredencialesTenant(tenant));
                 cargarPreferencias(tenant, model);
+                model.addAttribute("equipoAccesos", usuarioService.listarVendedoresDelTenant(tenant));
             } else {
                 usuarioService.porUsername(tenant).ifPresent(admin ->
                         model.addAttribute("tipoNegocioEtiqueta", TipoNegocioUtil.etiqueta(admin.getTipoNegocio())));

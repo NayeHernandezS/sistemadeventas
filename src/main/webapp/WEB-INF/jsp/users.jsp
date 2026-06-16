@@ -26,6 +26,7 @@
          <th>id</th>
          <th>username</th>
          <th>email</th>
+         <th>Ultimo acceso</th>
              <c:if test="${username.present}">
              <th>editar</th>
              <th>eliminar</th>
@@ -36,6 +37,17 @@
              <td>${u.id}</td>
              <td>${u.username}</td>
              <td>${u.email}</td>
+             <td>
+                 <c:choose>
+                     <c:when test="${u.ultimoAcceso != null}">
+                         ${u.ultimoAcceso.format(formatoAcceso)}
+                         <c:if test="${u.ultimoAccesoEsHoy()}">
+                             <span class="badge bg-success ms-1">Hoy</span>
+                         </c:if>
+                     </c:when>
+                     <c:otherwise><span class="text-muted">Nunca</span></c:otherwise>
+                 </c:choose>
+             </td>
              <c:if test="${username.present}">
                  <td><a class="btn btn-sm btn-success" href="${pageContext.request.contextPath}/usuarios/form?id=${u.id}">editar</a></td>
                  <td><a class="btn btn-sm btn-danger" onclick="return confirm('esta seguro que desea eliminar?');"
