@@ -19,6 +19,9 @@
     <h1 class="mb-0">Listado de productos</h1>
     <div class="d-flex flex-wrap gap-2">
         <a class="btn btn-sm btn-secondary" href="${pageContext.request.contextPath}/inicio">Volver</a>
+        <a class="btn btn-sm btn-primary d-lg-none" href="${pageContext.request.contextPath}/productos/caja">
+            <i class="bi bi-phone"></i> Caja rapida
+        </a>
         <a class="btn btn-sm btn-outline-success" href="${pageContext.request.contextPath}/carro/ver">Ver carro completo</a>
     </div>
 </div>

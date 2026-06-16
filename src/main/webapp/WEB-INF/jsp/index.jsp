@@ -125,7 +125,7 @@
                         </li>
                     </ul>
                     <c:if test="${not activacionNegocio.primeraVentaRegistrada}">
-                    <a href="${pageContext.request.contextPath}/productos" class="btn btn-primary btn-sm">
+                    <a href="${pageContext.request.contextPath}/productos/caja" class="btn btn-primary btn-sm">
                         <i class="bi bi-cart-plus"></i> Ir a cobrar
                     </a>
                     </c:if>
@@ -206,6 +206,13 @@
     </c:if>
 
     <div class="row g-4 justify-content-center text-center">
+
+        <div class="col-md-4 col-lg-3">
+            <div class="card h-100 menu-card p-4 border-start border-primary border-3">
+                <div class="icon-circle"><i class="bi bi-phone"></i></div>
+                <a href="${pageContext.request.contextPath}/productos/caja" class="menu-link stretched-link">Caja rapida</a>
+            </div>
+        </div>
 
         <div class="col-md-4 col-lg-3">
             <div class="card h-100 menu-card p-4">

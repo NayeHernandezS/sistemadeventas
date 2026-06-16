@@ -16,6 +16,38 @@
         contenedor.classList.remove('d-none');
     }
 
+    function actualizarBarraCobroMovil(data) {
+        var barra = document.getElementById('caja-barra-cobro');
+        if (!barra || !data) {
+            return;
+        }
+        var totalEl = barra.querySelector('[data-caja-total]');
+        var cantEl = barra.querySelector('[data-caja-cantidad]');
+        var cobrar = barra.querySelector('[data-caja-cobrar]');
+        if (totalEl) {
+            totalEl.textContent = data.totalCarro;
+        }
+        if (cantEl) {
+            cantEl.textContent = data.cantidadItems;
+        }
+        if (cobrar) {
+            var vacio = !data.cantidadItems || data.cantidadItems <= 0;
+            cobrar.classList.toggle('disabled', vacio);
+            cobrar.setAttribute('aria-disabled', vacio ? 'true' : 'false');
+        }
+        actualizarBadgeNavCarro(data.cantidadItems);
+    }
+
+    function actualizarBadgeNavCarro(cantidad) {
+        var badge = document.getElementById('nav-carro-badge');
+        if (!badge) {
+            return;
+        }
+        var n = cantidad || 0;
+        badge.textContent = n > 99 ? '99+' : String(n);
+        badge.classList.toggle('d-none', n <= 0);
+    }
+
     function actualizarResumen(panel, data) {
         var totalEl = panel.querySelector('[data-carro-total]');
         var cantEl = panel.querySelector('[data-carro-cantidad]');
@@ -81,6 +113,7 @@
 
         actualizarResumen(panel, data);
         alternarVacio(panel, data.cantidadItems);
+        actualizarBarraCobroMovil(data);
 
         if (!data.ok || !data.productoId) {
             return;
@@ -131,7 +164,7 @@
 
         var params = new URLSearchParams();
         params.set('id', id);
-        params.set('origen', 'productos');
+        params.set('origen', enlace.getAttribute('data-origen') || 'productos');
 
         fetch(urlApiAgregar(basePath) + '?' + params.toString(), {
             method: 'GET',

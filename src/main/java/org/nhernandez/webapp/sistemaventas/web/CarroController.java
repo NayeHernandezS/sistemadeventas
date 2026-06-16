@@ -251,6 +251,9 @@ public class CarroController {
         if ("productos".equals(origen)) {
             return "redirect:/productos#catalogo";
         }
+        if ("caja".equals(origen)) {
+            return "redirect:/productos/caja";
+        }
         return "redirect:/carro/ver";
     }
 
@@ -269,6 +272,12 @@ public class CarroController {
                 req.getSession().setAttribute("mensajeExito", "Carro actualizado.");
             }
             return "redirect:/productos#catalogo";
+        }
+        if ("caja".equals(req.getParameter("origen"))) {
+            if (req.getSession().getAttribute("mensajeError") == null) {
+                req.getSession().setAttribute("mensajeExito", "Carro actualizado.");
+            }
+            return "redirect:/productos/caja";
         }
         return "redirect:/carro/ver";
     }

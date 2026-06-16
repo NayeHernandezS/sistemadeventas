@@ -298,7 +298,7 @@
             <span class="fw-bold fs-5 text-primary mb-0">$${carro.total}</span>
         </div>
         <div class="d-grid gap-2" style="grid-template-columns: 1fr 1fr;">
-            <a class="btn btn-outline-primary" href="${pageContext.request.contextPath}/productos">
+            <a class="btn btn-outline-primary" href="${pageContext.request.contextPath}/productos/caja">
                 Seguir vendiendo
             </a>
             <button type="submit" form="formFinalizar" class="btn btn-success fw-semibold">

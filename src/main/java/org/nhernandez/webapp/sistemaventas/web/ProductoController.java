@@ -58,6 +58,17 @@ public class ProductoController {
 
     @GetMapping({"/productos", "/productos.html"})
     public String listarVentas(HttpServletRequest req, Model model) {
+        prepararCatalogoVentas(req, model);
+        return "listar";
+    }
+
+    @GetMapping("/productos/caja")
+    public String cajaMovil(HttpServletRequest req, Model model) {
+        prepararCatalogoVentas(req, model);
+        return "cajaMovil";
+    }
+
+    private void prepararCatalogoVentas(HttpServletRequest req, Model model) {
         String tenant = TenantUtil.getTenantOwner(req);
         boolean esAdmin = RolUtil.esAdmin(req);
         List<Producto> productos = service.listarPorOwner(tenant);
@@ -69,7 +80,6 @@ public class ProductoController {
         model.addAttribute("esAdmin", esAdmin);
         model.addAttribute("logueado", auth.getUsername(req).isPresent());
         agregarAlertasStock(model, productos, tenant);
-        return "listar";
     }
 
     @GetMapping({"/crudprod", "/crudprod.html"})
