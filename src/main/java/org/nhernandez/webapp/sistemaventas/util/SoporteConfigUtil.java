@@ -15,7 +15,8 @@ public final class SoporteConfigUtil {
     }
 
     public static String whatsapp() {
-        return prop("soporte.whatsapp", "");
+        String v = prop("soporte.whatsapp", "527352713050");
+        return v.isBlank() ? "527352713050" : v;
     }
 
     public static String whatsappMensaje() {
