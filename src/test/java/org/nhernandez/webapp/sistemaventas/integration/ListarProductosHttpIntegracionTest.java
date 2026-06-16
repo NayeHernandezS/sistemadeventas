@@ -88,4 +88,14 @@ class ListarProductosHttpIntegracionTest extends IntegrationTestBase {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/productos#catalogo"));
     }
+
+    @Test
+    @WithMockUser(username = "tienda1", roles = "ADMIN")
+    void carroVer_conSesion_respondeOkSinError500() throws Exception {
+        mockMvc.perform(get("/carro/ver")
+                        .with(user("tienda1").roles("ADMIN"))
+                        .with(sesionTenant("tienda1", "ADMIN", "tienda1")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("carro"));
+    }
 }

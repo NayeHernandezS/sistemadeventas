@@ -65,12 +65,36 @@ public class CarroController {
     public String verCarro(HttpServletRequest req, Model model) {
         String tenant = TenantUtil.getTenantOwner(req);
         if (tenant != null) {
-            model.addAttribute("clientes", clienteService.listarActivos(tenant));
-            cargarPrefillFactura(req, model, tenant);
+            model.addAttribute("clientes", listarClientesSeguro(tenant));
+            cargarPrefillFacturaSeguro(req, model, tenant);
         }
         model.addAttribute("esAdmin", RolUtil.esAdmin(req));
-        model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoService.disponible());
+        model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoDisponibleSeguro());
         return "carro";
+    }
+
+    private List<Cliente> listarClientesSeguro(String tenant) {
+        try {
+            return clienteService.listarActivos(tenant);
+        } catch (ServiceJdbcException e) {
+            return List.of();
+        }
+    }
+
+    private void cargarPrefillFacturaSeguro(HttpServletRequest req, Model model, String tenant) {
+        try {
+            cargarPrefillFactura(req, model, tenant);
+        } catch (ServiceJdbcException ignored) {
+            // Prefill opcional: el carro debe mostrarse aunque falle la consulta fiscal
+        }
+    }
+
+    private boolean cfdiTimbradoDisponibleSeguro() {
+        try {
+            return cfdiTimbradoService.disponible();
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     @GetMapping("/agregar")

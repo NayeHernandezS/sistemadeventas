@@ -26,7 +26,22 @@ public class WebExceptionHandler {
         }
 
         req.getSession().setAttribute("mensajeError", mensajeSeguro(ex));
-        return "redirect:/inicio";
+        return "redirect:" + destinoTrasError(req);
+    }
+
+    private static String destinoTrasError(HttpServletRequest req) {
+        String uri = req.getRequestURI();
+        String ctx = req.getContextPath();
+        if (uri != null && ctx != null && !ctx.isEmpty() && uri.startsWith(ctx)) {
+            uri = uri.substring(ctx.length());
+        }
+        if (uri == null || uri.isEmpty()) {
+            uri = "/";
+        }
+        if (uri.startsWith("/carro") || uri.startsWith("/productos")) {
+            return "/productos";
+        }
+        return "/inicio";
     }
 
     private static String mensajeSeguro(ServiceJdbcException ex) {
