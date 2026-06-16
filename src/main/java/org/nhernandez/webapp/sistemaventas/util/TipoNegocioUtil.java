@@ -68,6 +68,11 @@ public final class TipoNegocioUtil {
         };
     }
 
+    /** Rubro con modulo de recetas, costos y margen por platillo. */
+    public static boolean esRestaurante(String codigo) {
+        return "restaurante".equals(normalizar(codigo));
+    }
+
     private static String normalizar(String codigo) {
         if (codigo == null || codigo.isBlank()) {
             return "otro";

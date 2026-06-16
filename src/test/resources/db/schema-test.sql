@@ -131,3 +131,17 @@ CREATE TABLE IF NOT EXISTS persistent_logins (
     token VARCHAR(64) NOT NULL,
     last_used TIMESTAMP NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS recetas (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tenant_owner VARCHAR(100) NOT NULL,
+    producto_id BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS receta_lineas (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    receta_id BIGINT NOT NULL,
+    insumo_producto_id BIGINT NOT NULL,
+    cantidad DECIMAL(12, 4) NOT NULL,
+    unidad VARCHAR(20) NOT NULL DEFAULT 'pza'
+);

@@ -76,6 +76,7 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/usuarios/**"),
                                 new AntPathRequestMatcher("/admin/**"),
                                 new AntPathRequestMatcher("/categorias/**"),
+                                new AntPathRequestMatcher("/recetas/**"),
                                 new AntPathRequestMatcher("/clientes/form"),
                                 new AntPathRequestMatcher("/clientes/form/**"),
                                 new AntPathRequestMatcher("/clientes/eliminar"),

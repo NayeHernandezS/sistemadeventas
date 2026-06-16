@@ -196,6 +196,15 @@
         </div>
         </c:if>
 
+        <c:if test="${mostrarRecetasRestaurante}">
+        <div class="col-md-4 col-lg-3">
+            <div class="card h-100 menu-card p-4 border-start border-danger border-3">
+                <div class="icon-circle"><i class="bi bi-journal-richtext"></i></div>
+                <a href="${pageContext.request.contextPath}/recetas" class="menu-link stretched-link">Recetas y costos</a>
+            </div>
+        </div>
+        </c:if>
+
         <c:if test="${sessionScope.rol eq 'ADMIN'}">
         <div class="col-md-4 col-lg-3">
             <div class="card h-100 menu-card p-4 border-start border-success border-3">

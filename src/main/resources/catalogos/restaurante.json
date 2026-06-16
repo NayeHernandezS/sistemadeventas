@@ -210,6 +210,48 @@
       "categoria": "Desechables",
       "precio": 2,
       "existencias": 10
+    },
+    {
+      "nombre": "Tostada sencilla",
+      "sku": "RE045",
+      "categoria": "Comida",
+      "precio": 45,
+      "existencias": 10
+    },
+    {
+      "nombre": "Burrito frijol",
+      "sku": "RE046",
+      "categoria": "Comida",
+      "precio": 55,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pambazo",
+      "sku": "RE047",
+      "categoria": "Comida",
+      "precio": 50,
+      "existencias": 10
+    },
+    {
+      "nombre": "Tortilla maiz pza",
+      "sku": "RE048",
+      "categoria": "Insumos",
+      "precio": 2,
+      "existencias": 100
+    },
+    {
+      "nombre": "Frijol refrito kg",
+      "sku": "RE049",
+      "categoria": "Insumos",
+      "precio": 35,
+      "existencias": 10
+    },
+    {
+      "nombre": "Pan pambazo pza",
+      "sku": "RE050",
+      "categoria": "Insumos",
+      "precio": 8,
+      "existencias": 20
     }
   ]
 }

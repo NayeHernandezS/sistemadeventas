@@ -53,6 +53,7 @@ public class IndexController {
             return "redirect:/plataforma";
         }
         agregarVisibilidadAgenda(req, model);
+        agregarVisibilidadRecetas(req, model);
         if (RolUtil.esAdmin(req)) {
             String tenant = TenantUtil.getTenantOwner(req);
             if (onboardingService.requiereOnboarding(tenant)) {
@@ -95,6 +96,19 @@ public class IndexController {
                 .map(u -> TipoNegocioUtil.tieneOpcionServicios(u.getTipoNegocio()))
                 .orElse(false);
         model.addAttribute("mostrarAgendaServicios", mostrar);
+    }
+
+    private void agregarVisibilidadRecetas(HttpServletRequest req, Model model) {
+        boolean mostrar = false;
+        if (RolUtil.esAdmin(req)) {
+            String tenant = TenantUtil.getTenantOwner(req);
+            if (tenant != null && !tenant.isBlank()) {
+                mostrar = usuarioService.porUsername(tenant)
+                        .map(u -> TipoNegocioUtil.esRestaurante(u.getTipoNegocio()))
+                        .orElse(false);
+            }
+        }
+        model.addAttribute("mostrarRecetasRestaurante", mostrar);
     }
 
     @GetMapping("/index.jsp")
