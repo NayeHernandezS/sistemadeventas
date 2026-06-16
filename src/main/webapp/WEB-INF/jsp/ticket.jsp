@@ -37,6 +37,9 @@
                 <p><strong>Folio:</strong> ${ticket.folio}</p>
                 <p><strong>Fecha:</strong> ${ticket.fechaVenta.format(fmtFecha)}</p>
                 <p><strong>Vendedor:</strong> ${ticket.usernameVendedor}</p>
+                <c:if test="${ticket.tieneNombreCliente}">
+                    <p><strong>Cliente:</strong> ${ticket.nombreCliente}</p>
+                </c:if>
                 <p>
                     <strong>Estado:</strong>
                     <c:choose>

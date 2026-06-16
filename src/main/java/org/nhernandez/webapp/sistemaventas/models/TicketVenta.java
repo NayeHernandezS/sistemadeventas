@@ -13,6 +13,7 @@ public class TicketVenta {
     private int total;
     /** ACTIVO, DEVUELTO_PARCIAL, DEVUELTO_TOTAL */
     private String estado = "ACTIVO";
+    private String nombreCliente;
     private List<TicketItem> items = new ArrayList<>();
 
     public Long getId() {
@@ -77,6 +78,23 @@ public class TicketVenta {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public String getNombreCliente() {
+        return nombreCliente;
+    }
+
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
+    }
+
+    public boolean tieneNombreCliente() {
+        return nombreCliente != null && !nombreCliente.isBlank();
+    }
+
+    /** Expuesto para EL/JSP ({@code ${ticket.tieneNombreCliente}}). */
+    public boolean getTieneNombreCliente() {
+        return tieneNombreCliente();
     }
 
     public boolean permiteDevolucion() {

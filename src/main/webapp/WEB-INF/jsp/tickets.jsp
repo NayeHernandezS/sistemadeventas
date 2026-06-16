@@ -31,6 +31,7 @@
                     <tr>
                         <th>Folio</th>
                         <th>Fecha</th>
+                        <th>Cliente</th>
                         <th>Vendedor</th>
                         <th class="text-end">Total</th>
                         <th>Estado</th>
@@ -42,6 +43,12 @@
                         <tr>
                             <td><strong>${ticket.folio}</strong></td>
                             <td>${ticket.fechaVenta}</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${ticket.tieneNombreCliente}">${ticket.nombreCliente}</c:when>
+                                    <c:otherwise><span class="text-muted">—</span></c:otherwise>
+                                </c:choose>
+                            </td>
                             <td>${ticket.usernameVendedor}</td>
                             <td class="text-end">$${ticket.total}</td>
                             <td>

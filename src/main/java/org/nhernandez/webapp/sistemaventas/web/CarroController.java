@@ -295,6 +295,7 @@ public class CarroController {
         String direccion = limpiar(req.getParameter("direccionFactura"));
         String usoCfdi = limpiar(req.getParameter("usoCfdi"));
         String codigoPostalReceptor = limpiar(req.getParameter("codigoPostalReceptor"));
+        String nombreCliente = normalizarNombreCliente(req.getParameter("nombreCliente"));
 
         String tenant = TenantUtil.getTenantOwner(req);
 
@@ -313,7 +314,7 @@ public class CarroController {
             return;
         }
 
-        TicketVenta ticket = construirTicket(carro, usernameOpt.get(), tenant);
+        TicketVenta ticket = construirTicket(carro, usernameOpt.get(), tenant, nombreCliente);
         Factura factura = null;
         if (requiereFactura) {
             factura = new Factura();
@@ -385,6 +386,20 @@ public class CarroController {
         return s == null ? "" : s.trim();
     }
 
+    private static String normalizarNombreCliente(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String limpio = raw.trim();
+        if (limpio.isEmpty()) {
+            return null;
+        }
+        if (limpio.length() > 200) {
+            return limpio.substring(0, 200);
+        }
+        return limpio;
+    }
+
     private String validarDatosFactura(String tenant, String rfc, String razonSocial, String codigoPostalReceptor) {
         if (razonSocial.isBlank()) {
             return "Para facturar indique la razón social o nombre del cliente.";
@@ -407,13 +422,16 @@ public class CarroController {
         return "FAC-" + timestamp + "-" + sufijo;
     }
 
-    private TicketVenta construirTicket(Carro carro, String username, String tenantOwner) {
+    private TicketVenta construirTicket(Carro carro, String username, String tenantOwner, String nombreCliente) {
         TicketVenta ticket = new TicketVenta();
         ticket.setFolio(generarFolio());
         ticket.setFechaVenta(LocalDateTime.now());
         ticket.setUsernameVendedor(username);
         ticket.setTenantOwner(tenantOwner);
         ticket.setTotal(carro.getTotal());
+        if (nombreCliente != null && !nombreCliente.isBlank()) {
+            ticket.setNombreCliente(nombreCliente);
+        }
 
         List<TicketItem> detalle = new ArrayList<>();
         for (ItemCarro itemCarro : carro.getItems()) {
@@ -441,6 +459,7 @@ public class CarroController {
             clienteService.porId(tenant, clienteId).ifPresent(cliente -> {
                 model.addAttribute("facturaDefaults", prefillDesdeCliente(cliente));
                 model.addAttribute("clienteIdSeleccionado", clienteId);
+                model.addAttribute("nombreClientePrefill", cliente.getNombre());
                 model.addAttribute("prefillOrigen", "cliente");
             });
             return;

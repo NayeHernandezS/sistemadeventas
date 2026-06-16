@@ -24,6 +24,9 @@ import java.util.List;
 @Repository
 public class TicketRepositoryJdbcImpl implements TicketRepository {
 
+    private static final String COLUMNAS_TICKET =
+            "id, folio, username_vendedor, tenant_owner, fecha_venta, total, nombre_cliente, estado";
+
     @Autowired
     @MysqlConn
     private Connection conn;
@@ -50,7 +53,7 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
 
     @Override
     public List<TicketVenta> listarPorVendedor(String usernameVendedor) throws SQLException {
-        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta where username_vendedor = ? order by fecha_venta desc";
+        String sql = "select " + COLUMNAS_TICKET + " from tickets_venta where username_vendedor = ? order by fecha_venta desc";
         List<TicketVenta> tickets = new ArrayList<>();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, usernameVendedor);
@@ -69,12 +72,12 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
     public List<TicketVenta> listarRecientesPorVendedor(String usernameVendedor, int limite) throws SQLException {
         int max = limite > 0 ? limite : 5;
         String sql = """
-                SELECT id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado
+                SELECT %s
                 FROM tickets_venta
                 WHERE username_vendedor = ?
                 ORDER BY fecha_venta DESC
                 LIMIT ?
-                """;
+                """.formatted(COLUMNAS_TICKET);
         List<TicketVenta> tickets = new ArrayList<>();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, usernameVendedor);
@@ -114,7 +117,7 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
 
     @Override
     public List<TicketVenta> listarPorTenant(String tenantOwner) throws SQLException {
-        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta "
+        String sql = "select " + COLUMNAS_TICKET + " from tickets_venta "
                 + "where tenant_owner = ? order by fecha_venta desc";
         List<TicketVenta> tickets = new ArrayList<>();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -132,7 +135,7 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
 
     @Override
     public TicketVenta porFolioDeTenant(String folio, String tenantOwner) throws SQLException {
-        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta "
+        String sql = "select " + COLUMNAS_TICKET + " from tickets_venta "
                 + "where folio = ? and tenant_owner = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, folio);
@@ -150,7 +153,7 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
 
     @Override
     public TicketVenta porIdDeTenant(Long id, String tenantOwner) throws SQLException {
-        String sql = "select id, folio, username_vendedor, tenant_owner, fecha_venta, total, estado from tickets_venta "
+        String sql = "select " + COLUMNAS_TICKET + " from tickets_venta "
                 + "where id = ? and tenant_owner = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, id);
@@ -238,8 +241,8 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
     }
 
     private void insertarTicket(TicketVenta ticket) throws SQLException {
-        String sql = "insert into tickets_venta (folio, username_vendedor, tenant_owner, fecha_venta, total, estado) "
-                + "values (?, ?, ?, ?, ?, ?)";
+        String sql = "insert into tickets_venta (folio, username_vendedor, tenant_owner, fecha_venta, total, nombre_cliente, estado) "
+                + "values (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, ticket.getFolio());
             stmt.setString(2, ticket.getUsernameVendedor());
@@ -250,7 +253,12 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
                 stmt.setNull(4, Types.TIMESTAMP);
             }
             stmt.setInt(5, ticket.getTotal());
-            stmt.setString(6, ticket.getEstado() != null ? ticket.getEstado() : "ACTIVO");
+            if (ticket.getNombreCliente() != null && !ticket.getNombreCliente().isBlank()) {
+                stmt.setString(6, ticket.getNombreCliente().trim());
+            } else {
+                stmt.setNull(6, Types.VARCHAR);
+            }
+            stmt.setString(7, ticket.getEstado() != null ? ticket.getEstado() : "ACTIVO");
             stmt.executeUpdate();
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -309,6 +317,11 @@ public class TicketRepositoryJdbcImpl implements TicketRepository {
         Timestamp timestamp = rs.getTimestamp("fecha_venta");
         ticket.setFechaVenta(timestamp != null ? timestamp.toLocalDateTime() : null);
         ticket.setTotal(rs.getInt("total"));
+        try {
+            ticket.setNombreCliente(rs.getString("nombre_cliente"));
+        } catch (SQLException ignored) {
+            ticket.setNombreCliente(null);
+        }
         try {
             ticket.setEstado(rs.getString("estado"));
         } catch (SQLException ignored) {

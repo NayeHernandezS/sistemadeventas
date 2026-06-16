@@ -155,6 +155,12 @@
                 <c:if test="${not empty clienteIdSeleccionado}">
                     <input type="hidden" name="clienteId" value="${clienteIdSeleccionado}">
                 </c:if>
+                <div class="mb-3">
+                    <label class="form-label" for="nombreCliente">Nombre del cliente <span class="text-muted">(opcional)</span></label>
+                    <input class="form-control" type="text" name="nombreCliente" id="nombreCliente" maxlength="200"
+                           placeholder="Ej. Juan Perez" value="${nombreClientePrefill}">
+                    <div class="form-text">Aparecera en el ticket. No es necesario si no lo conoces.</div>
+                </div>
                 <div class="card border-secondary-subtle">
                     <div class="card-header p-0 bg-light">
                         <button id="btnPanelFactura" type="button"
