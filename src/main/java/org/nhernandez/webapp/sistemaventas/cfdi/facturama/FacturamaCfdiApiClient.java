@@ -2,10 +2,8 @@ package org.nhernandez.webapp.sistemaventas.cfdi.facturama;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.nhernandez.webapp.sistemaventas.cfdi.CfdiException;
-import org.nhernandez.webapp.sistemaventas.config.CfdiProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -13,17 +11,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 
-@Component
 public class FacturamaCfdiApiClient {
 
     private final RestClient restClient;
-    private final CfdiProperties properties;
 
-    public FacturamaCfdiApiClient(CfdiProperties properties) {
-        this.properties = properties;
+    public FacturamaCfdiApiClient(String baseUrl, String username, String password) {
         this.restClient = RestClient.builder()
-                .baseUrl(properties.baseUrl())
-                .defaultHeader(HttpHeaders.AUTHORIZATION, basicAuth(properties))
+                .baseUrl(baseUrl)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, basicAuth(username, password))
                 .build();
     }
 
@@ -105,8 +100,8 @@ public class FacturamaCfdiApiClient {
         return e.getStatusCode() + " " + e.getStatusText();
     }
 
-    private static String basicAuth(CfdiProperties properties) {
-        String raw = properties.getFacturamaUsername() + ":" + properties.getFacturamaPassword();
+    private static String basicAuth(String username, String password) {
+        String raw = username + ":" + password;
         return "Basic " + Base64.getEncoder().encodeToString(raw.getBytes(StandardCharsets.UTF_8));
     }
 

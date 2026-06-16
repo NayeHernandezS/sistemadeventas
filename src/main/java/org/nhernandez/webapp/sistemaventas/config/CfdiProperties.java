@@ -9,6 +9,7 @@ public class CfdiProperties {
     private String facturamaUsername = "";
     private String facturamaPassword = "";
     private boolean facturamaSandbox = true;
+    private String encryptionKey = "";
 
     public boolean habilitado() {
         if (enabled != null) {
@@ -52,5 +53,13 @@ public class CfdiProperties {
 
     public String baseUrl() {
         return facturamaSandbox ? "https://apisandbox.facturama.mx" : "https://api.facturama.mx";
+    }
+
+    public String getEncryptionKey() {
+        return encryptionKey;
+    }
+
+    public void setEncryptionKey(String encryptionKey) {
+        this.encryptionKey = encryptionKey != null ? encryptionKey : "";
     }
 }

@@ -5,9 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.nhernandez.webapp.sistemaventas.cfdi.CfdiCredentials;
 import org.nhernandez.webapp.sistemaventas.cfdi.CfdiException;
 import org.nhernandez.webapp.sistemaventas.cfdi.facturama.FacturamaCfdiApiClient;
-import org.nhernandez.webapp.sistemaventas.config.CfdiProperties;
+import org.nhernandez.webapp.sistemaventas.cfdi.facturama.FacturamaCfdiClientFactory;
 import org.nhernandez.webapp.sistemaventas.models.DatosFiscalesNegocio;
 import org.nhernandez.webapp.sistemaventas.models.Factura;
 import org.nhernandez.webapp.sistemaventas.models.TicketItem;
@@ -17,6 +18,7 @@ import org.nhernandez.webapp.sistemaventas.repositories.FacturaRepository;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,7 +31,10 @@ import static org.mockito.Mockito.when;
 class CfdiTimbradoServiceImplTest {
 
     @Mock
-    private CfdiProperties cfdiProperties;
+    private TenantCfdiCredentialsResolver credentialsResolver;
+
+    @Mock
+    private FacturamaCfdiClientFactory clientFactory;
 
     @Mock
     private FacturamaCfdiApiClient facturamaClient;
@@ -45,7 +50,7 @@ class CfdiTimbradoServiceImplTest {
 
     @Test
     void reintentarTimbrar_rechazaSiCfdiNoConfigurado() {
-        when(cfdiProperties.habilitado()).thenReturn(false);
+        when(credentialsResolver.disponible("tienda1")).thenReturn(false);
 
         assertThrows(ServiceJdbcException.class,
                 () -> service.reintentarTimbrar("tienda1", ticketConItems(), facturaPendiente()));
@@ -53,7 +58,7 @@ class CfdiTimbradoServiceImplTest {
 
     @Test
     void reintentarTimbrar_rechazaSiYaTimbrada() {
-        when(cfdiProperties.habilitado()).thenReturn(true);
+        when(credentialsResolver.disponible("tienda1")).thenReturn(true);
         Factura factura = facturaPendiente();
         factura.setCfdiEstado("TIMBRADO");
         factura.setCfdiUuid("UUID-123");
@@ -64,14 +69,11 @@ class CfdiTimbradoServiceImplTest {
 
     @Test
     void reintentarTimbrar_devuelveMensajeErrorSiFallaTimbrado() throws SQLException {
-        when(cfdiProperties.habilitado()).thenReturn(true);
-        DatosFiscalesNegocio emisor = new DatosFiscalesNegocio();
-        emisor.setRfc("XAXX010101000");
-        emisor.setRazonSocial("Emisor");
-        emisor.setCodigoPostal("01000");
-        emisor.setRegimenFiscal("601");
+        when(credentialsResolver.disponible("tienda1")).thenReturn(true);
+        when(credentialsResolver.resolver("tienda1")).thenReturn(Optional.of(credenciales()));
+        when(clientFactory.crear(any())).thenReturn(facturamaClient);
+        DatosFiscalesNegocio emisor = emisorListo();
         when(datosFiscalesRepository.porTenant("tienda1")).thenReturn(emisor);
-
         when(facturamaClient.timbrar(any())).thenThrow(new CfdiException("RFC receptor invalido"));
 
         Factura factura = facturaPendiente();
@@ -86,13 +88,10 @@ class CfdiTimbradoServiceImplTest {
 
     @Test
     void reintentarTimbrar_exitosoCuandoFacturamaResponde() throws Exception {
-        when(cfdiProperties.habilitado()).thenReturn(true);
-        DatosFiscalesNegocio emisor = new DatosFiscalesNegocio();
-        emisor.setRfc("XAXX010101000");
-        emisor.setRazonSocial("Emisor SA");
-        emisor.setCodigoPostal("01000");
-        emisor.setRegimenFiscal("601");
-        when(datosFiscalesRepository.porTenant("tienda1")).thenReturn(emisor);
+        when(credentialsResolver.disponible("tienda1")).thenReturn(true);
+        when(credentialsResolver.resolver("tienda1")).thenReturn(Optional.of(credenciales()));
+        when(clientFactory.crear(any())).thenReturn(facturamaClient);
+        when(datosFiscalesRepository.porTenant("tienda1")).thenReturn(emisorListo());
         when(facturamaClient.timbrar(any())).thenReturn(
                 new FacturamaCfdiApiClient.CfdiTimbradoRespuesta("prov-1", "UUID-OK"));
 
@@ -104,6 +103,19 @@ class CfdiTimbradoServiceImplTest {
         assertTrue(mensaje.contains("timbrado correctamente"));
         assertEquals("TIMBRADO", factura.getCfdiEstado());
         assertEquals("UUID-OK", factura.getCfdiUuid());
+    }
+
+    private static CfdiCredentials credenciales() {
+        return new CfdiCredentials("user", "pass", true);
+    }
+
+    private static DatosFiscalesNegocio emisorListo() {
+        DatosFiscalesNegocio emisor = new DatosFiscalesNegocio();
+        emisor.setRfc("XAXX010101000");
+        emisor.setRazonSocial("Emisor");
+        emisor.setCodigoPostal("01000");
+        emisor.setRegimenFiscal("601");
+        return emisor;
     }
 
     private static Factura facturaPendiente() {

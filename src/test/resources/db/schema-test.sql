@@ -99,7 +99,11 @@ CREATE TABLE IF NOT EXISTS datos_fiscales_negocio (
     direccion VARCHAR(255) NULL,
     uso_cfdi VARCHAR(10) NULL,
     codigo_postal VARCHAR(10) NULL,
-    regimen_fiscal VARCHAR(10) NULL
+    regimen_fiscal VARCHAR(10) NULL,
+    facturama_username VARCHAR(150) NULL,
+    facturama_password_enc VARCHAR(512) NULL,
+    facturama_sandbox TINYINT NOT NULL DEFAULT 1,
+    cfdi_habilitado TINYINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS facturas (

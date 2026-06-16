@@ -149,13 +149,14 @@ public class TicketReporteController {
             return null;
         }
         TicketVenta ticket = ticketOpt.get();
+        String tenant = TenantUtil.getTenantOwner(req);
         Factura factura = facturaRepository.porTicketId(ticket.getId());
         model.addAttribute("ticket", ticket);
         model.addAttribute("factura", factura);
-        model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoService.disponible());
+        model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoService.disponible(tenant));
+        model.addAttribute("cfdiFacturamaPropio", cfdiTimbradoService.usaCredencialesTenant(tenant));
         model.addAttribute("esAdmin", RolUtil.esAdmin(req));
         if (factura != null && factura.getClienteId() != null && factura.getClienteId() > 0) {
-            String tenant = TenantUtil.getTenantOwner(req);
             clienteService.porId(tenant, factura.getClienteId())
                     .ifPresent(c -> model.addAttribute("clienteCatalogo", c));
         }
@@ -174,9 +175,10 @@ public class TicketReporteController {
                     "Solo el administrador puede reintentar el timbrado CFDI.");
             return null;
         }
-        if (!cfdiTimbradoService.disponible()) {
+        String tenant = TenantUtil.getTenantOwner(req);
+        if (!cfdiTimbradoService.disponible(tenant)) {
             req.getSession().setAttribute("mensajeCfdi",
-                    "Timbrado CFDI no configurado en el servidor.");
+                    "Timbrado CFDI no configurado. Conecta tu cuenta Facturama en Mi perfil.");
             return redirectFactura(req, req.getParameter("folioTicket"));
         }
 
@@ -191,7 +193,6 @@ public class TicketReporteController {
             return redirectFactura(req, ticket.getFolio());
         }
 
-        String tenant = TenantUtil.getTenantOwner(req);
         aplicarCorreccionesReceptor(req, factura, tenant);
 
         try {
@@ -263,6 +264,7 @@ public class TicketReporteController {
 
     @GetMapping("/factura/cfdi/pdf")
     public void facturaCfdiPdf(HttpServletRequest req, HttpServletResponse resp) throws IOException, SQLException {
+        String tenant = TenantUtil.getTenantOwner(req);
         Optional<TicketVenta> ticketOpt = cargarTicket(req, resp);
         if (ticketOpt.isEmpty()) {
             return;
@@ -273,7 +275,7 @@ public class TicketReporteController {
             return;
         }
         try {
-            byte[] pdf = cfdiTimbradoService.descargarPdfTimbrado(factura);
+            byte[] pdf = cfdiTimbradoService.descargarPdfTimbrado(tenant, factura);
             String nombre = "cfdi-" + (factura.getCfdiUuid() != null ? factura.getCfdiUuid() : factura.getFolioFactura()) + ".pdf";
             resp.setContentType("application/pdf");
             resp.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + "\"");
@@ -287,6 +289,7 @@ public class TicketReporteController {
 
     @GetMapping("/factura/cfdi/xml")
     public void facturaCfdiXml(HttpServletRequest req, HttpServletResponse resp) throws IOException, SQLException {
+        String tenant = TenantUtil.getTenantOwner(req);
         Optional<TicketVenta> ticketOpt = cargarTicket(req, resp);
         if (ticketOpt.isEmpty()) {
             return;
@@ -297,7 +300,7 @@ public class TicketReporteController {
             return;
         }
         try {
-            byte[] xml = cfdiTimbradoService.descargarXmlTimbrado(factura);
+            byte[] xml = cfdiTimbradoService.descargarXmlTimbrado(tenant, factura);
             String nombre = "cfdi-" + (factura.getCfdiUuid() != null ? factura.getCfdiUuid() : factura.getFolioFactura()) + ".xml";
             resp.setContentType("application/xml");
             resp.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + "\"");

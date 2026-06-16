@@ -69,7 +69,7 @@ public class CarroController {
             cargarPrefillFacturaSeguro(req, model, tenant);
         }
         model.addAttribute("esAdmin", RolUtil.esAdmin(req));
-        model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoDisponibleSeguro());
+        model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoDisponibleSeguro(tenant));
         return "carro";
     }
 
@@ -89,9 +89,12 @@ public class CarroController {
         }
     }
 
-    private boolean cfdiTimbradoDisponibleSeguro() {
+    private boolean cfdiTimbradoDisponibleSeguro(String tenant) {
+        if (tenant == null || tenant.isBlank()) {
+            return false;
+        }
         try {
-            return cfdiTimbradoService.disponible();
+            return cfdiTimbradoService.disponible(tenant);
         } catch (RuntimeException e) {
             return false;
         }
@@ -293,8 +296,10 @@ public class CarroController {
         String usoCfdi = limpiar(req.getParameter("usoCfdi"));
         String codigoPostalReceptor = limpiar(req.getParameter("codigoPostalReceptor"));
 
+        String tenant = TenantUtil.getTenantOwner(req);
+
         if (requiereFactura) {
-            String error = validarDatosFactura(rfc, razonSocial, codigoPostalReceptor);
+            String error = validarDatosFactura(tenant, rfc, razonSocial, codigoPostalReceptor);
             if (error != null) {
                 req.getSession().setAttribute("mensajeError", error);
                 resp.sendRedirect(req.getContextPath() + "/carro/ver");
@@ -302,7 +307,6 @@ public class CarroController {
             }
         }
 
-        String tenant = TenantUtil.getTenantOwner(req);
         if (clienteId > 0 && clienteService.porId(tenant, clienteId).isEmpty()) {
             req.getSession().setAttribute("mensajeError", "El cliente seleccionado no es valido.");
             resp.sendRedirect(req.getContextPath() + "/carro/ver");
@@ -341,7 +345,7 @@ public class CarroController {
                 msg += " CFDI timbrado (UUID " + factura.getCfdiUuid() + ").";
             } else if ("ERROR".equalsIgnoreCase(factura.getCfdiEstado())) {
                 msg += " Factura registrada; el timbrado CFDI fallo: " + factura.getCfdiMensaje();
-            } else if (cfdiTimbradoService.disponible()) {
+            } else if (cfdiTimbradoService.disponible(tenant)) {
                 msg += " Factura registrada; revisa el estado del CFDI en Tickets.";
             } else {
                 msg += " Comprobante informativo emitido; consultalo en Tickets.";
@@ -381,7 +385,7 @@ public class CarroController {
         return s == null ? "" : s.trim();
     }
 
-    private String validarDatosFactura(String rfc, String razonSocial, String codigoPostalReceptor) {
+    private String validarDatosFactura(String tenant, String rfc, String razonSocial, String codigoPostalReceptor) {
         if (razonSocial.isBlank()) {
             return "Para facturar indique la razón social o nombre del cliente.";
         }
@@ -389,7 +393,7 @@ public class CarroController {
         if (errorRfc != null) {
             return errorRfc.replace("Indica el RFC.", "Para facturar indique el RFC del cliente.");
         }
-        if (cfdiTimbradoService.disponible()) {
+        if (cfdiTimbradoService.disponible(tenant)) {
             if (codigoPostalReceptor.isBlank() || !codigoPostalReceptor.matches("\\d{5}")) {
                 return "Para timbrar CFDI indique el codigo postal del receptor (5 digitos).";
             }

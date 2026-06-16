@@ -1,7 +1,9 @@
 package org.nhernandez.webapp.sistemaventas.services;
 
+import org.nhernandez.webapp.sistemaventas.config.CfdiProperties;
 import org.nhernandez.webapp.sistemaventas.models.DatosFiscalesNegocio;
 import org.nhernandez.webapp.sistemaventas.repositories.DatosFiscalesNegocioRepository;
+import org.nhernandez.webapp.sistemaventas.util.CfdiSecretCipher;
 import org.nhernandez.webapp.sistemaventas.util.FacturaDatosUtil;
 import org.springframework.stereotype.Service;
 
@@ -12,9 +14,12 @@ import java.util.Optional;
 public class DatosFiscalesNegocioServiceImpl implements DatosFiscalesNegocioService {
 
     private final DatosFiscalesNegocioRepository repository;
+    private final CfdiProperties cfdiProperties;
 
-    public DatosFiscalesNegocioServiceImpl(DatosFiscalesNegocioRepository repository) {
+    public DatosFiscalesNegocioServiceImpl(DatosFiscalesNegocioRepository repository,
+                                           CfdiProperties cfdiProperties) {
         this.repository = repository;
+        this.cfdiProperties = cfdiProperties;
     }
 
     @Override
@@ -36,6 +41,44 @@ public class DatosFiscalesNegocioServiceImpl implements DatosFiscalesNegocioServ
         normalizado.setTenantUsername(tenantUsername.trim());
         try {
             repository.guardar(normalizado);
+        } catch (SQLException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void guardarConfiguracionFacturama(String tenantUsername,
+                                              String facturamaUsername,
+                                              String facturamaPasswordNueva,
+                                              boolean facturamaSandbox,
+                                              boolean cfdiHabilitado) {
+        if (tenantUsername == null || tenantUsername.isBlank()) {
+            throw new ServiceJdbcException("Cuenta de negocio no valida", null);
+        }
+        String usuario = vacioANull(facturamaUsername);
+        String passwordNueva = vacioANull(facturamaPasswordNueva);
+        if (cfdiHabilitado) {
+            if (usuario == null) {
+                throw new ServiceJdbcException("Indica el usuario API de Facturama.", null);
+            }
+        }
+        try {
+            DatosFiscalesNegocio existente = repository.porTenant(tenantUsername.trim());
+            boolean actualizarPassword = passwordNueva != null;
+            if (cfdiHabilitado && (existente == null || !existente.tieneFacturamaConfigurado()) && !actualizarPassword) {
+                throw new ServiceJdbcException("Indica la contraseña API de Facturama.", null);
+            }
+            DatosFiscalesNegocio datos = new DatosFiscalesNegocio();
+            datos.setTenantUsername(tenantUsername.trim());
+            datos.setFacturamaUsername(usuario);
+            datos.setFacturamaSandbox(facturamaSandbox);
+            datos.setCfdiHabilitado(cfdiHabilitado);
+            if (actualizarPassword) {
+                datos.setFacturamaPasswordEnc(CfdiSecretCipher.cifrar(passwordNueva, cfdiProperties.getEncryptionKey()));
+            }
+            repository.guardarConfiguracionFacturama(datos, actualizarPassword);
+        } catch (IllegalStateException e) {
+            throw new ServiceJdbcException(e.getMessage(), e);
         } catch (SQLException e) {
             throw new ServiceJdbcException(e.getMessage(), e);
         }

@@ -9,4 +9,6 @@ public interface DatosFiscalesNegocioRepository {
     DatosFiscalesNegocio porTenant(String tenantUsername) throws SQLException;
 
     void guardar(DatosFiscalesNegocio datos) throws SQLException;
+
+    void guardarConfiguracionFacturama(DatosFiscalesNegocio datos, boolean actualizarPassword) throws SQLException;
 }

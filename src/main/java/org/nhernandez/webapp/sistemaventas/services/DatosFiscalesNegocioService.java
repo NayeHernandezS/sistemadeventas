@@ -9,4 +9,10 @@ public interface DatosFiscalesNegocioService {
     Optional<DatosFiscalesNegocio> consultar(String tenantUsername);
 
     void guardar(String tenantUsername, DatosFiscalesNegocio datos);
+
+    void guardarConfiguracionFacturama(String tenantUsername,
+                                       String facturamaUsername,
+                                       String facturamaPasswordNueva,
+                                       boolean facturamaSandbox,
+                                       boolean cfdiHabilitado);
 }

@@ -376,6 +376,57 @@
                 </form>
             </div>
         </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Timbrado CFDI (Facturama)</div>
+            <div class="card-body">
+                <p class="small text-muted mb-3">
+                    Cada negocio usa su propia cuenta Facturama. Crea la cuenta en
+                    <a href="https://apisandbox.facturama.mx/" target="_blank" rel="noopener">sandbox</a>
+                    o produccion, sube tu CSD en su panel y pega aqui las credenciales API.
+                </p>
+                <c:if test="${cfdiTimbradoDisponible && cfdiFacturamaPropio}">
+                    <div class="alert alert-success py-2 small">Timbrado activo con la cuenta Facturama de este negocio.</div>
+                </c:if>
+                <c:if test="${not cfdiTimbradoDisponible}">
+                    <div class="alert alert-secondary py-2 small">
+                        Sin timbrado CFDI. Completa datos fiscales del emisor arriba y conecta Facturama,
+                        o seguira disponible solo el PDF informativo al cobrar.
+                    </div>
+                </c:if>
+                <form method="post" action="${pageContext.request.contextPath}/perfil/facturama-cfdi">
+                    <%@ include file="csrf.jspf" %>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label for="facturamaUsername" class="form-label">Usuario API Facturama</label>
+                            <input type="text" class="form-control" id="facturamaUsername" name="facturamaUsername"
+                                   maxlength="150" value="${datosFiscales.facturamaUsername}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="facturamaPassword" class="form-label">Contrasena API</label>
+                            <input type="password" class="form-control" id="facturamaPassword" name="facturamaPassword"
+                                   maxlength="150" autocomplete="new-password"
+                                   placeholder="Dejar vacio para no cambiar la contrasena">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" id="facturamaSandbox" name="facturamaSandbox"
+                                       <c:if test="${empty datosFiscales || datosFiscales.facturamaSandbox}">checked</c:if>>
+                                <label class="form-check-label" for="facturamaSandbox">Usar entorno sandbox (pruebas)</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" id="cfdiHabilitado" name="cfdiHabilitado"
+                                       <c:if test="${not empty datosFiscales && datosFiscales.cfdiHabilitado}">checked</c:if>>
+                                <label class="form-check-label" for="cfdiHabilitado">Activar timbrado CFDI al cobrar</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Guardar conexion Facturama</button>
+                </form>
+            </div>
+        </div>
     </c:if>
 
     <div class="card shadow-sm">

@@ -246,6 +246,35 @@ public class PerfilController {
         return "perfil";
     }
 
+    @PostMapping("/facturama-cfdi")
+    public String guardarFacturamaCfdi(HttpServletRequest req, Model model) {
+        Optional<String> usernameOpt = loginService.getUsername(req);
+        if (usernameOpt.isEmpty()) {
+            return "redirect:/login";
+        }
+        if (!RolUtil.esAdmin(req)) {
+            model.addAttribute("mensajeError", "Solo el administrador puede configurar Facturama.");
+            cargarPerfil(req, model, usernameOpt.get());
+            return "perfil";
+        }
+        String tenant = TenantUtil.getTenantOwner(req);
+        boolean sandbox = req.getParameter("facturamaSandbox") != null;
+        boolean habilitado = req.getParameter("cfdiHabilitado") != null;
+        try {
+            datosFiscalesNegocioService.guardarConfiguracionFacturama(
+                    tenant,
+                    req.getParameter("facturamaUsername"),
+                    req.getParameter("facturamaPassword"),
+                    sandbox,
+                    habilitado);
+            model.addAttribute("mensajeExito", "Conexion Facturama guardada.");
+        } catch (ServiceJdbcException e) {
+            model.addAttribute("mensajeError", e.getMessage());
+        }
+        cargarPerfil(req, model, usernameOpt.get());
+        return "perfil";
+    }
+
     @PostMapping("/password")
     public String cambiarPassword(HttpServletRequest req, Model model) {
         Optional<String> usernameOpt = loginService.getUsername(req);
@@ -309,7 +338,8 @@ public class PerfilController {
             if (RolUtil.esAdmin(req)) {
                 cargarResumenSuscripcion(tenant, model);
                 datosFiscalesNegocioService.consultar(tenant).ifPresent(d -> model.addAttribute("datosFiscales", d));
-                model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoService.disponible());
+                model.addAttribute("cfdiTimbradoDisponible", cfdiTimbradoService.disponible(tenant));
+                model.addAttribute("cfdiFacturamaPropio", cfdiTimbradoService.usaCredencialesTenant(tenant));
                 cargarPreferencias(tenant, model);
             } else {
                 usuarioService.porUsername(tenant).ifPresent(admin ->

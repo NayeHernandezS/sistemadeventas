@@ -73,7 +73,8 @@ public class VentaServiceImpl implements VentaService {
             if (facturaOpcional != null && ticket.getId() != null) {
                 facturaOpcional.setTicketId(ticket.getId());
                 if (facturaOpcional.getCfdiEstado() == null || facturaOpcional.getCfdiEstado().isBlank()) {
-                    facturaOpcional.setCfdiEstado(cfdiTimbradoService.disponible() ? "PENDIENTE" : "INFORMATIVO");
+                    facturaOpcional.setCfdiEstado(
+                            cfdiTimbradoService.disponible(ticket.getTenantOwner()) ? "PENDIENTE" : "INFORMATIVO");
                 }
                 facturaRepository.guardar(facturaOpcional);
                 cfdiTimbradoService.intentarTimbrar(ticket.getTenantOwner(), ticket, facturaOpcional);

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.nhernandez.webapp.sistemaventas.config.CfdiProperties;
 import org.nhernandez.webapp.sistemaventas.models.DatosFiscalesNegocio;
 import org.nhernandez.webapp.sistemaventas.repositories.DatosFiscalesNegocioRepository;
 
@@ -22,6 +23,9 @@ class DatosFiscalesNegocioServiceImplTest {
 
     @Mock
     private DatosFiscalesNegocioRepository repository;
+
+    @Mock
+    private CfdiProperties cfdiProperties;
 
     @InjectMocks
     private DatosFiscalesNegocioServiceImpl service;

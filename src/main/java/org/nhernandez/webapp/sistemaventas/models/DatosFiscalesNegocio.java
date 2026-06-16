@@ -10,6 +10,10 @@ public class DatosFiscalesNegocio {
     private String usoCfdi;
     private String codigoPostal;
     private String regimenFiscal;
+    private String facturamaUsername;
+    private String facturamaPasswordEnc;
+    private boolean facturamaSandbox = true;
+    private boolean cfdiHabilitado;
 
     public String getTenantUsername() {
         return tenantUsername;
@@ -73,6 +77,42 @@ public class DatosFiscalesNegocio {
 
     public void setRegimenFiscal(String regimenFiscal) {
         this.regimenFiscal = regimenFiscal;
+    }
+
+    public String getFacturamaUsername() {
+        return facturamaUsername;
+    }
+
+    public void setFacturamaUsername(String facturamaUsername) {
+        this.facturamaUsername = facturamaUsername;
+    }
+
+    public String getFacturamaPasswordEnc() {
+        return facturamaPasswordEnc;
+    }
+
+    public void setFacturamaPasswordEnc(String facturamaPasswordEnc) {
+        this.facturamaPasswordEnc = facturamaPasswordEnc;
+    }
+
+    public boolean isFacturamaSandbox() {
+        return facturamaSandbox;
+    }
+
+    public void setFacturamaSandbox(boolean facturamaSandbox) {
+        this.facturamaSandbox = facturamaSandbox;
+    }
+
+    public boolean isCfdiHabilitado() {
+        return cfdiHabilitado;
+    }
+
+    public void setCfdiHabilitado(boolean cfdiHabilitado) {
+        this.cfdiHabilitado = cfdiHabilitado;
+    }
+
+    public boolean tieneFacturamaConfigurado() {
+        return campoConValor(facturamaUsername) && campoConValor(facturamaPasswordEnc);
     }
 
     public boolean listoParaTimbrarEmisor() {

@@ -5,7 +5,7 @@ import org.nhernandez.webapp.sistemaventas.models.TicketVenta;
 
 public interface CfdiTimbradoService {
 
-    boolean disponible();
+    boolean disponible(String tenantOwner);
 
     /**
      * Intenta timbrar la factura. Actualiza estado en BD (TIMBRADO o ERROR).
@@ -20,7 +20,9 @@ public interface CfdiTimbradoService {
      */
     String reintentarTimbrar(String tenantOwner, TicketVenta ticket, Factura factura);
 
-    byte[] descargarPdfTimbrado(Factura factura);
+    byte[] descargarPdfTimbrado(String tenantOwner, Factura factura);
 
-    byte[] descargarXmlTimbrado(Factura factura);
+    byte[] descargarXmlTimbrado(String tenantOwner, Factura factura);
+
+    boolean usaCredencialesTenant(String tenantOwner);
 }
