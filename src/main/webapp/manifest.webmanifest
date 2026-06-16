@@ -3,7 +3,7 @@
   "short_name": "Fusion Ventas",
   "description": "Sistema de ventas e inventario para tu negocio",
   "id": "/",
-  "start_url": "/login",
+  "start_url": "/app",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",

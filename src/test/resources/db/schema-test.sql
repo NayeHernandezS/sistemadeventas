@@ -124,3 +124,10 @@ CREATE TABLE IF NOT EXISTS facturas (
     cfdi_mensaje VARCHAR(500) NULL,
     cfdi_proveedor_id VARCHAR(80) NULL
 );
+
+CREATE TABLE IF NOT EXISTS persistent_logins (
+    username VARCHAR(64) NOT NULL,
+    series VARCHAR(64) PRIMARY KEY,
+    token VARCHAR(64) NOT NULL,
+    last_used TIMESTAMP NOT NULL
+);

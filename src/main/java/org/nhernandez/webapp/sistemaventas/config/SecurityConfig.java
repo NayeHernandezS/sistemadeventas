@@ -1,8 +1,10 @@
 package org.nhernandez.webapp.sistemaventas.config;
 
 import jakarta.servlet.DispatcherType;
+import org.nhernandez.webapp.sistemaventas.security.DbUserDetailsService;
 import org.nhernandez.webapp.sistemaventas.security.LoginAuthenticationFailureHandler;
 import org.nhernandez.webapp.sistemaventas.security.TenantAuthenticationSuccessHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,9 +12,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import java.time.Duration;
 
 @Configuration
 @EnableWebSecurity
@@ -22,7 +27,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             TenantAuthenticationSuccessHandler successHandler,
-            LoginAuthenticationFailureHandler failureHandler) throws Exception {
+            LoginAuthenticationFailureHandler failureHandler,
+            DbUserDetailsService userDetailsService,
+            PersistentTokenRepository persistentTokenRepository,
+            @Value("${security.remember-me.key}") String rememberMeKey,
+            @Value("${security.remember-me.validity-days:30}") int rememberMeValidityDays) throws Exception {
         CsrfTokenRequestAttributeHandler csrfHandler = new CsrfTokenRequestAttributeHandler();
         csrfHandler.setCsrfRequestAttributeName(null);
 
@@ -38,6 +47,7 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                         .requestMatchers(
                                 new AntPathRequestMatcher("/"),
+                                new AntPathRequestMatcher("/app"),
                                 new AntPathRequestMatcher("/login"),
                                 new AntPathRequestMatcher("/login.html"),
                                 new AntPathRequestMatcher("/login.jsp"),
@@ -86,6 +96,11 @@ public class SecurityConfig {
                         .failureHandler(failureHandler)
                         .permitAll()
                 )
+                .rememberMe(remember -> remember
+                        .userDetailsService(userDetailsService)
+                        .tokenRepository(persistentTokenRepository)
+                        .key(rememberMeKey)
+                        .tokenValiditySeconds((int) Duration.ofDays(rememberMeValidityDays).getSeconds()))
                 .exceptionHandling(ex -> ex
                         .accessDeniedPage("/acceso-denegado")
                 )
@@ -93,7 +108,7 @@ public class SecurityConfig {
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                         .logoutSuccessUrl("/login.html")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "remember-me")
                         .permitAll()
                 );
 

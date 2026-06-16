@@ -129,9 +129,10 @@ Java 21 + Spring + JSP necesita al menos **512 MB** RAM. En plan gratuito, sube 
 
 1. La URL publica HTTPS de Railway es la que instalas en el movil.
 2. `APP_BASE_URL` debe coincidir con ese dominio.
-3. La app instalada abre `/login` (no `/inicio`) para evitar quedarse en la pantalla del logo.
+3. La app instalada abre `/app`: si ya iniciaste sesion con "Mantener sesion iniciada", entra directo al panel.
 4. Si la app se queda en el logo: cierrala por completo, borra cache del navegador o reinstala el acceso directo.
 5. Sin internet veras una pantalla "Sin conexion" en lugar de quedarse cargando.
+6. En Railway define `REMEMBER_ME_KEY` (cadena aleatoria larga) para que la sesion persistente sea segura.
 
 ---
 

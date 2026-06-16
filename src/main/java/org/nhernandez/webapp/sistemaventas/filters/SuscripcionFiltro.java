@@ -122,6 +122,9 @@ public class SuscripcionFiltro implements Filter {
         if (path.equals("/")) {
             return "GET".equalsIgnoreCase(method);
         }
+        if (path.equals("/app")) {
+            return "GET".equalsIgnoreCase(method);
+        }
         if (path.startsWith("/recuperar")) {
             return true;
         }

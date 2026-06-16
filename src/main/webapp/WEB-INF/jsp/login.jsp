@@ -47,6 +47,13 @@
                 <input type="password" id="password" name="password" class="form-control" placeholder="Contrasena" required>
             </div>
 
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="remember-me" id="remember-me" checked>
+                <label class="form-check-label small" for="remember-me">
+                    Mantener sesion iniciada en este dispositivo
+                </label>
+            </div>
+
             <button type="submit" class="btn btn-primary w-100 fw-bold py-2 mb-3">
                 INICIAR SESION
             </button>
